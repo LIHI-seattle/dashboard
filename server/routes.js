@@ -22,19 +22,21 @@ app.route("/people")
 app.route("/residents")
 	// Create a new resident
 	.post((req, res) => {
-		res.locals.connection.query('INSERT INTO residents(PID, RoomID, StartDate, StillLiving, EndDate) values(''+req.body.PID+'',''+req.body.RoomID+'',''+req.body.StartDate+'',''+req.body.StillLiving+'',''+req.body.EndDate+'')', function (error, results, fields) {
-			if(error) throw error;
-			res.send(JSON.stringify(resuults));
-		});
-	})
-	.get((req, res) => {
-		res.locals.connection.query('SELECT * FROM residents', function (error, results, fields) {
+		res.locals.connection.query('INSERT INTO residents SET PID = ?, RoomID = ?, StartDate = ?, StillLiving = ?, EndDate = ?',[req.body.PID, req.body.RoomID, req.body.StartDate, req.boyd.StillLiving, req.body.EndDate], function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
 	})
+	// Get all residents
+	.get((req, res) => {
+		res.locals.connection.query('SELECT * FROM residents', function (error, results) {
+			if(error) throw error;
+			res.send(JSON.stringify(results));
+		});
+	})
+	// Update a resident
 	.put((req, res) => {
-		res.locals.connection.query('UPDATE customers SET RoomID = ''+req.body.RoomID+'', StillLiving = ''+req.body.StillLiving+'', EndDate = ''+req.body.EndDate+'' WHERE id = ''+req.body.ResID+''', function (error, results, fields) {
+		res.locals.connection.query('UPDATE customers SET RoomID = ?, StartDate = ?, StillLiving = ?, EndDate = ?', [req.body.RoomID, req.body.StartDate, req.body.StillLiving, req.body.EndDate], function (error, results) {
 			if(error) throw error;
 	                res.send(JSON.stringify(results));
 		});

@@ -13,22 +13,11 @@ var con = mysql.createConnection({
 con.connect(function(err) {
  	if (err) throw err;
  	console.log("Connected!");
-	let createTodos = `CREATE TABLE PEOPLE(
-                          PID INT PRIMARY KEY AUTO_INCREMENT,
-                          NAME VARCHAR(255) NOT NULL,
-                          ROLE INT NOT NULL
-                      )`;
- 
- 	con.query(createTodos, function(err, results, fields) {
-  		if (err) {
-    		console.log(err.message);
-    	}
- 	});
 });
 
 app.route("/people")
 	.get((req, res) => {
-		res.locals.connection.query('SELECT * FROM PEOPLE', function (error, results) {
+		con.query('SELECT * FROM PEOPLE', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
@@ -39,21 +28,21 @@ app.route("/people")
 app.route("/residents")
 	// Create a new resident
 	.post((req, res) => {
-		res.locals.connection.query('INSERT INTO RESIDENTS SET PID = ?, ROOM = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ?',[req.body.PID, req.body.ROOM, req.body.START_DATE, req.body.END_DATE, req.body.IN_RESIDENCE], function (error, results) {
+		con.query('INSERT INTO RESIDENTS SET PID = ?, ROOM = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ?',[req.body.PID, req.body.ROOM, req.body.START_DATE, req.body.END_DATE, req.body.IN_RESIDENCE], function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
 	})
 	// Get all residents
 	.get((req, res) => {
-		res.locals.connection.query('SELECT * FROM RESIDENTS', function (error, results) {
+		con.query('SELECT * FROM RESIDENTS', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
 	})
 	// Update a resident
 	.put((req, res) => {
-		res.locals.connection.query('UPDATE RESIDENTS SET ROOM = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ?', [req.body.ROOM, req.body.START_DATE, req.body.END_DATE, req.body.IN_RESIDENCE], function (error, results) {
+		con.query('UPDATE RESIDENTS SET ROOM = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ? WHERE PID = ?', [req.body.ROOM, req.body.START_DATE, req.body.END_DATE, req.body.IN_RESIDENCE, req.body.PID], function (error, results) {
 			if(error) throw error;
 	                res.send(JSON.stringify(results));
 		});
@@ -63,7 +52,7 @@ app.route("/residents")
 app.route("/permissions")
 	// Get all permissions
 	.get((req, res) => {
-		res.locals.connection.query('SELECT * FROM PERMISSIONS', function (error, results) {
+		con.query('SELECT * FROM PERMISSIONS', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
@@ -72,7 +61,7 @@ app.route("/permissions")
 app.route("/rooms")
 	// Get all rooms
 	.get((req, res) => {
-		res.locals.connection.query('SELECT * FROM ROOMS', function (error, results) {
+		con.query('SELECT * FROM ROOMS', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
@@ -81,7 +70,7 @@ app.route("/rooms")
 app.route("/villages")
 	// Get all villages
 	.get((req, res) => {
-		res.locals.connection.query('SELECT * FROM VILLAGES', function (error, results) {
+		con.query('SELECT * FROM VILLAGES', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});

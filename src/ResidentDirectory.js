@@ -26,6 +26,8 @@ class ResidentDirectory extends Component {
 
     render() {
         return (
+            //search bar that grabs data from server and filters
+            //on select of a certain option then a card of the person image + other info displayed
             <div>
                 <button onClick={this.back}>Back</button>
                 <h1>Resident Directory</h1>

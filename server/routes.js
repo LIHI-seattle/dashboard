@@ -18,8 +18,7 @@ var con = mysql.createConnection({
 	host: "localhost",
 	user: "root",
 	password: "password",
-	database: 'LIHI',
-	socketPath: '/var/run/mysqld/mysqld.sock',
+	database: 'LIHI'
 });
 
 con.connect(function(err) {

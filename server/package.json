@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+<<<<<<< HEAD
     "start": "node server.js",
+=======
+    "start" : "node server.js",
+>>>>>>> Update port and scripts
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

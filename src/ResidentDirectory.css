@@ -1,9 +1,19 @@
 .dropdown {
+<<<<<<< HEAD
     width: 300px;
 }
 
 .add_button {
     padding: 10px;
     margin: 20px;
+=======
+    display: inline-block;
+    width: 300px;
+    padding: 10px;
+}
+
+.add_button {
+    margin: 10px;
+>>>>>>> Added search bar functionality to ResidentDirectory.js
 }
 

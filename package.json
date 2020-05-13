@@ -11,7 +11,11 @@
     "react": "^16.13.0",
     "react-bootstrap": "^1.0.1",
     "react-dom": "^16.13.0",
+<<<<<<< HEAD
     "react-router-dom": "^5.2.0",
+=======
+    "react-router-dom": "^5.1.2",
+>>>>>>> Added search bar functionality to ResidentDirectory.js
     "react-scripts": "3.4.0",
     "react-select": "^3.1.0"
   },

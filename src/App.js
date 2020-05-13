@@ -15,6 +15,17 @@ class App extends Component {
         };
     }
 
+    componentDidMount() {
+        this.setState({residents: [
+                { label: "Alligators", value: 1 },
+                { label: "Crocodiles", value: 2 },
+                { label: "Sharks", value: 3 },
+                { label: "Small crocodiles", value: 4 },
+                { label: "Smallest crocodiles", value: 5 },
+                { label: "Snakes", value: 6 },
+            ]})
+    }
+
     onRoomClick = () => {
         this.setState({incRep: true})
     };

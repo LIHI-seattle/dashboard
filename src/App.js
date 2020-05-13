@@ -8,8 +8,28 @@ class App extends Component {
         super(props);
         this.state = {
             resDir: false,
-            roomTrack: false
+            roomTrack: false,
+            residents: []
+                /*[
+                { label: "Alligators", value: 1 },
+                    { label: "Crocodiles", value: 2 },
+                    { label: "Sharks", value: 3 },
+                    { label: "Small crocodiles", value: 4 },
+                    { label: "Smallest crocodiles", value: 5 },
+                    { label: "Snakes", value: 6 },
+                ]*/
         };
+    }
+
+    componentDidMount() {
+        this.setState({residents: [
+                { label: "Alligators", value: 1 },
+                { label: "Crocodiles", value: 2 },
+                { label: "Sharks", value: 3 },
+                { label: "Small crocodiles", value: 4 },
+                { label: "Smallest crocodiles", value: 5 },
+                { label: "Snakes", value: 6 },
+            ]})
     }
 
     onRoomClick = () => {
@@ -29,12 +49,12 @@ class App extends Component {
             <div>
                 {!this.state.roomTrack && !this.state.resDir && <h1>Welcome to the LiHi Information Database</h1>}
                 {!this.state.roomTrack && !this.state.resDir &&
-                <button value="RoomTracker" onClick={this.onRoomClick}>Room Tracker</button>}
+                <button value="RoomTracker" onClick={this.onRoomClick}>Add an Incident</button>}
                 {!this.state.roomTrack && !this.state.resDir &&
                 <button value="ResidentDirectory" onClick={this.onResClick}>Resident Directory</button>}
                 {this.state.roomTrack && <RoomTracker onBack={this.onBackClick}/>}
                 {console.log(this.state.resDir)}
-                {this.state.resDir && <ResidentDirectory onBack={this.onBackClick}/>}
+                {this.state.resDir && <ResidentDirectory onBack={this.onBackClick} residents={this.state.residents}/>}
             </div>
         );
 

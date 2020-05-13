@@ -1,0 +1,10 @@
+.dropdown {
+    display: inline-block;
+    width: 300px;
+    padding: 10px;
+}
+
+.add_button {
+    margin: 10px;
+}
+

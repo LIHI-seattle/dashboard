@@ -72,6 +72,13 @@ class ResidentDirectory extends Component {
         //reupdate data
     };
 
+    addOrRemoveResident = (event) => {
+        this.setState({
+            displayEditPage: true
+        });
+        //reupdate data
+    };
+
     render() {
         return (
             //search bar that grabs data from server and filters

@@ -14,7 +14,6 @@ export default class AddRemoveResident extends Component {
         return (
             <div>
                 <AddResident></AddResident>
-                <RemoveResident></RemoveResident>
             </div>
         )
     }

@@ -10,26 +10,17 @@ class App extends Component {
             resDir: false,
             roomTrack: false,
             residents: []
-                /*[
-                { label: "Alligators", value: 1 },
-                    { label: "Crocodiles", value: 2 },
-                    { label: "Sharks", value: 3 },
-                    { label: "Small crocodiles", value: 4 },
-                    { label: "Smallest crocodiles", value: 5 },
-                    { label: "Snakes", value: 6 },
-                ]*/
         };
     }
 
     componentDidMount() {
-        this.setState({residents: [
-                { label: "Alligators", value: 1 },
-                { label: "Crocodiles", value: 2 },
-                { label: "Sharks", value: 3 },
-                { label: "Small crocodiles", value: 4 },
-                { label: "Smallest crocodiles", value: 5 },
-                { label: "Snakes", value: 6 },
-            ]})
+        fetch("http://localhost:4000/residents")
+        .then(res => res.text())
+        .then((data) => {
+            this.setState({ residents: JSON.parse(data)})
+            console.log(this.state.residents)
+        })
+        .catch(console.log)
     }
 
     onRoomClick = () => {
@@ -55,6 +46,14 @@ class App extends Component {
                 {this.state.roomTrack && <RoomTracker onBack={this.onBackClick}/>}
                 {console.log(this.state.resDir)}
                 {this.state.resDir && <ResidentDirectory onBack={this.onBackClick} residents={this.state.residents}/>}
+                <div>
+                    <h1>My Residents</h1>
+                    {this.state.residents.map((residents) => (
+                        <div>
+                            <h5>{residents.NAME}</h5>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
 

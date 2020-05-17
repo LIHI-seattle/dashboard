@@ -28,6 +28,7 @@ con.connect(function(err) {
 
 app.route("/people")
 	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 		con.query('SELECT * FROM PEOPLE', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
@@ -62,7 +63,8 @@ app.route("/people")
 app.route("/residents")
 	// Get all residents
 	.get((req, res) => {
-		con.query('SELECT * FROM RESIDENTS', function (error, results) {
+		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		con.query('SELECT * FROM RESIDENTS AS R, PEOPLE AS P WHERE R.PID = P.PID', function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});

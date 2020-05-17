@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
+import AddRemoveResident from './AddRemoveResident.js'
 
 //https://www.youtube.com/watch?v=KItsR6pM5lY
 class ResidentDirectory extends Component {
@@ -8,7 +9,8 @@ class ResidentDirectory extends Component {
         super(props);
         this.state = {
             value: '?',
-            displayCard: false
+            displayCard: false,
+            displayEditPage: false
         };
     }
 
@@ -25,6 +27,12 @@ class ResidentDirectory extends Component {
         this.props.onBack()
     };
 
+    backToSearch = () => {
+        this.setState({
+            displayEditPage: false
+        });
+    };
+
     handleChange = (event) => {
         this.setState({
             value: event.label,
@@ -33,38 +41,44 @@ class ResidentDirectory extends Component {
         console.log(event.label)
     };
 
+    addOrRemoveResident = (event) => {
+        this.setState({
+            displayEditPage: true
+        });
+        //reupdate data
+    };
+
     render() {
         return (
             //search bar that grabs data from server and filters
 
             //on select of a certain option then a card of the person image + other info displayed
             <div>
-                <button onClick={this.back}>Back</button>
-                <h1>Resident Directory</h1>
-
+                {!this.state.displayEditPage && //search bar page
                 <div>
-                    <Select className="dropdown" options={this.props.residents} onChange={this.handleChange}/>
-                    <button className="add_button" onClick={this.onRoomClick}>Add a Resident</button>
-                    <button onClick={this.onRoomClick}>Remove a Resident</button>
-                </div>
+                    <button onClick={this.back}>Back</button>
+                    <h1>Resident Directory</h1>
 
-                {this.state.displayCard &&
-                <p>{this.state.value}</p>
+                    <div>
+                        <Select className="dropdown" options={this.props.residents} onChange={this.handleChange}/>
+                        <button className="add_button" onClick={this.addOrRemoveResident}>Add/Remove a Resident</button>
+                    </div>
+
+                    {this.state.displayCard &&
+                    <p>{this.state.value}</p>
+                    }
+                </div>
                 }
 
-                {/*<Card style={{ width: '18rem' }}>
-                    <Card.Img variant="top" src="holder.js/100px180" />
-                    <Card.Body>
-                        <Card.Title>Card Title</Card.Title>
-                        <Card.Text>
-                            Some quick example text to build on the card title and make up the bulk of
-                            the card's content.
-                        </Card.Text>
-                        <Button variant="primary">Go somewhere</Button>
-                    </Card.Body>
-                </Card>*/}
+                {this.state.displayEditPage && //add resident page
+                    <div>
+                        <button onClick={this.backToSearch}>Back</button>
+                        <AddRemoveResident/>
+                    </div>
+                }
 
             </div>
+
         );
     }
 }

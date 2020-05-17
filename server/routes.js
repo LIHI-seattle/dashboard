@@ -36,7 +36,7 @@ app.route("/people")
 
 	// Create a new person
 	.post((req, res) => {
-		con.query('INSERT INTO PEOPLE (NAME, ROLE_ID, VID) VALUES (?, ?, ?)' ,[req.body.Name, req.body.RoleID, req.body.VID], function (error, results) {
+		con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)' ,[req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID], function (error, results) {
 			if(error) throw error;
 			res.send(JSON.stringify(results));
 		});
@@ -44,7 +44,7 @@ app.route("/people")
 
 	// Update a person
 	.put((req, res) => {
-		con.query('UPDATE PEOPLE SET NAME = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.Name, req.body.RoleID, req.body.VID, req.body.PID], function (error, results) {
+		con.query('UPDATE PEOPLE SET FIRST_NAME = ?, LAST_NAME = ?, BIRTHDAY = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID, req.body.PID], function (error, results) {
 			if(error) throw error;
 					res.send(JSON.stringify(results));
 		});
@@ -70,9 +70,28 @@ app.route("/residents")
 
 	// Create a new resident
 	.post((req, res) => {
-		con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[req.body.PID, req.body.RoomID, req.body.StartDate, req.boyd.EndDate, req.body.InResidence], function (error, results) {
+		let newRes = JSON.parse(req.body);
+		con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday], function (error, results) {
 			if(error) throw error;
-			res.send(JSON.stringify(results));
+			if (results.length < 1) {
+				con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village, function(error, vResults) {
+					if (error) throw error;
+					if (results.length >= 1) {
+						con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [newRes.fName, newRes.lName, newRes.birthday, 1, vResults[0].VID], function(error, pResults) {
+							if(error) throw error;
+							con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[pResults.insertId, newRes.room, req.body.StartDate, null, true], function (error, rResults) {
+								if(error) throw error;
+								res.send(JSON.stringify(results));
+							});
+						});
+					}
+				})
+			} else {
+				con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[results[0].PID, newRes.room, req.body.StartDate, null, true], function (error, results) {
+					if(error) throw error;
+					res.send(JSON.stringify(results));
+				});
+			}
 		});
 	})
 

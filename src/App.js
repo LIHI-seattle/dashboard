@@ -15,16 +15,6 @@ class App extends Component {
         };
     }
 
-    componentDidMount() {
-        fetch("http://localhost:4000/residents")
-        .then(res => res.text())
-        .then((data) => {
-            this.setState({ residents: JSON.parse(data)})
-            console.log(this.state.residents)
-        })
-        .catch(console.log)
-    }
-
     onRoomClick = () => {
         this.setState({incRep: true})
     };

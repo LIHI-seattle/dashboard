@@ -2,26 +2,29 @@ import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
 import AddRemoveResident from './AddRemoveResident.js'
+import Card from 'react-bootstrap/Card';
 
-//https://www.youtube.com/watch?v=KItsR6pM5lY
 class ResidentDirectory extends Component {
     constructor(props) {
         super(props);
         this.state = {
             value: '?',
+            startDate: '?',
             displayCard: false,
-            displayEditPage: false
+            displayEditPage: false,
+            residents: []
         };
     }
 
-    /*componentDidMount() { //can use this when we work with the server
-        fetch('http://jsonplaceholder.typicode.com/users')
-            .then(res => res.json())
+    componentDidMount() {
+        fetch("http://localhost:4000/residents")
+            .then(res => res.text())
             .then((data) => {
-                this.setState({residents: data}) //as soon as comp is up and running will change state
+                this.setState({ residents: JSON.parse(data)})
+                console.log(this.state.residents)
             })
             .catch(console.log)
-    }*/
+    }
 
     back = () => {
         this.props.onBack()
@@ -35,10 +38,11 @@ class ResidentDirectory extends Component {
 
     handleChange = (event) => {
         this.setState({
-            value: event.label,
+            value: event.label, //label
+            startDate: event.startDate,
             displayCard: true
         });
-        console.log(event.label)
+        console.log(event.startDate)
     };
 
     addOrRemoveResident = (event) => {
@@ -60,12 +64,24 @@ class ResidentDirectory extends Component {
                     <h1>Resident Directory</h1>
 
                     <div>
-                        <Select className="dropdown" options={this.props.residents} onChange={this.handleChange}/>
+                        <Select className="dropdown" onChange={this.handleChange}
+                            options={this.state.residents.map((item) => ({label: item.NAME, startDate: item.START_DATE}))}
+                        />
+
                         <button className="add_button" onClick={this.addOrRemoveResident}>Add/Remove a Resident</button>
                     </div>
 
                     {this.state.displayCard &&
-                    <p>{this.state.value}</p>
+                        <Card style={{ width: '18rem' }}>
+                            <Card.Img variant="top" src="logo.svg" />
+                            <Card.Body>
+                                <Card.Title>{this.state.value}</Card.Title>
+                                <Card.Text>
+                                    Start Date: {this.state.startDate}
+                                </Card.Text>
+                                <button variant="primary">Go somewhere</button>
+                            </Card.Body>
+                        </Card>
                     }
                 </div>
                 }

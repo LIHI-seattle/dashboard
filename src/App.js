@@ -9,18 +9,7 @@ class App extends Component {
         this.state = {
             resDir: false,
             roomTrack: false,
-            residents: []
         };
-    }
-
-    componentDidMount() {
-        fetch("http://localhost:4000/residents")
-        .then(res => res.text())
-        .then((data) => {
-            this.setState({ residents: JSON.parse(data)})
-            console.log(this.state.residents)
-        })
-        .catch(console.log)
     }
 
     onRoomClick = () => {
@@ -45,15 +34,7 @@ class App extends Component {
                 <button value="ResidentDirectory" onClick={this.onResClick}>Resident Directory</button>}
                 {this.state.roomTrack && <RoomTracker onBack={this.onBackClick}/>}
                 {console.log(this.state.resDir)}
-                {this.state.resDir && <ResidentDirectory onBack={this.onBackClick} residents={this.state.residents}/>}
-                <div>
-                    <h1>My Residents</h1>
-                    {this.state.residents.map((residents) => (
-                        <div>
-                            <h5>{residents.NAME}</h5>
-                        </div>
-                    ))}
-                </div>
+                {this.state.resDir && <ResidentDirectory onBack={this.onBackClick}/>}
             </div>
         );
 

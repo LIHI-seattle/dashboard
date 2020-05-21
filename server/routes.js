@@ -66,6 +66,12 @@ var corsOptions = {
 app.options('*', cors(corsOptions));
 
 app.route("/people")
+	// .get((req, res) => {
+	// 	con.query('SELECT * FROM PEOPLE', function (error, results) {
+	// 		if(error) throw error;
+	// 		res.send(JSON.stringify(results));
+	// 	});
+	// })
 	.get((req, res) => {
         // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 		con.query('SELECT * FROM PEOPLE')

@@ -13,7 +13,7 @@ export default class AddRemoveResident extends Component {
     render() {
         return (
             <div>
-                <AddResident></AddResident>
+                <AddResident reupdateData={this.props.reupdateData}/>
             </div>
         )
     }
@@ -48,7 +48,7 @@ class AddResident extends Component {
                     building: this.state.building,
                     room: this.state.room,
                     startDate: this.state.startDate}
-        fetch("http://localhost:3001/residents", {
+        fetch("http://localhost:3001/residents", { //could this post link be an issue?
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -58,11 +58,13 @@ class AddResident extends Component {
         }).then(function(response) {
             return response.json();
         });
+        this.props.reupdateData(); //calls reupdate passed down from addRemove which is linked to residentDir
+        //not actually calling reupdate Data for some reason  
     }
     
     render() {
         return (
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.mySubmitHandler}>
             <label>
                 First Name:
               <input type="text" name="firstName" onChange={this.handleChange} />

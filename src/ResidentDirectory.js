@@ -17,6 +17,11 @@ class ResidentDirectory extends Component {
     }
 
     componentDidMount() {
+        this.reupdateData();
+    }
+
+    reupdateData = () =>{
+        console.log("reupdating data");
         fetch("http://localhost:4000/residents")
             .then(res => res.text())
             .then((data) => {
@@ -24,7 +29,7 @@ class ResidentDirectory extends Component {
                 console.log(this.state.residents)
             })
             .catch(console.log)
-    }
+    };
 
     back = () => {
         this.props.onBack()
@@ -89,7 +94,7 @@ class ResidentDirectory extends Component {
                 {this.state.displayEditPage && //add resident page
                     <div>
                         <button onClick={this.backToSearch}>Back</button>
-                        <AddRemoveResident/>
+                        <AddRemoveResident reupdateData={this.reupdateData}/>
                     </div>
                 }
 

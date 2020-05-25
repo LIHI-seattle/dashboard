@@ -14,25 +14,14 @@ readline.close()
 })
 
 
-// var con = mysql.createConnection({
-// 	host: "localhost",
-// 	user: "root",
-// 	password: "password",
-// 	database: 'LIHI'
-// });
-
-// con.connect(function(err) {
-//  	if (err) throw err;
-//  	console.log("Connected!");
-// });
-
 class Database {
     constructor( config ) {
         this.connection = mysql.createConnection({
-			host: "localhost",
-			user: "root",
-			password: "password",
-			database: 'LIHI'
+			host: "lihi-test-db.mysql.database.azure.com", 
+			user: "lihi_test_admin@lihi-test-db", 
+			password: 'Impact++', 
+			database: 'LIHI',
+			port: 3306
 		});
 		this.connection.connect(function(err) {
 			if (err) throw err;
@@ -57,18 +46,16 @@ class Database {
             } );
         } );
 	}
-	
 }
+
+// 	host: "localhost",
+// 	user: "root",
+// 	password: "password",
+// 	database: 'LIHI'
 
 var con = new Database();
 
 app.route("/people")
-	// .get((req, res) => {
-	// 	con.query('SELECT * FROM PEOPLE', function (error, results) {
-	// 		if(error) throw error;
-	// 		res.send(JSON.stringify(results));
-	// 	});
-	// })
 	.get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 		con.query('SELECT * FROM PEOPLE')

@@ -13,8 +13,8 @@ export default class AddRemoveResident extends Component {
     render() {
         return (
             <div>
-                <AddResident></AddResident>
-                <RemoveResident></RemoveResident>
+                <AddResident reupdateData={this.props.reupdateData}/>
+                <RemoveResident reupdateData={this.props.reupdateData}/>
             </div>
         )
     }
@@ -49,7 +49,7 @@ class AddResident extends Component {
                     building: this.state.building,
                     room: this.state.room,
                     startDate: this.state.startDate}
-        fetch("http://localhost:4000/residents", {
+        fetch("https://lihi-test-db.mysql.database.azure.com/residents", {
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -57,13 +57,17 @@ class AddResident extends Component {
             },
             method: "post"
         }).then(function(response) {
+            console.log(response.status);
+            console.log(response);
+            this.props.reupdateData(); 
             return response.json();
         });
+        
     }
     
     render() {
         return (
-          <form onSubmit={this.handleSubmit}>
+          <form onSubmit={this.mySubmitHandler}>
             <label>
                 First Name:
               <input type="text" name="firstName" onChange={this.handleChange} />
@@ -124,14 +128,16 @@ class RemoveResident extends Component {
                     lName: this.state.lastName,
                     birthday: this.state.lastName,
                     endDate: this.state.endDate}
-        fetch("http://localhost:4000/residents", {
+        fetch("https://lihi-test-db.mysql.database.azure.com/residents", {
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Content-Type': 'application/json'
             },
-            method: "post"
+            method: "delete"
         }).then(function(response) {
+            console.log(response.status);
+            console.log(response);
             return response.json();
         });
     }

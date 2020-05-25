@@ -1,8 +1,4 @@
 import React, {Component} from 'react';
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import { Grid, Row, Col } from 'react-bootstrap'
-
 
 export default class AddRemoveResident extends Component {
     constructor(props) {
@@ -147,7 +143,7 @@ class RemoveResident extends Component {
         });
     }
 
-    return() {
+    render() {
         return (
             <form onSubmit={this.handleSubmit}>
               <label>

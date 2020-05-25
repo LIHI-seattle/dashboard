@@ -15,10 +15,11 @@ readline.close()
 
 
 var con = mysql.createConnection({
-	host: "localhost",
-	user: "root",
-	password: "password",
-	database: 'LIHI'
+	host: "lihi-test-db.mysql.database.azure.com", 
+	user: "lihi_test_admin@lihi-test-db", 
+	password: 'Impact++', 
+	database: 'LIHI',
+	port: 3306
 });
 
 con.connect(function(err) {

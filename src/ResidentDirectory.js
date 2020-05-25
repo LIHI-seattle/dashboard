@@ -65,7 +65,7 @@ class ResidentDirectory extends Component {
 
                     <div>
                         <Select className="dropdown" onChange={this.handleChange}
-                            options={this.state.residents.map((item) => ({label: item.NAME, startDate: item.START_DATE}))}
+                            options={this.state.residents.map((item) => ({label: item.FIRST_NAME, startDate: item.START_DATE}))}
                         />
 
                         <button className="add_button" onClick={this.addOrRemoveResident}>Add/Remove a Resident</button>

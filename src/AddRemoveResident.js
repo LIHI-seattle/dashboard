@@ -14,6 +14,7 @@ export default class AddRemoveResident extends Component {
         return (
             <div>
                 <AddResident></AddResident>
+                <RemoveResident></RemoveResident>
             </div>
         )
     }
@@ -48,7 +49,7 @@ class AddResident extends Component {
                     building: this.state.building,
                     room: this.state.room,
                     startDate: this.state.startDate}
-        fetch("http://localhost:3001/residents", {
+        fetch("http://localhost:4000/residents", {
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -72,7 +73,7 @@ class AddResident extends Component {
               <input type="text" name="lastName" onChange={this.handleChange} /> 
             </label>
             <label>
-                Birthday:
+                Date of Birth:
               <input type="text" name="birthday" onChange={this.handleChange} /> 
             </label>
             <label>
@@ -101,8 +102,61 @@ class AddResident extends Component {
 
 
 class RemoveResident extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            firstName: "",
+            lastName: "",
+            birthday: "",
+            endDate: ""
+        };
+    }
+
+    handleChange = (event) => {
+        let nam = event.target.name;
+        let val = event.target.value;
+        this.setState({[nam]: val});
+    }
+
+    mySubmitHandler = () => {
+        // send json object
+        let data = {fName: this.state.firstName,
+                    lName: this.state.lastName,
+                    birthday: this.state.lastName,
+                    endDate: this.state.endDate}
+        fetch("http://localhost:4000/residents", {
+            body: JSON.stringify(data),
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            method: "post"
+        }).then(function(response) {
+            return response.json();
+        });
+    }
 
     return() {
-
+        return (
+            <form onSubmit={this.handleSubmit}>
+              <label>
+                  First Name:
+                <input type="text" name="firstName" onChange={this.handleChange} />
+              </label>
+              <label>
+                  Last Name:
+                <input type="text" name="lastName" onChange={this.handleChange} /> 
+              </label>
+              <label>
+                  Date of Birth:
+                <input type="text" name="birthday" onChange={this.handleChange} /> 
+              </label>
+              <label>
+                  End Date:
+                <input type="text" name="endDate" onChange={this.handleChange} /> 
+              </label>
+              <input type="submit" value="Submit" />
+            </form>
+          );
     }
 }

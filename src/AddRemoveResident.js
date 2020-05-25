@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import { Grid, Row, Col } from 'react-bootstrap'
 
 
 export default class AddRemoveResident extends Component {
@@ -68,36 +69,40 @@ class AddResident extends Component {
     render() {
         return (
           <form onSubmit={this.mySubmitHandler}>
-            <label>
-                First Name:
-              <input type="text" name="firstName" onChange={this.handleChange} />
-            </label>
-            <label>
-                Last Name:
-              <input type="text" name="lastName" onChange={this.handleChange} /> 
-            </label>
-            <label>
-                Date of Birth:
-              <input type="text" name="birthday" onChange={this.handleChange} /> 
-            </label>
-            <label>
-                Village:
-              <input type="text" name="village" onChange={this.handleChange} /> 
-            </label>
-            <label>
-                Building:
-              <input type="text" name="building" onChange={this.handleChange} /> 
-            </label>
-            <label>
-                Room Number:
-              <input type="text" name="room"  onChange={this.handleChange} /> 
-            </label>
-            <label>
-                Start Date:
-              <input type="date" name="startDate" onChange={this.handleChange} /> 
-            </label>
-
-            <input type="submit" value="Submit" />
+            <div class ="form-row">
+              <div class="form-group col-md-4">
+                <label>First Name</label>
+                <input type="text" class="form-control" placeholder="First Name" name="fName" onChange={this.handleChange} />
+              </div>
+              <div class="form-group col-md-4">
+                <label>Last Name</label>
+                <input type="text" class="form-control" placeholder="Last Name" name="lName" onChange={this.handleChange} /> 
+              </div>
+              <div class="form-group col-md-4">
+                <label>Birthday</label>
+                <input type="date" class="form-control" placeholder="MM/DD/YYYY" name="birthday" onChange={this.handleChange} /> 
+              </div>
+            </div>
+            <div class ="form-row">
+              <div class="form-group col-md-4">
+                <label>Village</label>
+                <input type="text" class="form-control" placeholder="Village Name" name="village" onChange={this.handleChange} />
+              </div>
+              <div class="form-group col-md-4">
+                <label>Building</label>
+                <input type="text" class="form-control" placeholder="Building Number" name="building" onChange={this.handleChange} /> 
+              </div>
+              <div class="form-group col-md-4">
+                <label>Room Number</label>
+                <input type="text" class="form-control" placeholder="Room Number" name="room"  onChange={this.handleChange} />
+              </div>
+            </div>
+            <div class ="form-row"></div>
+              <div class="form-group col-md-4">
+                <label>Start Date</label>
+                <input type="date" class="form-control" name="startDate" onChange={this.handleChange} />
+              </div>
+            <button type="submit" class="btn btn-primary" value="Submit">Add Resident</button>
           </form>
         );
       }

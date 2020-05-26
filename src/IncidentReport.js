@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-class RoomTracker extends Component {
+class IncidentReport extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -44,4 +44,4 @@ class RoomTracker extends Component {
     }
 }
 
-export default RoomTracker;
+export default IncidentReport;

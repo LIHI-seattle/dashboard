@@ -50,7 +50,7 @@ class AddResident extends Component {
                     building: this.state.building,
                     room: this.state.room,
                     startDate: this.state.startDate}
-        fetch("https://lihi-test-db.mysql.database.azure.com/residents", {
+        fetch("lihi-test-db.mysql.database.azure.com/residents", {
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',
@@ -133,7 +133,7 @@ class RemoveResident extends Component {
                     lName: this.state.lastName,
                     birthday: this.state.lastName,
                     endDate: this.state.endDate}
-        fetch("https://lihi-test-db.mysql.database.azure.com/residents", {
+        fetch("lihi-test-db.mysql.database.azure.com/residents", {
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',

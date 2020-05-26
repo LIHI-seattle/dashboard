@@ -26,7 +26,7 @@ class Database {
 		this.connection.connect(function(err) {
 			if (err) throw err;
 			console.log("Connected!");
-	   });;
+	   });
     }
     query( sql, args ) {
         return new Promise( ( resolve, reject ) => {
@@ -34,8 +34,8 @@ class Database {
                 if ( err )
                     return reject( err );
                 resolve( rows );
-            } );
-        } );
+            });
+        });
     }
     close() {
         return new Promise( ( resolve, reject ) => {
@@ -57,7 +57,7 @@ var con = new Database();
 
 app.route("/people")
 	.get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Origin', 'lihi-test-db.mysql.database.azure.com');
 		con.query('SELECT * FROM PEOPLE')
 			.then(rows => {
 				res.send(JSON.stringify(rows))
@@ -82,7 +82,6 @@ app.route("/people")
 				res.sendStatus(400);
 				// handle the error
 			});	
-		
 	})
 
 	// Update a person
@@ -117,7 +116,7 @@ app.route("/people")
 app.route("/residents")
 	// Get all residents
 	.get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Origin', 'lihi-test-db.mysql.database.azure.com');
 		con.query('SELECT * FROM RESIDENTS')
 			.then(rows => {
 				res.send(JSON.stringify(rows));

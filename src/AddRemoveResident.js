@@ -40,13 +40,14 @@ class AddResident extends Component {
         // send json object
         let data = {fName: this.state.firstName,
                     lName: this.state.lastName,
-                    birthday: this.state.lastName,
+                    birthday: this.state.birthday,
                     village: this.state.village,
                     building: this.state.building,
                     room: this.state.room,
                     startDate: this.state.startDate}
         fetch("http://localhost:3001/residents", { //could this post link be an issue?
             body: JSON.stringify(data),
+            mode: 'cors',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Content-Type': 'application/json'

@@ -28,6 +28,7 @@ class App extends Component {
     };
 
     render() {
+        // Implement react router here
         return (
             <Router>
                 <Switch>

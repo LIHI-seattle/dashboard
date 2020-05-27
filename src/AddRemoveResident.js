@@ -41,64 +41,70 @@ class AddResident extends Component {
         // send json object
         let data = {fName: this.state.firstName,
                     lName: this.state.lastName,
-                    birthday: this.state.lastName,
+                    birthday: this.state.birthday,
                     village: this.state.village,
                     building: this.state.building,
                     room: this.state.room,
                     startDate: this.state.startDate}
-        fetch("lihi-test-db.mysql.database.azure.com/residents", {
+        fetch("http://localhost:4000/residents", {
             body: JSON.stringify(data),
+            mode: 'cors',
             headers: {
                 'Accept': 'application/json, text/plain, */*',
                 'Content-Type': 'application/json'
             },
             method: "post"
         }).then(function(response) {
+            if (response.status == 400) {
+              response.json()
+                .then((text) => {
+                  alert(text.error);
+                });
+            }
             console.log(response.status);
             console.log(response);
-            this.props.reupdateData(); 
-            return response.json();
+            // this.props.reupdateData(); 
+            // return response.json();
         });
-        
     }
     
     render() {
         return (
           <form onSubmit={this.mySubmitHandler}>
-            <div class ="form-row">
-              <div class="form-group col-md-4">
+            <div className ="form-row">
+              <div className="form-group col-md-4">
                 <label>First Name</label>
-                <input type="text" class="form-control" placeholder="First Name" name="fName" onChange={this.handleChange} />
+                <input type="text" className="form-control" placeholder="First Name" name="firstName" onChange={this.handleChange} />
               </div>
-              <div class="form-group col-md-4">
+              <div className="form-group col-md-4">
                 <label>Last Name</label>
-                <input type="text" class="form-control" placeholder="Last Name" name="lName" onChange={this.handleChange} /> 
+                <input type="text" className="form-control" placeholder="Last Name" name="lastName" onChange={this.handleChange} /> 
               </div>
-              <div class="form-group col-md-4">
+              <div className="form-group col-md-4">
                 <label>Birthday</label>
-                <input type="date" class="form-control" placeholder="MM/DD/YYYY" name="birthday" onChange={this.handleChange} /> 
+                <input type="date" className="form-control" placeholder="MM/DD/YYYY" name="birthday" onChange={this.handleChange} /> 
               </div>
             </div>
-            <div class ="form-row">
-              <div class="form-group col-md-4">
+            <div className ="form-row">
+              <div className="form-group col-md-4">
                 <label>Village</label>
-                <input type="text" class="form-control" placeholder="Village Name" name="village" onChange={this.handleChange} />
+                <input type="text" className="form-control" placeholder="Village Name" name="village" onChange={this.handleChange} />
               </div>
-              <div class="form-group col-md-4">
+              <div className="form-group col-md-4">
                 <label>Building</label>
-                <input type="text" class="form-control" placeholder="Building Number" name="building" onChange={this.handleChange} /> 
+                <input type="text" className="form-control" placeholder="Building Number" name="building" onChange={this.handleChange} /> 
               </div>
-              <div class="form-group col-md-4">
+              <div className="form-group col-md-4">
                 <label>Room Number</label>
-                <input type="text" class="form-control" placeholder="Room Number" name="room"  onChange={this.handleChange} />
+                <input type="text" className="form-control" placeholder="Room Number" name="room"  onChange={this.handleChange} />
               </div>
             </div>
-            <div class ="form-row"></div>
-              <div class="form-group col-md-4">
+            <div className ="form-row"></div>
+              <div className="form-group col-md-4">
                 <label>Start Date</label>
-                <input type="date" class="form-control" name="startDate" onChange={this.handleChange} />
+                <input type="date" className="form-control" name="startDate" onChange={this.handleChange} />
               </div>
-            <button type="submit" class="btn btn-primary" value="Submit">Add Resident</button>
+            <button type="submit" className="btn btn-primary" value="Submit">Add Resident</button>
           </form>
         );
       }
@@ -129,7 +135,7 @@ class RemoveResident extends Component {
                     lName: this.state.lastName,
                     birthday: this.state.lastName,
                     endDate: this.state.endDate}
-        fetch("lihi-test-db.mysql.database.azure.com/residents", {
+        fetch("http://localhost:4000/residents", {
             body: JSON.stringify(data),
             headers: {
                 'Accept': 'application/json, text/plain, */*',

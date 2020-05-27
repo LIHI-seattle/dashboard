@@ -2,6 +2,9 @@
 var mysql = require("mysql");
 var express = require("express");
 var app = express();
+app.use(express.json());
+const cors = require('cors');
+
 
 const readline = require('readline').createInterface({
 	input: process.stdin,
@@ -55,12 +58,19 @@ class Database {
 
 var con = new Database();
 
+var corsOptions = {
+	origin: 'http://localhost:3000',
+	optionsSuccessStatus: 200 
+  }
+
+app.options('*', cors(corsOptions));
+
 app.route("/people")
 	.get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', 'lihi-test-db.mysql.database.azure.com');
+        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 		con.query('SELECT * FROM PEOPLE')
 			.then(rows => {
-				res.send(JSON.stringify(rows))
+				res.status(200).send(JSON.stringify(rows))
 			}, err => {
 				return con.close().then( () => { throw err; } )
 			})
@@ -74,7 +84,7 @@ app.route("/people")
 	.post((req, res) => {
 		con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)' ,[req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID])
 			.then(rows => {
-				res.send(JSON.stringify(rows));
+				res.status(201).send(JSON.stringify(rows));
 			}, err => {
 				return con.close().then( () => { throw err; } )
 			})
@@ -108,7 +118,7 @@ app.route("/people")
 			})
 			.catch( err => {
 				res.sendStatus(400);
-				// handle the error
+				return;
 		});	
 	})
 
@@ -116,56 +126,83 @@ app.route("/people")
 app.route("/residents")
 	// Get all residents
 	.get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', 'lihi-test-db.mysql.database.azure.com');
-		con.query('SELECT * FROM RESIDENTS')
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		con.query('SELECT * FROM RESIDENTS JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID')
 			.then(rows => {
-				res.send(JSON.stringify(rows));
+				res.status(200).json(rows);
+				return Promise.resolve(rows);
 			}, err => {
-				return con.close().then( () => { throw err; } )
+				return con.close().then( () => { throw err; })
 			})
 			.catch( err => {
-				res.sendStatus(400);
-				// handle the error
-			});	
+				res.status(400).send(err.message);
+			});		
 	})
 
 	// Create a new resident
 	.post((req, res) => {
-		let newRes = JSON.parse(req.body);
-		con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday])
+		let newRes = req.body;
+		let vResults, rResults, pResults;
+		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
 			.then(rows => {
-				var results = rows;
-				if (results.length < 1) {
-					return con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village);
+				vResults = rows;
+				if (vResults.length > 0) {
+					return con.query('SELECT ROOM_ID FROM ROOMS WHERE ROOM_NUM = ? AND BLDG_NAME = ? AND VID = ?', [newRes.room, newRes.building, vResults[0].VID]);
 				} else {
-					con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[results[0].PID, newRes.room, req.body.StartDate, null, true]) 
-					throw new Error('Insert resident'); 
+					return Promise.resolve().then( () => { throw new Error("Bad request: Village not found.");} )
 				}
-			}, err => { 	
-				return con.close().then( () => { throw err; } )
+			}, err => {
+				console.log(err);
+				return Promise.resolve().then( () => { throw err; } )
 			})
-			.then(rows => {
-				var vResults = rows;
-				if (vResults.length >= 1 ) {
+			.then(rRows => {
+				rResults = rRows;
+				if (rResults.length > 0) {
+					return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday.toString()]);
+				} else {
+					return Promise.resolve().then( () => { return new Error('Bad request: Room not found'); } )
+				}
+			}, err => {
+				console.log(err);
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(pRows => {
+				pResults = pRows;
+				if (pResults.length < 1) {
 					return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [newRes.fName, newRes.lName, newRes.birthday, 1, vResults[0].VID])
+				} else {
+					return Promise.resolve(null);
 				}
 			}, err => {
-				return con.close().then( () => { throw err; } )
+				return Promise.resolve().then( () => { throw err; } )
 			})
-			.then(rows => {
-				var pResults = rows;
-				con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[pResults.insertId, newRes.room, req.body.StartDate, null, true])
+			.then(iRows => {
+				var personID;
+				if (iRows !== null) {
+					personID = iRows.insertId;
+				} else {
+					personID = pResults[0].PID;
+				}
+				return con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[personID, rResults[0].ROOM_ID, req.body.startDate, null, true])
 			}, err => {
-				return con.close().then( () => { throw err; } )
+				return Promise.resolve().then( () => { throw err; } )
 			})
-			.then( () => {
-				res.status(201).send(JSON.stringify(results));
+			.then(insResRows => {
+				return con.query('SELECT * FROM RESIDENTS WHERE PID = ? AND IN_RESIDENCE = True', insResRows.insertId);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(newResident => {
+				res.status(201).json((newResident[0]));
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
 			})
 			.catch( err => {
-				if (err.message == 'Insert resident') {
-					res.sendStatus(200);				
+				if (!err.message.includes("Bad request: ")) {
+					res.status(400).json({'error': "Bad request"});
 				} else {
-					res.sendStatus(400);
+					res.status(400).json({'error': err.message});
 				}
 			});	
 
@@ -181,6 +218,7 @@ app.route("/residents")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 			});	
 	})
@@ -209,6 +247,7 @@ app.route("/residents")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 			});	
 	})
@@ -226,6 +265,7 @@ app.route("/permissions")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -240,6 +280,7 @@ app.route("/permissions")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -254,6 +295,7 @@ app.route("/permissions")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -268,6 +310,7 @@ app.route("/permissions")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -285,6 +328,7 @@ app.route("/rooms")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -299,6 +343,7 @@ app.route("/rooms")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -313,6 +358,7 @@ app.route("/rooms")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -327,6 +373,7 @@ app.route("/rooms")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -342,6 +389,7 @@ app.route("/villages")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -356,6 +404,7 @@ app.route("/villages")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -370,6 +419,7 @@ app.route("/villages")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})
@@ -384,6 +434,7 @@ app.route("/villages")
 			})
 			.catch( err => {
 				res.sendStatus(400);
+				return;
 				// handle the error
 		});	
 	})

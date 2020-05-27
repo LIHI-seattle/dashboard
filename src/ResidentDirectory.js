@@ -24,12 +24,22 @@ class ResidentDirectory extends Component {
     reupdateData = () =>{
         console.log("reupdating data");
         fetch("http://localhost:4000/residents")
-            .then(res => res.text())
+            .then((res) => {
+                if (res.ok) {
+                    return res.text();
+                } else {
+                    throw new Error(res.message);
+                }
+                // res.text();
+            })
             .then((data) => {
-                this.setState({ residents: JSON.parse(data)})
+                let residentArray = JSON.parse(data);
+                this.setState({ residents: residentArray})
                 console.log(this.state.residents)
             })
-            .catch(console.log)
+            .catch((error) => {
+                console.log(error)
+            });
     };
 
     back = () => {

@@ -29,6 +29,7 @@ class App extends Component {
     };
 
     render() {
+        // Implement react router here
         return (
             <div>
                 {!this.state.incRep && !this.state.resDir && <div style={{ //title div

@@ -28,7 +28,23 @@ class App extends Component {
     };
 
     render() {
-        // Implement react router here
+        return (
+            <Router>
+                <Switch>
+                    <Route path="/" exact component={HomePage}/>
+                    <Route path='/addresident' component={AddResident} />
+                    <Route path='/residentdirectory' component={ResidentDirectory} />
+                    <Route path='/incidentreport' component={IncidentReport}/>
+                </Switch>
+            </Router>
+            
+        );
+
+    }
+}
+
+class HomePage extends Component {
+    render() {
         return (
             <Router>
                 <Switch>

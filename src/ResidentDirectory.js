@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
-import AddRemoveResident from './AddRemoveResident.js'
+import AddResident from './AddResident.js'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
+import { withRouter } from 'react-router-dom'
+
 
 class ResidentDirectory extends Component {
     constructor(props) {
@@ -76,7 +78,7 @@ class ResidentDirectory extends Component {
             <div>
                 {!this.state.displayEditPage && //search bar page
                 <div>
-                    <Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={this.back}>Back</Button>
+                    <Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={() => {this.props.history.goBack()}}>Back</Button>
                     <div style={{ //title div
                         display: "flex",
                         justifyContent: "center",
@@ -113,7 +115,7 @@ class ResidentDirectory extends Component {
                 {this.state.displayEditPage && //add resident page
                     <div>
                         <button onClick={this.backToSearch}>Back</button>
-                        <AddRemoveResident reupdateData={this.reupdateData}/>
+                        <AddResident reupdateData={this.reupdateData}/>
                     </div>
                 }
 
@@ -123,4 +125,4 @@ class ResidentDirectory extends Component {
     }
 }
 
-export default ResidentDirectory;
+export default withRouter(ResidentDirectory);

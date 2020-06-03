@@ -90,8 +90,9 @@ class ResidentDirectory extends Component {
                             display: "flex",
                             justifyContent: "center",
                             alignItems: "center"}}>
+                            {console.log(this.state.residents)}
                             <Select size="lg" className="dropdown" onChange={this.handleChange}
-                                options={this.state.residents.map((item) => ({label: item.FIRST_NAME, startDate: item.START_DATE}))}
+                                options={this.state.residents.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME, startDate: item.START_DATE}))}
                             />
 
                             <Button size="md" className="add_button" onClick={this.addOrRemoveResident}>Add or Remove a Resident</Button>
@@ -99,7 +100,7 @@ class ResidentDirectory extends Component {
 
                         {this.state.displayCard &&
                             <Card style={{ width: '18rem' }}>
-                                <Card.Img variant="top" src="logo.svg" />
+                                <Card.Img variant="top"/>
                                 <Card.Body>
                                     <Card.Title>{this.state.value}</Card.Title>
                                     <Card.Text>
@@ -114,7 +115,7 @@ class ResidentDirectory extends Component {
 
                 {this.state.displayEditPage && //add resident page
                     <div>
-                        <button onClick={this.backToSearch}>Back</button>
+                        <Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={this.backToSearch}>Back</Button>
                         <AddResident reupdateData={this.reupdateData}/>
                     </div>
                 }

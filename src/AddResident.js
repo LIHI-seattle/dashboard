@@ -88,7 +88,7 @@ export default class AddResident extends Component {
                         <label>House Number:</label>
                         <input style={{width: "300px", margin: "10px"}} type="text" className="form-control" placeholder="Room Number" name="room"
                                onChange={this.handleChange}/>
-                        <label>Start Date:</label>
+                        <label>Entry Date:</label>
                         <input style={{width: "300px", margin: "10px"}} type="date" className="form-control" name="startDate" onChange={this.handleChange}/>
                     </div>
                     <Button style={{margin: "10px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add Resident</Button>

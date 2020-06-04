@@ -31,10 +31,11 @@ class IncidentReport extends Component {
 
     componentDidMount() {
       this.getResidents();
+      this.getVillages();
     }
 
     getResidents = () =>{
-        console.log("reupdating data");
+        console.log("reupdating residents");
         fetch("http://localhost:4000/residents")
             .then((res) => {
                 if (res.ok) {
@@ -42,7 +43,6 @@ class IncidentReport extends Component {
                 } else {
                     throw new Error(res.message);
                 }
-                // res.text();
             })
             .then((data) => {
                 let residentArray = JSON.parse(data);
@@ -55,7 +55,7 @@ class IncidentReport extends Component {
     };
 
     getVillages = () =>{
-      console.log("reupdating data");
+      console.log("reupdating villages");
       fetch("http://localhost:4000/villages")
           .then((res) => {
               if (res.ok) {
@@ -63,7 +63,6 @@ class IncidentReport extends Component {
               } else {
                   throw new Error(res.message);
               }
-              // res.text();
           })
           .then((data) => {
               let villageArray = JSON.parse(data);
@@ -230,49 +229,5 @@ class IncidentReport extends Component {
         );
     }
 }
-/*
-class IncidentReport extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            contacts: []
-        };
-    }
 
-    componentDidMount() {
-        fetch('http://jsonplaceholder.typicode.com/users')
-            .then(res => res.json())
-            .then((data) => {
-                this.setState({contacts: data}) //as soon as comp is up and running will change state
-            })
-            .catch(console.log)
-    }
-
-    back = () => {
-        this.props.onBack()
-    };
-
-    render() {
-        return (
-            <div>
-                <Button style={{margin: "10px"}} size="sm" variant="secondary"onClick={() => {this.props.history.goBack()}}>Back</Button>
-                <h1>Room Tracking System</h1>
-                <h2> List of Available Rooms </h2>
-                {this.state.contacts.map((village) => ( //-- key={item} --> below in list... why?
-                    // displaying lists https://www.robinwieruch.de/react-list-component
-                    <div className="card">
-                        <div className="card-body">
-                            <h5 class="card-title">Village: {village.name}</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">Building: {village.email}</h6> {// will be come village.building }
-                            <p className="card-text">Vacant
-                                Rooms: {village.company.catchPhrase}</p> {// will be come village.building.rooms }
-                            {// consider how to display various rooms, later? }
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    }
-}
-*/
 export default IncidentReport;

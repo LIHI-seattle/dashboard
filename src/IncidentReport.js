@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './IncidentReport.css'
 import Select from 'react-select';
+import Button from 'react-bootstrap/Button';
 
 class IncidentReport extends Component {
     constructor(props) {
@@ -255,7 +256,7 @@ class IncidentReport extends Component {
     render() {
         return (
             <div>
-                <button onClick={this.back}>Back</button>
+                <Button style={{margin: "10px"}} size="sm" variant="secondary"onClick={() => {this.props.history.goBack()}}>Back</Button>
                 <h1>Room Tracking System</h1>
                 <h2> List of Available Rooms </h2>
                 {this.state.contacts.map((village) => ( //-- key={item} --> below in list... why?

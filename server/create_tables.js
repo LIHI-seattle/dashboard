@@ -9,6 +9,11 @@ var myCon = mysql.createConnection({
 	port: 3306, 
 });
 
+// myCon.query("DROP DATABASE LIHI;", function (err, result) {
+// 	if (err) throw err;
+// 	console.log("Database deleted");
+// });
+
 myCon.query("CREATE DATABASE IF NOT EXISTS LIHI", function (err, result) {
 			if (err) throw err;
 			console.log("Database created");

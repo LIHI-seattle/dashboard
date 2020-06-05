@@ -81,6 +81,12 @@ class IncidentReport extends Component {
         this.setState({[nam]: val});
     }
 
+    handleDropdownChange = (event) => {
+      let nam = event.label;
+      let val = event.value;
+      this.setState({[nam]: val})
+    }
+
     mySubmitHandler = () => {
         // send json object
         let data = {fName: this.state.firstName,
@@ -117,7 +123,9 @@ class IncidentReport extends Component {
     render() {
         return (
           <div>
-            <button onClick={this.back}>Back</button>
+            <Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={() => {
+                        this.props.history.goBack()
+                    }}>Back</Button>
             <h1>Incident Report</h1>
             <form onSubmit={this.mySubmitHandler}>
               <div className ="form-row">
@@ -131,8 +139,9 @@ class IncidentReport extends Component {
                 </div>
                 <div className="form-group col-md-3">
                   <label>Village</label>
-                  <Select className="dropdown" onChange={this.handleChange} name="village"
-                                options={this.state.villages.map((item) => ({label: item.NAME}))}/>
+                  <Select className="dropdown" onChange={this.handleDropdownChange} name="village"
+                                options={this.state.villages.map((item) => ({label: item.NAME,
+                                                                             value: item.NAME,}))}/>
                 </div>
                 <div className="form-group col-md-3">
                   <label>Location</label>
@@ -142,13 +151,15 @@ class IncidentReport extends Component {
               <div className = "form-row">
                 <div className="form-group col-md-4">
                   <label>People Involved</label>
-                  <Select className="dropdown" onChange={this.handleChange} name="peopleInvolved"
-                                options={this.state.villages.map((item) => ({label: item.F_NAME + " " + item.L_NAME}))}/>
+                  <Select className="dropdown" onChange={this.handleDropdownChange} name="peopleInvolved"
+                                options={this.state.residents.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
+                                                                              value: item.FIRST_NAME + " " + item.LAST_NAME}))}/>
                 </div>
                 <div className="form-group col-md-4">
                   <label>Observers of the Incident</label>
-                  <Select className="dropdown" onChange={this.handleChange} name="observers"
-                                options={this.state.villages.map((item) => ({label: item.F_NAME + " " + item.L_NAME}))}/>
+                  <Select className="dropdown" onChange={this.handleDropdownChange} name="observers"
+                                options={this.state.residents.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
+                                                                              value: item.FIRST_NAME + " " + item.LAST_NAME}))}/>
                 </div>
               </div>
               <div className="form-group col-md-11">
@@ -224,7 +235,7 @@ class IncidentReport extends Component {
                 <label>Have another person review the document and state their name here</label>
                 <input type="text" className="form-control" placeholder="Person Name" name="reviewerName" onChange={this.handleChange} />
               </div>
-              <button type="submit" className="btn btn-primary" id="submitButton" value="Submit">Submit Incident Report</button>
+              <Button style={{margin: "10px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit Incident Report</Button>
             </form>
           </div>
         );

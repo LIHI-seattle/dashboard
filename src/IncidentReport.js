@@ -12,9 +12,9 @@ class IncidentReport extends Component {
             time: "",
             village: "",
             location: "",
-            peopleInvolved: "",  //will be array
+            peopleInvolved: "",  // will be array
             description: "",
-            observers: "", // will be array
+            observers: "",  // will be array
             injury: "",
             injuryDescription: "",
             emergencyRoom: "",

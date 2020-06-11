@@ -1,19 +1,22 @@
 import React, {Component} from 'react';
-import RoomTracker from './RoomTracker'
+import IncidentReport from './IncidentReport'
 import ResidentDirectory from './ResidentDirectory'
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Button from 'react-bootstrap/Button';
+import AddResident from './AddResident';
+import { BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom';
 
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
             resDir: false,
-            roomTrack: false
+            incRep: false,
         };
     }
 
     onRoomClick = () => {
-        this.setState({roomTrack: true})
+        this.setState({incRep: true})
     };
 
     onResClick = () => {
@@ -21,23 +24,53 @@ class App extends Component {
     };
 
     onBackClick = () => {
-        this.setState({roomTrack: false, resDir: false})
+        this.setState({incRep: false, resDir: false})
     };
 
     render() {
         return (
-            <div>
-                {!this.state.roomTrack && !this.state.resDir && <h1>Welcome to the LiHi Information Database</h1>}
-                {!this.state.roomTrack && !this.state.resDir &&
-                <button value="RoomTracker" onClick={this.onRoomClick}>Room Tracker</button>}
-                {!this.state.roomTrack && !this.state.resDir &&
-                <button value="ResidentDirectory" onClick={this.onResClick}>Resident Directory</button>}
-                {this.state.roomTrack && <RoomTracker onBack={this.onBackClick}/>}
-                {console.log(this.state.resDir)}
-                {this.state.resDir && <ResidentDirectory onBack={this.onBackClick}/>}
-            </div>
+            <Router>
+                <Switch>
+                    <Route path="/" exact component={HomePage}/>
+                    <Route path='/addresident' component={AddResident} />
+                    <Route path='/residentdirectory' component={ResidentDirectory} />
+                    <Route path='/incidentreport' component={IncidentReport}/>
+                </Switch>
+            </Router>
+            
         );
 
+    }
+}
+
+class HomePage extends Component {
+    render() {
+        return (
+            <div>
+                <div style={{ //title div
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "10px",
+                    marginTop: "240px"
+                }}>
+                    <h1>Welcome to the LiHi Information Database</h1>
+                </div>           
+                <div id="homebuttons">
+                    <Link to="/incidentreport">
+                        <Button  className='mr-5' size="lg" >
+                            <span>Add An Incident</span>
+                        </Button>
+                    </Link>
+                    <Link to="/residentdirectory">
+                        <Button  size="lg">
+                            <span>Resident Directory</span>
+                        </Button>
+                    </Link>
+                    
+                </div>     
+            </div>
+        );
     }
 }
 

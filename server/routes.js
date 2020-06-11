@@ -2,6 +2,9 @@
 var mysql = require("mysql");
 var express = require("express");
 var app = express();
+app.use(express.json());
+const cors = require('cors');
+
 
 const readline = require('readline').createInterface({
 	input: process.stdin,
@@ -14,82 +17,261 @@ readline.close()
 })
 
 
-var con = mysql.createConnection({
-	host: "localhost",
-	user: "root",
-	password: "password",
-	database: 'LIHI'	
-});
+class Database {
+    constructor( config ) {
+        this.connection = mysql.createConnection({
+			host: "lihi-test-db.mysql.database.azure.com", 
+			user: "lihi_test_admin@lihi-test-db", 
+			password: 'Impact++', 
+			database: 'LIHI',
+			port: 3306
+		});
+		this.connection.connect(function(err) {
+			if (err) throw err;
+			console.log("Connected!");
+	   });
+    }
+    query( sql, args ) {
+        return new Promise( ( resolve, reject ) => {
+            this.connection.query( sql, args, ( err, rows ) => {
+                if ( err )
+                    return reject( err );
+                resolve( rows );
+            });
+        });
+    }
+    close() {
+        return new Promise( ( resolve, reject ) => {
+            this.connection.end( err => {
+                if ( err )
+                    return reject( err );
+                resolve();
+            } );
+        } );
+	}
+}
 
-con.connect(function(err) {
- 	if (err) throw err;
- 	console.log("Connected!");
-});
+	// host: "localhost",
+	// user: "root",
+	// password: "password",
+	// database: 'LIHI'
+
+var con = new Database();
+
+var corsOptions = {
+	origin: 'http://localhost:3000',
+	optionsSuccessStatus: 200 
+  }
+
+app.options('*', cors(corsOptions));
 
 app.route("/people")
 	.get((req, res) => {
-		con.query('SELECT * FROM PEOPLE', function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		con.query('SELECT * FROM PEOPLE')
+			.then(rows => {
+				res.status(200).send(JSON.stringify(rows))
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				// handle the error
+			});
 	})
 
 	// Create a new person
 	.post((req, res) => {
-		con.query('INSERT INTO PEOPLE (NAME, ROLE_ID, VID) VALUES (?, ?, ?)' ,[req.body.Name, req.body.RoleID, req.body.VID], function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)' ,[req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID])
+			.then(rows => {
+				res.status(201).send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				// handle the error
+			});	
 	})
 
 	// Update a person
 	.put((req, res) => {
-		con.query('UPDATE PEOPLE SET NAME = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.Name, req.body.RoleID, req.body.VID, req.body.PID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('UPDATE PEOPLE SET FIRST_NAME = ?, LAST_NAME = ?, BIRTHDAY = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID, req.body.PID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				// handle the error
+		});	
 	})
 
 	// Delete person
 	.delete((req, res) => {
-		con.query('DELETE FROM PEOPLE WHERE PID = ?', [req.body.PID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('DELETE FROM PEOPLE WHERE PID = ?', [req.body.PID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+		});	
 	})
 
 
 app.route("/residents")
 	// Get all residents
 	.get((req, res) => {
-		con.query('SELECT * FROM RESIDENTS', function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		con.query('SELECT * FROM RESIDENTS JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID WHERE RESIDENTS.IN_RESIDENCE = 1')
+			.then(rows => {
+				res.status(200).json(rows);
+				return Promise.resolve(rows);
+			}, err => {
+				return con.close().then( () => { throw err; })
+			})
+			.catch( err => {
+				res.status(400).send(err.message);
+			});		
 	})
 
-	// Create a new resident
+	// Creates a new resident
+	//   To add a new resident: Find village ID, then house ID, then person ID (create new person if they don't exist, verify residence if they do),
+	// 	 then insert into residents, then update vacancy, then return the new resident to the client. 
 	.post((req, res) => {
-		con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[req.body.PID, req.body.RoomID, req.body.StartDate, req.boyd.EndDate, req.body.InResidence], function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		let newRes = req.body;
+		let villageResults, houseResults, personResults, personID, addedResident;
+		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
+			// Selects the house if the village is found. 
+			.then(rows => {
+				villageResults = rows;
+				if (villageResults.length > 0) {
+					return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [newRes.house, villageResults[0].VID]);
+				} else {
+					return Promise.resolve().then( () => { throw new Error("Bad request: Village not found.");} )
+				}
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Selects the person if the house is found.
+			.then(houseRows => {
+				houseResults = houseRows;
+				if (houseResults.length > 0) {
+					if (houseResults[0].VACANT === 0) {
+						return Promise.resolve().then( () => { throw new Error('Bad request: House not vacant'); } )
+					}
+					return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday]);
+				} else {
+					return Promise.resolve().then( () => { throw new Error('Bad request: House not found'); } )
+				}
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Inserts a new person into db if not found. Otherwise verifies that the person is not already a resident somewhere else.
+			.then(pRows => {
+				personResults = pRows;
+				if (personResults.length < 1) {
+					return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [newRes.fName, newRes.lName, newRes.birthday, 1, villageResults[0].VID])
+				} else {
+					return con.query('SELECT IN_RESIDENCE FROM RESIDENTS WHERE PID = ?', personResults[0].PID);
+					// return Promise.resolve(null);
+				}
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Sets the new person ID and inserts the new residence 
+			.then(persResRows => {
+				if (persResRows.insertId) {
+					personID = persResRows.insertId;
+				} else {
+					personID = personResults[0].PID;
+					for (var i = 0; i < persResRows.length; i++) {
+						if (persResRows[i].IN_RESIDENCE === 1) {
+							return Promise.resolve().then( () => { throw new Error('Bad request: Existing residence found'); } )
+						}
+					} 
+				}
+				return con.query('INSERT INTO RESIDENTS (PID, HOUSE_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[personID, houseResults[0].HOUSE_ID, req.body.startDate, null, true]);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Select the newly added residence
+			.then(insResRows => {
+				return con.query('SELECT * FROM RESIDENTS WHERE RID = ?', insResRows.insertId);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Update vacancy of the house
+			.then(newResident => {
+				addedResident = newResident;
+				return con.query('UPDATE HOUSES SET VACANT = FALSE WHERE HOUSE_ID = ?', houseResults[0].HOUSE_ID);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Return new resident
+			.then(updatedVacancy => {
+				res.status(201).json((addedResident[0]));
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});	
+
 	})
 
 	// Update a resident
 	.put((req, res) => {
-		con.query('UPDATE RESIDENTS SET PID = ?, ROOM_ID = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ? WHERE RID = ?', [req.body.PID, req.body.RoomID, req.body.StartDate, req.body.EndDate, req.body.InResidence, req.body.RID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('UPDATE RESIDENTS SET PID = ?, ROOM_ID = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ? WHERE RID = ?', [req.body.PID, req.body.RoomID, req.body.StartDate, req.body.EndDate, req.body.InResidence, req.body.RID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+			});	
 	})
 
-	// Delete resident
+	// Delete resident (add end date and change residence status)
 	.delete((req, res) => {
-		con.query('DELETE FROM RESIDENTS WHERE RID = ?', [req.body.RID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		let delRes = JSON.parse(req.body);
+
+		con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
+			.then(rows => {
+				if (rows.length == 1) {
+					return rows[0];
+				} else {
+					throw new Error('No resident found')
+				}
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.then(row => {
+				return con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE PID = ? AND IN_RESIDENCE = TRUE', [delRes.endDate, row.PID])
+			})
+			.then(rows => {
+				res.sendStatus(200);
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+			});	
 	})
 	
 
@@ -97,34 +279,62 @@ app.route("/residents")
 app.route("/permissions")
 	// Get all permissions
 	.get((req, res) => {
-		con.query('SELECT * FROM PERMISSIONS', function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('SELECT * FROM PERMISSIONS')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Create a new permission
 	.post((req, res) => {
-		con.query('INSERT INTO PERMISSIONS (DESCRIPTION) VALUES (?) ', [req.body.Description], function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('INSERT INTO PERMISSIONS (DESCRIPTION) VALUES (?) ', [req.body.Description])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Update a permission
 	.put((req, res) => {
-		con.query('UPDATE PERMISSIONS SET DESCRIPTION = ? WHERE ROLE_ID = ?', [req.body.Description, req.body.RoleID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('UPDATE PERMISSIONS SET DESCRIPTION = ? WHERE ROLE_ID = ?', [req.body.Description, req.body.RoleID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Delete permission
 	.delete((req, res) => {
-		con.query('DELETE FROM PERMISSIONS WHERE ROLE_ID = ?', [req.body.RoleID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('DELETE FROM PERMISSIONS WHERE ROLE_ID = ?', [req.body.RoleID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 	
 
@@ -132,67 +342,123 @@ app.route("/permissions")
 app.route("/rooms")
 	// Get all rooms
 	.get((req, res) => {
-		con.query('SELECT * FROM ROOMS', function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('SELECT * FROM ROOMS')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Create a new room
 	.post((req, res) => {
-		con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant], function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Update a room
 	.put((req, res) => {
-		con.query('UPDATE ROOMS SET ROOM_NUM = ?, BLDG_NAME = ?, VID = ?, VACANT = ? WHERE ROOM_ID = ?', [req.body.RoomNum, req.body.BuildingName, req.body.VID, req.body,vacant, req.body.RoomID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('UPDATE ROOMS SET ROOM_NUM = ?, BLDG_NAME = ?, VID = ?, VACANT = ? WHERE ROOM_ID = ?', [req.body.RoomNum, req.body.BuildingName, req.body.VID, req.body,vacant, req.body.RoomID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Delete a room
 	.delete((req, res) => {
-		con.query('DELETE FROM ROOMS WHERE ROOM_ID = ?', [req.body.RoomID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('DELETE FROM ROOMS WHERE ROOM_ID = ?', [req.body.RoomID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 app.route("/villages")
 	// Get all villages
 	.get((req, res) => {
-		con.query('SELECT * FROM VILLAGES', function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('SELECT * FROM VILLAGES')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Create a new village
 	.post((req, res) => {
-		con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [req.body.Name], function (error, results) {
-			if(error) throw error;
-			res.send(JSON.stringify(results));
-		});
+		con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [req.body.Name])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Update a village
 	.put((req, res) => {
-		con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Delete a village
 	.delete((req, res) => {
-		con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID], function (error, results) {
-			if(error) throw error;
-					res.send(JSON.stringify(results));
-		});
+		con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 module.exports = app;

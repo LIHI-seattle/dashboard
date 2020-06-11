@@ -11,7 +11,7 @@ try {
 	app.use(express.json());
 	app.use(routes);
 
-	app.listen(process.env.PORT || 4000, () => {
+	app.listen(4000, () => {
 		console.log("server is listening on port 4000");
 	});
 

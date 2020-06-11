@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import Button from 'react-bootstrap/Button';
+import { Link} from 'react-router-dom';
+
 
 
 class IncidentReport extends Component {
@@ -104,7 +106,7 @@ class IncidentReport extends Component {
             },
             method: "post"
         }).then(function(response) {
-            if (response.status == 400) {
+            if (response.status === 400) {
                 response.json()
                 .then((text) => {
                     alert(text.error);
@@ -122,9 +124,8 @@ class IncidentReport extends Component {
     render() {
         return (
           <div>
-            <Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={() => {
-                        this.props.history.goBack()
-                    }}>Back</Button>
+              <Link to='/'><Button style={{margin: "10px"}} size="sm" variant="secondary" >Back</Button></Link>
+            
             <h1>Incident Report</h1>
             <form onSubmit={this.mySubmitHandler}>
               <div className ="form-row">

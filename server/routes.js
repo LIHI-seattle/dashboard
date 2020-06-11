@@ -51,10 +51,10 @@ class Database {
 	}
 }
 
-// 	host: "localhost",
-// 	user: "root",
-// 	password: "password",
-// 	database: 'LIHI'
+	// host: "localhost",
+	// user: "root",
+	// password: "password",
+	// database: 'LIHI'
 
 var con = new Database();
 
@@ -127,7 +127,7 @@ app.route("/residents")
 	// Get all residents
 	.get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-		con.query('SELECT * FROM RESIDENTS JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID')
+		con.query('SELECT * FROM RESIDENTS JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID WHERE RESIDENTS.IN_RESIDENCE = 1')
 			.then(rows => {
 				res.status(200).json(rows);
 				return Promise.resolve(rows);
@@ -139,67 +139,89 @@ app.route("/residents")
 			});		
 	})
 
-	// Create a new resident
+	// Creates a new resident
+	//   To add a new resident: Find village ID, then house ID, then person ID (create new person if they don't exist, verify residence if they do),
+	// 	 then insert into residents, then update vacancy, then return the new resident to the client. 
 	.post((req, res) => {
 		let newRes = req.body;
-		let vResults, rResults, pResults;
+		let villageResults, houseResults, personResults, personID, addedResident;
 		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 		con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
+			// Selects the house if the village is found. 
 			.then(rows => {
-				vResults = rows;
-				if (vResults.length > 0) {
-					return con.query('SELECT ROOM_ID FROM ROOMS WHERE ROOM_NUM = ? AND BLDG_NAME = ? AND VID = ?', [newRes.room, newRes.building, vResults[0].VID]);
+				villageResults = rows;
+				if (villageResults.length > 0) {
+					return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [newRes.house, villageResults[0].VID]);
 				} else {
 					return Promise.resolve().then( () => { throw new Error("Bad request: Village not found.");} )
 				}
 			}, err => {
-				console.log(err);
 				return Promise.resolve().then( () => { throw err; } )
 			})
-			.then(rRows => {
-				rResults = rRows;
-				if (rResults.length > 0) {
-					return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday.toString()]);
+			// Selects the person if the house is found.
+			.then(houseRows => {
+				houseResults = houseRows;
+				if (houseResults.length > 0) {
+					if (houseResults[0].VACANT === 0) {
+						return Promise.resolve().then( () => { throw new Error('Bad request: House not vacant'); } )
+					}
+					return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday]);
 				} else {
-					return Promise.resolve().then( () => { return new Error('Bad request: Room not found'); } )
+					return Promise.resolve().then( () => { throw new Error('Bad request: House not found'); } )
 				}
 			}, err => {
-				console.log(err);
 				return Promise.resolve().then( () => { throw err; } )
 			})
+			// Inserts a new person into db if not found. Otherwise verifies that the person is not already a resident somewhere else.
 			.then(pRows => {
-				pResults = pRows;
-				if (pResults.length < 1) {
-					return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [newRes.fName, newRes.lName, newRes.birthday, 1, vResults[0].VID])
+				personResults = pRows;
+				if (personResults.length < 1) {
+					return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [newRes.fName, newRes.lName, newRes.birthday, 1, villageResults[0].VID])
 				} else {
-					return Promise.resolve(null);
+					return con.query('SELECT IN_RESIDENCE FROM RESIDENTS WHERE PID = ?', personResults[0].PID);
+					// return Promise.resolve(null);
 				}
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
-			.then(iRows => {
-				var personID;
-				if (iRows !== null) {
-					personID = iRows.insertId;
+			// Sets the new person ID and inserts the new residence 
+			.then(persResRows => {
+				if (persResRows.insertId) {
+					personID = persResRows.insertId;
 				} else {
-					personID = pResults[0].PID;
+					personID = personResults[0].PID;
+					for (var i = 0; i < persResRows.length; i++) {
+						if (persResRows[i].IN_RESIDENCE === 1) {
+							return Promise.resolve().then( () => { throw new Error('Bad request: Existing residence found'); } )
+						}
+					} 
 				}
-				return con.query('INSERT INTO RESIDENTS (PID, ROOM_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[personID, rResults[0].ROOM_ID, req.body.startDate, null, true])
+				return con.query('INSERT INTO RESIDENTS (PID, HOUSE_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[personID, houseResults[0].HOUSE_ID, req.body.startDate, null, true]);
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
+			// Select the newly added residence
 			.then(insResRows => {
-				return con.query('SELECT * FROM RESIDENTS WHERE PID = ? AND IN_RESIDENCE = True', insResRows.insertId);
+				return con.query('SELECT * FROM RESIDENTS WHERE RID = ?', insResRows.insertId);
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
+			// Update vacancy of the house
 			.then(newResident => {
-				res.status(201).json((newResident[0]));
+				addedResident = newResident;
+				return con.query('UPDATE HOUSES SET VACANT = FALSE WHERE HOUSE_ID = ?', houseResults[0].HOUSE_ID);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Return new resident
+			.then(updatedVacancy => {
+				res.status(201).json((addedResident[0]));
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
 			.catch( err => {
-				if (!err.message.includes("Bad request: ")) {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
 					res.status(400).json({'error': "Bad request"});
 				} else {
 					res.status(400).json({'error': err.message});

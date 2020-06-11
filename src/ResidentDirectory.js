@@ -4,7 +4,9 @@ import './ResidentDirectory.css'
 import AddResident from './AddResident.js'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
-import {withRouter} from 'react-router-dom'
+import {withRouter} from 'react-router-dom';
+import { Link} from 'react-router-dom';
+
 
 
 class ResidentDirectory extends Component {
@@ -102,8 +104,11 @@ class ResidentDirectory extends Component {
                                 }))}
                         />
 
-                        <Button size="md" className="add_button" onClick={this.addOrRemoveResident}>Add or Remove a
-                            Resident</Button>
+                        <Link to="/addresident">
+                            <Button  className='add_button' size="md" >
+                                <span>Add Resident</span>
+                            </Button>
+                        </Link>
                     </div>
 
                     {this.state.displayCard &&

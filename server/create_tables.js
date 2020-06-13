@@ -6,12 +6,11 @@ var myCon = mysql.createConnection({
 	host: "lihi-test-db.mysql.database.azure.com", 
 	user: "lihi_test_admin@lihi-test-db", 
 	password: 'Impact++', 
-	database: 'LIHI',
-	port: 3306
+	database: 'LIHI'
 });
 
 // Drops database to be created again after change to SQL schema
-// myCon.query("DROP DATABASE LIHI;", function (err, result) {
+// myCon.query("DROP DATABASE IF EXISTS LIHI;", function (err, result) {
 // 	if (err) throw err;
 // 	console.log("Database deleted");
 // });

@@ -41,14 +41,22 @@ class AddResidentForm extends Component {
         birthday: "",
         village: "",
         house: "",
-        startDate: ""    
+        startDate: "",
+        gender: "",
+        employment: "",
+        identification: "",
+        pastResidence: "",
+        disabilities: "",
+        children: "",
+        pastShelter: "",
+        criminalHistory: "",    
     };
   }
 
   handleChange = (event) => {
-      let nam = event.target.name;
-      let val = event.target.value;
-      this.setState({[nam]: val});
+      let name = event.target.name;
+      let value = event.target.value;
+      this.setState({[name]: value});
   }
 
   mySubmitHandler = (e) => {
@@ -60,8 +68,14 @@ class AddResidentForm extends Component {
         this.state.birthday === "" || 
         this.state.village === "" ||
         this.state.house === "" ||
-        this.state.startDate === "") {
-          alert("All fields are required");
+        this.state.startDate === "" ||
+        this.state.gender === "" ||
+        this.state.employment === "" ||
+        this.state.identification === "" ||
+        this.state.disabilities === "" ||
+        this.state.children === "" ||
+        this.state.criminalHistory === "") {
+          alert("All fields except past residence and shelter program are required");
     } else {
       let data = {
         fName: this.state.firstName,
@@ -69,7 +83,15 @@ class AddResidentForm extends Component {
         birthday: this.state.birthday,
         village: this.state.village,
         house: this.state.house,
-        startDate: this.state.startDate
+        startDate: this.state.startDate,
+        gender: this.state.gender,
+        employment: this.state.employment,
+        identification: this.state.identification,
+        pastResidence: this.state.pastResidence,
+        disabilities: this.state.disabilities,
+        children: this.state.children,
+        pastShelter: this.state.pastShelter,
+        criminalHistory: this.state.criminalHistory
     }
     fetch("http://localhost:4000/residents", {
         body: JSON.stringify(data),
@@ -97,23 +119,63 @@ class AddResidentForm extends Component {
   render() {
     return (<form id="addResident" onSubmit={(e) => {this.mySubmitHandler(e)}}>
       <h5>Personal Information</h5>
-      <div style={{ //title div
+      <div id="addresidentform" style={{ //title div
           display: "flex",
           alignItems: "center",
           marginLeft: "10px"
-      }}>
-          <label>First Name:</label>
-          <input style={{width: "300px", margin: "10px"}} type="text" className="form-control"
+          }}>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>First Name:</label>
+          <input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
                  placeholder="First Name" name="firstName"
                  onChange={this.handleChange}/>
-          <label>Last Name:</label>
-          <input style={{width: "300px", margin: "10px"}} type="text" className="form-control"
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Last Name:</label>
+          <input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
                  placeholder="Last Name" name="lastName"
                  onChange={this.handleChange}/>
-          <label>Birthday:</label>
-          <input style={{width: "300px", margin: "10px"}} type="date" className="form-control"
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Birthday:</label>
+          <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"
                  placeholder="MM/DD/YYYY" name="birthday"
                  onChange={this.handleChange}/>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Gender:</label>
+          <input style={{width: "125px", margin: "10px"}} type="text" className="form-control"
+                 placeholder="e.g. M, F" name="gender"
+                 onChange={this.handleChange}/>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Employment:</label>
+          <select style={{width: "60px", height: "27px", margin: "10px"}} name="employment" onChange={(event) => {this.handleChange(event)}}>
+            <option value=""></option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Identification:</label>
+          <select style={{width: "60px", height: "27px", margin: "10px"}} name="identification" onChange={(event) => {this.handleChange(event)}}>
+            <option value=""></option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Last Known Residence:</label>
+          <input style={{width: "250px", margin: "10px"}} type="text" className="form-control" name="pastResidence"
+                 onChange={this.handleChange}/>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Disability:</label>
+          <select style={{width: "60px", height: "27px", margin: "10px"}} name="disabilities" onChange={(event) => {this.handleChange(event)}}>
+            <option value=""></option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Children:</label>
+          <select style={{width: "60px", height: "27px", margin: "10px"}} name="children" onChange={(event) => {this.handleChange(event)}}>
+            <option value=""></option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Previous Shelter Program:</label>
+          <input style={{width: "250px", margin: "10px"}} type="text" className="form-control" name="pastShelter"
+                 onChange={this.handleChange}/>         
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Criminal History:</label>
+          <select style={{width: "60px", height: "27px", margin: "10px"}} name="criminalHistory" onChange={(event) => {this.handleChange(event)}}>
+            <option value=""></option>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+          </select>                                        
       </div>
       <h5>Residential Information</h5>
       <div style={{ //title div
@@ -121,14 +183,14 @@ class AddResidentForm extends Component {
           alignItems: "center",
           marginLeft: "10px"
       }}>
-          <label>Village Name:</label>
-          <input style={{width: "300px", margin: "10px"}} type="text" className="form-control" placeholder="Village Name" name="village"
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
+          <input style={{width: "200px", margin: "10px"}} type="text" className="form-control" placeholder="Village Name" name="village"
                  onChange={this.handleChange}/>
-          <label>House Number:</label>
-          <input style={{width: "300px", margin: "10px"}} type="text" className="form-control" placeholder="House Number" name="house"
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
+          <input style={{width: "150px", margin: "10px"}} type="text" className="form-control" placeholder="House Number" name="house"
                  onChange={this.handleChange}/>
-          <label>Entry Date:</label>
-          <input style={{width: "300px", margin: "10px"}} type="date" className="form-control" name="startDate" onChange={this.handleChange}/>
+          <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
+          <input style={{width: "175px", margin: "10px"}} type="date" className="form-control" name="startDate" onChange={this.handleChange}/>
       </div>
       <Button style={{margin: "10px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add Resident</Button>
   </form>)

@@ -147,11 +147,16 @@ app.route("/residents")
 
 	// Creates a new resident
 	//   To add a new resident: Find village ID, then house ID, then person ID (create new person if they don't exist, verify residence if they do),
-	// 	 then insert into residents, then update vacancy, then return the new resident to the client. 
+	// 	 then update information if needed, then insert into residents, then update vacancy, then return the new resident to the client. 
 	.post((req, res) => {
 		let newRes = req.body;
 		let villageResults, houseResults, personResults, personID, addedResident;
 		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		newRes.employment = (newRes.employment == 'true');
+		newRes.identification = (newRes.identification == 'true');
+		newRes.disabilities = (newRes.disabilities == 'true');
+		newRes.children = (newRes.children == 'true');
+		newRes.criminalHistory = (newRes.criminalHistory == 'true');
 		con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
 			// Selects the house if the village is found. 
 			.then(rows => {
@@ -178,15 +183,33 @@ app.route("/residents")
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
-			// Inserts a new person into db if not found. Otherwise verifies that the person is not already a resident somewhere else.
+			// Inserts a new person into db if not found. Otherwise selects and verifies user is not currently residing in a house
 			.then(pRows => {
 				personResults = pRows;
 				if (personResults.length < 1) {
-					return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [newRes.fName, newRes.lName, newRes.birthday, 1, villageResults[0].VID])
+					return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID, GENDER, EMPLOYMENT, IDENTIFICATION, PREVIOUS_RESIDENCE, DISABILITIES, CHILDREN, PREVIOUS_SHELTER_PROGRAM, CRIMINAL_HISTORY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+						[newRes.fName, newRes.lName, newRes.birthday, 1, villageResults[0].VID, newRes.gender, newRes.employment, newRes.identification, newRes.pastResidence, newRes.disabilities, newRes.children, newRes.pastShelter, newRes.criminalHistory])
 				} else {
 					return con.query('SELECT IN_RESIDENCE FROM RESIDENTS WHERE PID = ?', personResults[0].PID);
-					// return Promise.resolve(null);
 				}
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			// Returns the inserted row if the previous promise executed an insert, otherwise verifies that the person is not already a resident somewhere else. Then updates existing people information.
+			// NOTE: No user information is updated if they are currently residing in a house
+			.then(insChkResidenceRows => {
+				if (insChkResidenceRows.insertId) {
+					return Promise.resolve(insChkResidenceRows);
+				} 
+
+				for (var i = 0; i < insChkResidenceRows.length; i++) {
+					if (insChkResidenceRows[i].IN_RESIDENCE === 1) {
+						return Promise.resolve().then( () => { throw new Error('Bad request: Existing residence found'); } )
+					}
+				} 
+
+				return con.query('UPDATE PEOPLE SET GENDER = ?, EMPLOYMENT = ?, IDENTIFICATION = ?, PREVIOUS_RESIDENCE = ?, DISABILITIES = ?, CHILDREN = ?, PREVIOUS_SHELTER_PROGRAM = ?, CRIMINAL_HISTORY = ? WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', 
+					[newRes.gender, newRes.employment, newRes.identification, newRes.pastResidence, newRes.disabilities, newRes.children, newRes.pastShelter, newRes.criminalHistory, newRes.fName, newRes.lName, newRes.birthday]);
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
@@ -196,11 +219,6 @@ app.route("/residents")
 					personID = persResRows.insertId;
 				} else {
 					personID = personResults[0].PID;
-					for (var i = 0; i < persResRows.length; i++) {
-						if (persResRows[i].IN_RESIDENCE === 1) {
-							return Promise.resolve().then( () => { throw new Error('Bad request: Existing residence found'); } )
-						}
-					} 
 				}
 				return con.query('INSERT INTO RESIDENTS (PID, HOUSE_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ',[personID, houseResults[0].HOUSE_ID, req.body.startDate, null, true]);
 			}, err => {

@@ -6,7 +6,8 @@ var myCon = mysql.createConnection({
 	host: "lihi-test-db.mysql.database.azure.com", 
 	user: "lihi_test_admin@lihi-test-db", 
 	password: 'Impact++', 
-	database: 'LIHI'
+	database: 'LIHI',
+	port: 3306
 });
 
 // Drops database to be created again after change to SQL schema

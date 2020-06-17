@@ -17,14 +17,21 @@ export default class AddResident extends Component {
 
     render() {
         return (
-            <div style={{marginLeft: "30px"}}>
-              <Link to="/residentdirectory"><Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={() => {this.setState({addedResident: false})}}>Back</Button></Link>
+            <div style={{marginLeft: "20px", marginRight: "20px"}}>
+              <Link to="/residentdirectory"><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm" variant="secondary" onClick={() => {this.setState({addedResident: false})}}>Back</Button></Link>
                 {this.state.addedResident === true ? <div className="alert alert-success alert-dismissible fade show" role="alert">
                 Successfully added resident!
                   <button type="button" className="close" aria-label="Close" onClick={() => {this.setState({addedResident: false})}}>
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div> : <div />}
+                <div style={{ //title div
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <h1>Add Resident</h1>
+                    </div>
                 <p>Please fill out the following information for the resident you wish to add.</p>
                 <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)} />
             </div>

@@ -4,15 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-<<<<<<< HEAD
-<<<<<<< HEAD
     "start": "node server.js",
-=======
-    "start" : "node server.js",
->>>>>>> Update port and scripts
-=======
-    "start": "node server.js",
->>>>>>> Update db connections
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

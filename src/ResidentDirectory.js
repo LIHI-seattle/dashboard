@@ -84,12 +84,10 @@ class ResidentDirectory extends Component {
             //search bar that grabs data from server and filters
 
             //on select of a certain option then a card of the person image + other info displayed
-            <div>
+            <div style={{marginLeft: "20px", marginRight: "20px"}}>
                 {!this.state.displayEditPage && //search bar page
                 <div>
-                    <Button style={{margin: "10px"}} size="sm" variant="secondary" onClick={() => {
-                        this.props.history.goBack()
-                    }}>Back</Button>
+                     <Link to='/'><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm" variant="secondary" >Back</Button></Link>
                     <div style={{ //title div
                         display: "flex",
                         justifyContent: "center",

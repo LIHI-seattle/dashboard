@@ -1,26 +1,15 @@
 .dropdown {
-<<<<<<< HEAD
-<<<<<<< HEAD
     width: 300px;
 }
 
 .add_button {
     padding: 10px;
     margin: 20px;
-=======
     display: inline-block;
-=======
->>>>>>> UI Changes and connection to AddRemoveResident.js
-    width: 300px;
 }
 
 .add_button {
-<<<<<<< HEAD
-    margin: 10px;
->>>>>>> Added search bar functionality to ResidentDirectory.js
-=======
     padding: 10px;
     margin: 20px;
->>>>>>> UI Changes and connection to AddRemoveResident.js
 }
 

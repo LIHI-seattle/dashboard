@@ -57,12 +57,14 @@ class ResidentDirectory extends Component {
     };
 
     handleChange = (event) => {
+        console.log(event)
+        const date = new Date(Date.parse(event.data.START_DATE))
         this.setState({
             value: event.label, //label
-            startDate: event.startDate,
+            data: event.data,
+            startDate: date.toDateString(),
             displayCard: true
         });
-        console.log(event.startDate)
     };
 
     addOrRemoveResident = (event) => {
@@ -78,6 +80,15 @@ class ResidentDirectory extends Component {
         });
         //reupdate data
     };
+
+    getAge = () => {
+        const date = new Date(Date.parse(this.state.data.BIRTHDAY))
+        return (new Date().getFullYear() - date.getFullYear())
+    }
+
+    getBoolStr = (bool) => {
+        return Boolean(bool).toString()
+    }
 
     render() {
         return (
@@ -105,7 +116,7 @@ class ResidentDirectory extends Component {
                         <Select size="lg" className="dropdown" onChange={this.handleChange}
                                 options={this.state.residents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                    startDate: item.START_DATE
+                                    data: item
                                 }))}
                         />
 
@@ -117,32 +128,35 @@ class ResidentDirectory extends Component {
                     </div>
 
                     {this.state.displayCard &&
-                    <Card style={{width: '30rem', marginTop: "30px", marginLeft: "500px"}}>
-                        <Card.Img variant="top" src="placeHolder.png"/>
+                    <div style={{display: "flex", justifyContent: "center"}}>
+                    <Card style={{width: '30rem', marginTop: "30px"}}>
                         <Card.Body>
-                            <Card.Title>{this.state.value}</Card.Title>
-                            <Card.Subtitle className="mb-2 text-muted">Gender, Age</Card.Subtitle>
-                            <Card.Text>
+                            <Card.Title>
+                                <Card.Img variant="top" src="person.png" style={{height: 30, width:30 }}/>  {this.state.value}
+                            </Card.Title>
+                            <Card.Subtitle className="mb-2 text-muted">{this.state.data.GENDER}, {this.getAge()}</Card.Subtitle>
+                            <div>
                                 <h6>Residence Information:</h6>
                                 <ul style={{listStyleType: "none"}}>
-                                    <li>Current Residence: Village + Room Number</li>
-                                    <li> Entry Date: {this.state.startDate} </li>
-                                    <li>Last Known Residence:</li>
-                                    <li> Previous Shelter Program:</li>
+                                    <li>Current Residence:          {this.state.data.VID}; {this.state.data.RID}</li>
+                                    <li>Entry Date:                 {this.state.startDate} </li>
+                                    <li>Last Known Residence:       {this.state.data.PREVIOUS_RESIDENCE || "N/A"}</li>
+                                    <li>Previous Shelter Program:   {this.state.data.PREVIOUS_SHELTER_PROGRAM || "N/A"}</li>
                                 </ul>
                                 <h6>Personal Information:</h6>
                                 <ul style={{listStyleType: "none"}}>
-                                    <li>Identification:</li>
-                                    <li>Employed:</li>
-                                    <li>Children:</li>
-                                    <li>Disabilities:</li>
-                                    <li>Criminal History:</li>
+                                    <li>Identification:     {this.getBoolStr(this.state.data.IDENTIFICATION)}</li>
+                                    <li>Employed:           {this.getBoolStr(this.state.data.EMPLOYMENT)}</li>
+                                    <li>Children:           {this.getBoolStr(this.state.data.CHILDREN)}</li>
+                                    <li>Disabilities:       {this.getBoolStr(this.state.data.DISABILITIES)}</li>
+                                    <li>Criminal History:   {this.getBoolStr(this.state.data.CRIMINAL_HISTORY)}</li>
                                 </ul>
-                            </Card.Text>
+                            </div>
                             <Button variant="primary">View Incident Report</Button>
                             <Button variant="primary" style={{margin: "10px"}}>Remove This Resident</Button>
                         </Card.Body>
                     </Card>
+                    </div>
                     }
                 </div>
                 }

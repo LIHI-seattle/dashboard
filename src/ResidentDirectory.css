@@ -5,5 +5,11 @@
 .add_button {
     padding: 10px;
     margin: 20px;
+    display: inline-block;
+}
+
+.add_button {
+    padding: 10px;
+    margin: 20px;
 }
 

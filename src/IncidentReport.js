@@ -124,10 +124,16 @@ class IncidentReport extends Component {
 
     render() {
         return (
-          <div>
-              <Link to='/'><Button style={{margin: "10px"}} size="sm" variant="secondary" >Back</Button></Link>
+          <div style={{marginLeft: "20px", marginRight: "20px"}}>
+              <Link to='/'><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm" variant="secondary" >Back</Button></Link>
             
-            <h1>Incident Report</h1>
+              <div style={{ //title div
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center"
+                    }}>
+                        <h1>Incident Report</h1>
+                    </div>
             <form onSubmit={this.mySubmitHandler}>
               <div className ="form-row">
                 <div className="form-group col-md-3">

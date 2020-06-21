@@ -51,10 +51,11 @@ class Database {
 	}
 }
 
-	// host: "localhost",
-	// user: "root",
-	// password: "password",
-	// database: 'LIHI'
+// Used for testing local db:
+// host: "localhost",
+// user: "root",
+// password: "password",
+// database: 'LIHI'
 
 var con = new Database();
 
@@ -73,7 +74,7 @@ app.route("/people")
 	// 	});
 	// })
 	.get((req, res) => {
-        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
 		con.query('SELECT * FROM PEOPLE')
 			.then(rows => {
 				res.status(200).send(JSON.stringify(rows))
@@ -195,7 +196,7 @@ app.route("/residents")
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
-			// Returns the inserted row if the previous promise executed an insert, otherwise verifies that the person is not already a resident somewhere else. Then updates existing people information.
+			// Returns the inserted row if the previous promise executed an insert, otherwise verifies that the person is not already a resident somewhere else (Users should only have one residence at any given time. This check is required to prevent a person from being added as a resident to more than one house). Then updates existing people information.
 			// NOTE: No user information is updated if they are currently residing in a house
 			.then(insChkResidenceRows => {
 				if (insChkResidenceRows.insertId) {

@@ -5,8 +5,7 @@ import AddResident from './AddResident.js'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import {withRouter} from 'react-router-dom';
-import { Link} from 'react-router-dom';
-
+import {Link} from 'react-router-dom';
 
 
 class ResidentDirectory extends Component {
@@ -46,10 +45,6 @@ class ResidentDirectory extends Component {
             });
     };
 
-    back = () => {
-        this.props.onBack()
-    };
-
     backToSearch = () => {
         this.setState({
             displayEditPage: false
@@ -67,28 +62,43 @@ class ResidentDirectory extends Component {
         });
     };
 
-    addOrRemoveResident = (event) => {
-        this.setState({
-            displayEditPage: true
-        });
-        //reupdate data
+    removeRes = (event) => { //Not currently working (just a start)
+        let data = {
+            fName: this.state.data.FIRST_NAME,
+            lName: this.state.LAST_NAME,
+            birthday: this.state.BIRTHDAY,
+            endDate: new Date()
+        };
+        fetch("http://localhost:4000/residents", {
+            body: JSON.stringify(data),
+            mode: 'cors',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            method: "delete"
+        }).then((response) => {
+            if (response.status === 400) {
+                response.json()
+                    .then((text) => {
+                        alert(text.error);
+                    });
+            }
+        })
     };
 
-    addOrRemoveResident = (event) => {
-        this.setState({
-            displayEditPage: true
-        });
-        //reupdate data
+    viewIncRep = (event) => {
+        //view incident report (fetch data from server + display has whole page)
     };
 
     getAge = () => {
-        const date = new Date(Date.parse(this.state.data.BIRTHDAY))
+        const date = new Date(Date.parse(this.state.data.BIRTHDAY));
         return (new Date().getFullYear() - date.getFullYear())
-    }
+    };
 
     getBoolStr = (bool) => {
         return Boolean(bool).toString()
-    }
+    };
 
     render() {
         return (
@@ -98,7 +108,8 @@ class ResidentDirectory extends Component {
             <div style={{marginLeft: "20px", marginRight: "20px"}}>
                 {!this.state.displayEditPage && //search bar page
                 <div>
-                     <Link to='/'><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm" variant="secondary" >Back</Button></Link>
+                    <Link to='/'><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm"
+                                         variant="secondary">Back</Button></Link>
                     <div style={{ //title div
                         display: "flex",
                         justifyContent: "center",
@@ -121,7 +132,7 @@ class ResidentDirectory extends Component {
                         />
 
                         <Link to="/addresident">
-                            <Button  className='add_button' size="md" >
+                            <Button className='add_button' size="md">
                                 <span>Add Resident</span>
                             </Button>
                         </Link>
@@ -129,33 +140,37 @@ class ResidentDirectory extends Component {
 
                     {this.state.displayCard &&
                     <div style={{display: "flex", justifyContent: "center"}}>
-                    <Card style={{width: '30rem', marginTop: "30px"}}>
-                        <Card.Body>
-                            <Card.Title>
-                                <Card.Img variant="top" src="person.png" style={{height: 30, width:30 }}/>  {this.state.value}
-                            </Card.Title>
-                            <Card.Subtitle className="mb-2 text-muted">{this.state.data.GENDER}, {this.getAge()}</Card.Subtitle>
-                            <div>
-                                <h6>Residence Information:</h6>
-                                <ul style={{listStyleType: "none"}}>
-                                    <li>Current Residence:          {this.state.data.VID}; {this.state.data.RID}</li>
-                                    <li>Entry Date:                 {this.state.startDate} </li>
-                                    <li>Last Known Residence:       {this.state.data.PREVIOUS_RESIDENCE || "N/A"}</li>
-                                    <li>Previous Shelter Program:   {this.state.data.PREVIOUS_SHELTER_PROGRAM || "N/A"}</li>
-                                </ul>
-                                <h6>Personal Information:</h6>
-                                <ul style={{listStyleType: "none"}}>
-                                    <li>Identification:     {this.getBoolStr(this.state.data.IDENTIFICATION)}</li>
-                                    <li>Employed:           {this.getBoolStr(this.state.data.EMPLOYMENT)}</li>
-                                    <li>Children:           {this.getBoolStr(this.state.data.CHILDREN)}</li>
-                                    <li>Disabilities:       {this.getBoolStr(this.state.data.DISABILITIES)}</li>
-                                    <li>Criminal History:   {this.getBoolStr(this.state.data.CRIMINAL_HISTORY)}</li>
-                                </ul>
-                            </div>
-                            <Button variant="primary">View Incident Report</Button>
-                            <Button variant="primary" style={{margin: "10px"}}>Remove This Resident</Button>
-                        </Card.Body>
-                    </Card>
+                        <Card style={{width: '30rem', marginTop: "30px"}}>
+                            <Card.Body>
+                                <Card.Title>
+                                    <Card.Img variant="top" src="person.png"
+                                              style={{height: 30, width: 30}}/> {this.state.value}
+                                </Card.Title>
+                                <Card.Subtitle
+                                    className="mb-2 text-muted">{this.state.data.GENDER}, {this.getAge()}</Card.Subtitle>
+                                <div>
+                                    <h6>Residence Information:</h6>
+                                    <ul style={{listStyleType: "none"}}>
+                                        <li>Current Residence: {this.state.data.VID}; {this.state.data.RID}</li>
+                                        <li>Entry Date: {this.state.startDate} </li>
+                                        <li>Last Known Residence: {this.state.data.PREVIOUS_RESIDENCE || "N/A"}</li>
+                                        <li>Previous Shelter
+                                            Program: {this.state.data.PREVIOUS_SHELTER_PROGRAM || "N/A"}</li>
+                                    </ul>
+                                    <h6>Personal Information:</h6>
+                                    <ul style={{listStyleType: "none"}}>
+                                        <li>Identification: {this.getBoolStr(this.state.data.IDENTIFICATION)}</li>
+                                        <li>Employed: {this.getBoolStr(this.state.data.EMPLOYMENT)}</li>
+                                        <li>Children: {this.getBoolStr(this.state.data.CHILDREN)}</li>
+                                        <li>Disabilities: {this.getBoolStr(this.state.data.DISABILITIES)}</li>
+                                        <li>Criminal History: {this.getBoolStr(this.state.data.CRIMINAL_HISTORY)}</li>
+                                    </ul>
+                                </div>
+                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Report</Button>
+                                <Button variant="primary" style={{margin: "10px"}} onClick={this.removeRes}>Remove This
+                                    Resident</Button>
+                            </Card.Body>
+                        </Card>
                     </div>
                     }
                 </div>

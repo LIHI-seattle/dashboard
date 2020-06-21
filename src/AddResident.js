@@ -38,6 +38,7 @@ export default class AddResident extends Component {
                 }}>
                     <h1>Add Resident</h1>
                 </div>
+                <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to add.</p>
                 <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)}/>
             </div>
         );

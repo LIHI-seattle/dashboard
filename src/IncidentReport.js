@@ -122,11 +122,11 @@ class IncidentReport extends Component {
       this.props.onBack()
     };
 
-    addPersonInvolved = (event) => {
+    addPersonInvolved = () => {
       this.setState({peopleInvolved: [...this.state.peopleInvolved, ""]})
     }
     
-    addObserver = (event) => {
+    addObserver = () => {
       this.setState({observers: [...this.state.observers, ""]})
     }
     render() {

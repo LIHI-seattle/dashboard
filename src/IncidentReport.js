@@ -15,16 +15,16 @@ class IncidentReport extends Component {
             time: "",
             village: "",
             location: "",
-            peopleInvolved: "",  // will be array
+            peopleInvolved: [""],
             description: "",
-            observers: "",  // will be array
+            observers: [""],
             injury: "",
             injuryDescription: "",
             emergencyRoom: "",
             hospital: "",
             policeReport: "",
             reportNumber: "",
-            peopleNotified: "",
+            peopleNotified: [""],
             signature: "",
             currentDate: "",
             followUp: "",
@@ -122,6 +122,13 @@ class IncidentReport extends Component {
       this.props.onBack()
     };
 
+    addPersonInvolved = (event) => {
+      this.setState({peopleInvolved: [...this.state.peopleInvolved, ""]})
+    }
+    
+    addObserver = (event) => {
+      this.setState({observers: [...this.state.observers, ""]})
+    }
     render() {
         return (
           <div style={{marginLeft: "20px", marginRight: "20px"}}>
@@ -158,15 +165,33 @@ class IncidentReport extends Component {
               <div className = "form-row">
                 <div className="form-group col-md-4">
                   <label>People Involved</label>
-                  <Select className="dropdown" onChange={this.handleDropdownChange} name="peopleInvolved"
-                                options={this.state.residents.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                                                              value: item.FIRST_NAME + " " + item.LAST_NAME}))}/>
+                  {
+                    this.state.peopleInvolved.map((person, index)=>{
+                      return (
+                        <div key={index}>
+                          <Select className="dropdown" onChange={this.handleDropdownChange} name="peopleInvolved"
+                                  options={this.state.residents.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
+                                                                                value: item.FIRST_NAME + " " + item.LAST_NAME}))}/>
+                        </div>
+                      )
+                    })
+                  }
+                  <Button onClick={this.addPersonInvolved}>Add Another Person Involved</Button>
                 </div>
                 <div className="form-group col-md-4">
                   <label>Observers of the Incident</label>
-                  <Select className="dropdown" onChange={this.handleDropdownChange} name="observers"
+                  {
+                    this.state.observers.map((person, index)=>{
+                      return (
+                        <div key={index}>
+                          <Select className="dropdown" onChange={this.handleDropdownChange} name="observers"
                                 options={this.state.residents.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
                                                                               value: item.FIRST_NAME + " " + item.LAST_NAME}))}/>
+                        </div>
+                      )
+                    })
+                  }
+                  <Button onClick={this.addObserver}>Add Another Observer</Button>
                 </div>
               </div>
               <div className="form-group col-md-11">

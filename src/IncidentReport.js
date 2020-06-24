@@ -35,6 +35,8 @@ class IncidentReport extends Component {
     componentDidMount() {
       this.getResidents();
       this.getVillages();
+      console.log(this.state.residents);
+      console.log(this.state.villages);
     }
 
     getResidents = () =>{

@@ -5,3 +5,7 @@
 label {
     padding-right: 10px;
 }
+
+.required {
+    color: red;
+  }

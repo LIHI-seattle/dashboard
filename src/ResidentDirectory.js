@@ -6,6 +6,7 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import {withRouter} from 'react-router-dom';
 import { Link} from 'react-router-dom';
+import placeHolder from './placeHolder.png';
 
 const colorStyles = {
     control: styles => ({ ...styles, backgroundColor: 'white' }),
@@ -130,6 +131,7 @@ class ResidentDirectory extends Component {
 
                     {this.state.displayCard &&
                     <Card style={{width: '30rem', marginTop: "30px", marginLeft: "500px"}}>
+                        <Card.Img variant="top" src={placeHolder}/>
                         <Card.Body>
                             <Card.Title>{this.state.value}</Card.Title>
                             <Card.Subtitle className="mb-2 text-muted">Gender, Age</Card.Subtitle>

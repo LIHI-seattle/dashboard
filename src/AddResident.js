@@ -126,7 +126,6 @@ class AddResidentForm extends Component {
                 }
             })
         }
-
     }
 
     render() {
@@ -192,7 +191,6 @@ class AddResidentForm extends Component {
                         <option value="true">Yes</option>
                         <option value="false">No</option>
                     </select>
-
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Criminal History:</label>
                     <select style={{width: "60px", height: "27px", margin: "10px"}} name="criminalHistory"
                             onChange={(event) => {

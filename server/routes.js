@@ -76,11 +76,7 @@ app.options('*', cors(corsOptions));
 
 app.route("/people")
 	.get((req, res) => {
-<<<<<<< HEAD
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-=======
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
->>>>>>> ccffe64452bd7f99eda56827ee8783edc8e43e2a
 		con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID != 2')
 			.then(rows => {
 				res.status(200).send(JSON.stringify(rows))

@@ -19,6 +19,11 @@ console.log(`Enter MySQL password: ${pwd}!`)
 readline.close()
 })
 
+async function insert(sql, id, data) {
+	for (let i=0; i<data.length; i++)
+		await con.query(sql, [id, data[i]]);
+}
+
 
 class Database {
     constructor( config ) {
@@ -72,7 +77,7 @@ app.options('*', cors(corsOptions));
 app.route("/people")
 	.get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('SELECT * FROM PEOPLE')
+		con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID != 2')
 			.then(rows => {
 				res.status(200).send(JSON.stringify(rows))
 			}, err => {
@@ -500,5 +505,59 @@ app.route("/villages")
 				// handle the error
 		});	
 	})
+
+
+
+
+
+app.route("/incidentReport")
+	// Add new incident report
+	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		let incident = req.body;
+		let newIncidentID = "";		
+		incident.injury = (incident.injury == 'true');
+		incident.emergencyRoom = (incident.emergencyRoom == 'true');
+		incident.policeReport = (incident.policeReport == 'true');
+		con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+					[incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.reviewerName, incident.currentDate])
+			.then(rows => {
+				if (rows.insertId) {
+					newIncidentID = rows.insertId;
+					let insertPeople = 'INSERT INTO INCIDENTS_PEOPLE (INID, PID) VALUES (?, ?)';
+					return insert(insertPeople, newIncidentID, incident.peopleInvolved);
+				} else {
+					return Promise.resolve().then( () => { throw new Error("Bad request: Failed to add incident.");} )
+				}
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(result => {
+				let insertObserver = 'INSERT INTO INCIDENTS_OBSERVER (INID, PID) VALUES (?, ?)';
+				return insert(insertObserver, newIncidentID, incident.observers);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(result => {
+				let insertNotified = 'INSERT INTO INCIDENTS_NOTIFIED (INID, PID) VALUES (?, ?)';
+				return insert(insertNotified, newIncidentID, incident.peopleNotified);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(result => {
+				res.sendStatus(201);
+			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+	})
+
+
+
 
 module.exports = app;

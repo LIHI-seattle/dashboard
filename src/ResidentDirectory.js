@@ -6,7 +6,19 @@ import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import {withRouter} from 'react-router-dom';
 import { Link} from 'react-router-dom';
+import placeHolder from './placeHolder.png';
 
+const colorStyles = {
+    control: styles => ({ ...styles, backgroundColor: 'white' }),
+    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
+      return {
+        ...styles,
+        backgroundColor: isDisabled ? 'red' : "white",
+        color: 'black',
+        cursor: isDisabled ? 'not-allowed' : 'default',
+      };
+    },
+  };
 
 
 class ResidentDirectory extends Component {
@@ -102,11 +114,12 @@ class ResidentDirectory extends Component {
                         alignItems: "center"
                     }}>
                         {console.log(this.state.residents)}
-                        <Select size="lg" className="dropdown" onChange={this.handleChange}
+                        <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                                 options={this.state.residents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
                                     startDate: item.START_DATE
                                 }))}
+                                styles={colorStyles}
                         />
 
                         <Link to="/addresident">
@@ -118,7 +131,7 @@ class ResidentDirectory extends Component {
 
                     {this.state.displayCard &&
                     <Card style={{width: '30rem', marginTop: "30px", marginLeft: "500px"}}>
-                        <Card.Img variant="top" src="placeHolder.png"/>
+                        <Card.Img variant="top" src={placeHolder}/>
                         <Card.Body>
                             <Card.Title>{this.state.value}</Card.Title>
                             <Card.Subtitle className="mb-2 text-muted">Gender, Age</Card.Subtitle>

@@ -5,6 +5,9 @@ var app = express();
 app.use(express.json());
 const cors = require('cors');
 
+var {serverHost, serverUser, serverPassword,
+	 serverDatabase, serverPort, frontendHost} = require('./common')
+
 
 const readline = require('readline').createInterface({
 	input: process.stdin,
@@ -20,11 +23,11 @@ readline.close()
 class Database {
     constructor( config ) {
         this.connection = mysql.createConnection({
-			host: "lihi-test-db.mysql.database.azure.com", 
-			user: "lihi_test_admin@lihi-test-db", 
-			password: 'Impact++', 
-			database: 'LIHI',
-			port: 3306
+			host: serverHost,
+			user: serverUser, 
+			password: serverPassword, 
+			database: serverDatabase,
+			port: serverPort
 		});
 		this.connection.connect(function(err) {
 			if (err) throw err;
@@ -60,7 +63,7 @@ class Database {
 var con = new Database();
 
 var corsOptions = {
-	origin: 'http://localhost:3000',
+	origin: frontendHost,
 	optionsSuccessStatus: 200 
   }
 
@@ -74,7 +77,7 @@ app.route("/people")
 	// 	});
 	// })
 	.get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('SELECT * FROM PEOPLE')
 			.then(rows => {
 				res.status(200).send(JSON.stringify(rows))
@@ -89,6 +92,7 @@ app.route("/people")
 
 	// Create a new person
 	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)' ,[req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID])
 			.then(rows => {
 				res.status(201).send(JSON.stringify(rows));
@@ -103,6 +107,7 @@ app.route("/people")
 
 	// Update a person
 	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('UPDATE PEOPLE SET FIRST_NAME = ?, LAST_NAME = ?, BIRTHDAY = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID, req.body.PID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -117,6 +122,7 @@ app.route("/people")
 
 	// Delete person
 	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('DELETE FROM PEOPLE WHERE PID = ?', [req.body.PID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -133,7 +139,7 @@ app.route("/people")
 app.route("/residents")
 	// Get all residents
 	.get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('SELECT * FROM RESIDENTS JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID WHERE RESIDENTS.IN_RESIDENCE = 1')
 			.then(rows => {
 				res.status(200).json(rows);
@@ -150,6 +156,7 @@ app.route("/residents")
 	//   To add a new resident: Find village ID, then house ID, then person ID (create new person if they don't exist, verify residence if they do),
 	// 	 then update information if needed, then insert into residents, then update vacancy, then return the new resident to the client. 
 	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		let newRes = req.body;
 		let villageResults, houseResults, personResults, personID, addedResident;
 		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -257,6 +264,7 @@ app.route("/residents")
 
 	// Update a resident
 	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('UPDATE RESIDENTS SET PID = ?, ROOM_ID = ?, START_DATE = ?, END_DATE = ?, IN_RESIDENCE = ? WHERE RID = ?', [req.body.PID, req.body.RoomID, req.body.StartDate, req.body.EndDate, req.body.InResidence, req.body.RID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -272,6 +280,7 @@ app.route("/residents")
 
 	// Delete resident (add end date and change residence status)
 	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		let delRes = JSON.parse(req.body);
 
 		con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
@@ -304,6 +313,7 @@ app.route("/residents")
 app.route("/permissions")
 	// Get all permissions
 	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('SELECT * FROM PERMISSIONS')
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -319,6 +329,7 @@ app.route("/permissions")
 
 	// Create a new permission
 	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('INSERT INTO PERMISSIONS (DESCRIPTION) VALUES (?) ', [req.body.Description])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -334,6 +345,7 @@ app.route("/permissions")
 
 	// Update a permission
 	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('UPDATE PERMISSIONS SET DESCRIPTION = ? WHERE ROLE_ID = ?', [req.body.Description, req.body.RoleID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -349,6 +361,7 @@ app.route("/permissions")
 
 	// Delete permission
 	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('DELETE FROM PERMISSIONS WHERE ROLE_ID = ?', [req.body.RoleID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -367,6 +380,7 @@ app.route("/permissions")
 app.route("/rooms")
 	// Get all rooms
 	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('SELECT * FROM ROOMS')
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -382,6 +396,7 @@ app.route("/rooms")
 
 	// Create a new room
 	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -397,6 +412,7 @@ app.route("/rooms")
 
 	// Update a room
 	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('UPDATE ROOMS SET ROOM_NUM = ?, BLDG_NAME = ?, VID = ?, VACANT = ? WHERE ROOM_ID = ?', [req.body.RoomNum, req.body.BuildingName, req.body.VID, req.body,vacant, req.body.RoomID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -412,6 +428,7 @@ app.route("/rooms")
 
 	// Delete a room
 	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('DELETE FROM ROOMS WHERE ROOM_ID = ?', [req.body.RoomID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -428,6 +445,7 @@ app.route("/rooms")
 app.route("/villages")
 	// Get all villages
 	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('SELECT * FROM VILLAGES')
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -443,6 +461,7 @@ app.route("/villages")
 
 	// Create a new village
 	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [req.body.Name])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -458,6 +477,7 @@ app.route("/villages")
 
 	// Update a village
 	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
 			.then(rows => {
 				res.send(JSON.stringify(rows));
@@ -473,6 +493,7 @@ app.route("/villages")
 
 	// Delete a village
 	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
 			.then(rows => {
 				res.send(JSON.stringify(rows));

@@ -55,7 +55,7 @@ class HomePage extends Component {
                     padding: "10px",
                     marginTop: "240px"
                 }}>
-                    <h1>Welcome to the LiHi Information Database</h1>
+                    <h1>Welcome to the LIHI Information Database</h1>
                 </div>           
                 <div id="homebuttons">
                     <Link to="/incidentreport">

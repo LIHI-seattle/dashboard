@@ -31,10 +31,33 @@ class IncidentReport extends Component {
             reviewerName: "",
             addedIncidentReport: false
         };
+        this.handleDropdownMulti = this.handleDropdownMulti.bind(this);
     }
 
     updateIncidentStatus = (status) => {
-      this.setState({addedIncidentReport: status});
+      if (!(this.state.addedIncidentReport === false && status === false)) {
+        this.setState({
+          incidentDate: "",
+          time: "",
+          village: "",
+          location: "",
+          peopleInvolved: [],  
+          description: "",
+          observers: [],  
+          injury: "",
+          injuryDescription: "",
+          emergencyRoom: "",
+          hospital: "",
+          policeReport: "",
+          reportNumber: "",
+          peopleNotified: [],
+          signature: "",
+          currentDate: "",
+          followUp: "",
+          reviewerName: "",
+          addedIncidentReport: status
+        });
+      }
     }
 
     componentDidMount() {
@@ -53,7 +76,8 @@ class IncidentReport extends Component {
             })
             .then((data) => {
                 let residentArray = JSON.parse(data);
-                this.setState({ people: residentArray})
+                let people = residentArray.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME, value: item.PID}))
+                this.setState({ people: people})
             })
             .catch((error) => {
                 console.log(error)
@@ -71,7 +95,8 @@ class IncidentReport extends Component {
           })
           .then((data) => {
               let villageArray = JSON.parse(data);
-              this.setState({ villages: villageArray})
+              let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
+              this.setState({ villages: villages})
           })
           .catch((error) => {
               console.log(error)
@@ -83,68 +108,44 @@ class IncidentReport extends Component {
         let val = event.target.value;
         this.setState({[nam]: val});
     }
-
-    handleDropdownChange = (event, name) => {
-      let val = event.value;  
-      this.setState({[name]: val})
+    
+    handleDropdownMulti(option, name) {
+      this.setState(state => {
+        return {
+          [name]: option
+        };
+      });
     }
-
-    handleDropdownAdd = (event, name) => {
-      if (event) {
-        let val = [];
-        event.forEach(person => val.push(person.value));
-        let stateVal = this.state[name];
-        stateVal = val;
-        this.setState({[name]: stateVal});
-      } else {
-        this.setState({[name]: []});
-      }
-    }
-
     mySubmitHandler = (e) => {
         e.preventDefault();
         let update = this.updateIncidentStatus;
         this.updateIncidentStatus(false);
         var form = document.getElementById("addIncident");
-        // send json object
-        if (this.state.incidentDate === "" ||
-            this.state.time === "" ||
-            this.state.village === "" ||
-            this.state.location === "" ||
-            this.state.description === "" ||
-            this.state.observers === [] ||
-            this.state.peopleInvolved === [] ||
-            this.state.injury === "" ||
-            this.state.injuryDescription === "" ||
-            this.state.emergencyRoom === "" ||
-            this.state.hospital === "" ||
-            this.state.policeReport === "" ||
-            this.state.reportNumber === "" ||
-            this.state.peopleNotified === [] ||
-            this.state.signature === "" ||
-            this.state.currentDate === "" ||
-            this.state.followUp === "" ||
-            this.state.reviewerName === "") {
-              alert("All fields are required");
+        let values = Object.values(this.state);
+        let nullExists = false;
+        values.forEach(value => {
+          if (value === "" || value === [] || value === null) {
+            nullExists = true;
+          }
+        })
+        if (nullExists) {
+          alert("All fields are required");
         } else {
-          let data = {incidentDate: this.state.incidentDate,
-            time: this.state.time,
-            village: this.state.village,
-            location: this.state.location,
-            peopleInvolved: this.state.peopleInvolved,  
-            description: this.state.description,
-            observers: this.state.observers,  
-            injury: this.state.injury,
-            injuryDescription: this.state.injuryDescription,
-            emergencyRoom: this.state.emergencyRoom,
-            hospital: this.state.hospital,
-            policeReport: this.state.policeReport,
-            reportNumber: this.state.reportNumber,
-            peopleNotified: this.state.peopleNotified,
-            signature: this.state.signature,
-            currentDate: this.state.currentDate,
-            followUp: this.state.followUp,
-            reviewerName: this.state.reviewerName}
+          let data = this.state;
+          let peopleInvolved = data.peopleInvolved.map(person => person.value);
+          let village = data.village.value;
+          let observers = data.observers.map(person => person.value); 
+          let notified = data.peopleNotified.map(person => person.value); 
+          let signature = data.signature.value;
+          let reviewer = data.reviewerName.value; 
+          data.peopleInvolved = peopleInvolved;
+          data.village = village;
+          data.observers = observers;
+          data.peopleNotified = notified;
+          data.signature = signature;
+          data.reviewerName = reviewer;
+
+          //  send json object
           fetch("http://localhost:4000/incidentReport", {
               body: JSON.stringify(data),
               mode: 'cors',
@@ -153,16 +154,17 @@ class IncidentReport extends Component {
                   'Content-Type': 'application/json'
               },
               method: "post"
-          }).then(function(response) {
-              if (response.status === 400) {
-                  response.json()
-                  .then((text) => {
-                      alert(text.error);
-                  });
-              } else {
-                form.reset();
-                update(true);
-              }
+          }).then((response) => {
+            if (response.status === 400) {
+                response.json()
+                .then((text) => {
+                    alert(text.error);
+                });
+            } else {
+              form.reset();
+              update(true);
+              
+            }
           });
         }
         
@@ -201,9 +203,8 @@ class IncidentReport extends Component {
                 </div>
                 <div className="form-group col-md-3">
                   <label>Village<span className="required">*</span></label>
-                  <Select className="dropdown" onChange={(event) => {this.handleDropdownChange(event, "village")}} name="village"
-                                options={this.state.villages.map((item) => ({label: item.NAME,
-                                                                             value: item.VID}))}/>
+                  <Select value={this.state.village} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                                options={this.state.villages}/>
                 </div>
                 <div className="form-group col-md-3">
                   <label>Location<span className="required">*</span></label>
@@ -213,15 +214,13 @@ class IncidentReport extends Component {
               <div className = "form-row">
                 <div className="form-group col-md-4">
                   <label>People Involved<span className="required">*</span></label>
-                  <Select isMulti className="dropdown" onChange={(event) => {this.handleDropdownAdd(event, "peopleInvolved")}} name="peopleInvolved"
-                                options={this.state.people.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                                                              value: item.PID}))}/>
+                  <Select  value={this.state.peopleInvolved} id="getInvolved" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "peopleInvolved")}} name="peopleInvolved"
+                  options={this.state.people} isMulti/>
                 </div>
                 <div className="form-group col-md-4">
                   <label>Observers of the Incident<span className="required">*</span></label>
-                  <Select isMulti className="dropdown" onChange={(event) => {this.handleDropdownAdd(event, "observers")}} name="observers"
-                                options={this.state.people.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                                                              value: item.PID}))}/>
+                    <Select  value={this.state.observers} id="getObservers" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "observers")}} name="observers"
+                     options={this.state.people} isMulti/>
                 </div>
               </div>
               <div className="form-group col-md-11">
@@ -277,16 +276,14 @@ class IncidentReport extends Component {
               </div>
               <div className="form-row">
                 <label>Which individuals or supervisors were notified?<span className="required">*</span></label>
-                <Select isMulti className="dropdown" onChange={(event) => {this.handleDropdownAdd(event, "peopleNotified")}} name="peopleNotified"
-                                options={this.state.people.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                                                              value: item.PID}))}/>
+                <Select isMulti value={this.state.peopleNotified} className="dropdown" onChange={(event) => {this.handleDropdownMulti(event, "peopleNotified")}} name="peopleNotified"
+                                options={this.state.people}/>
               </div>
               <div className="form-row">
                 <div className="form-group col-md-6">
                   <label>Type your full name, electronically giving your signature that all of this information is accurate to the best of your knowledge<span className="required">*</span></label>
-                  <Select placeholder="Electronic signature here" className="dropdown" onChange={(event) => {this.handleDropdownChange(event, "signature")}} name="signature"
-                                options={this.state.people.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                                                             value: item.PID,}))}/>
+                  <Select value={this.state.signature} placeholder="Electronic signature here" className="dropdown" onChange={(event) => {this.handleDropdownMulti(event, "signature")}} name="signature"
+                                options={this.state.people}/>
                 </div>
                 <div className="form-group col-md-6">
                   <label>Today's Date<span className="required">*</span></label>
@@ -299,9 +296,8 @@ class IncidentReport extends Component {
               </div>
               <div className="form-row">
                 <label>Have another person review the document and state their name here<span className="required">*</span></label>
-                <Select className="dropdown" onChange={(event) => this.handleDropdownChange(event, "reviewerName")} name="reviewerName"
-                                options={this.state.people.map((item) => ({label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                                                              value: item.PID}))}/>
+                <Select className="dropdown" onChange={(event) => this.handleDropdownMulti(event, "reviewerName")} name="reviewerName"
+                                options={this.state.people}/>
               </div>
               <Button style={{margin: "10px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit Incident Report</Button>
             </form>

@@ -5,21 +5,20 @@ import AddResident from './AddResident.js'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import {withRouter} from 'react-router-dom';
-
-import { Link} from 'react-router-dom';
-import placeHolder from './placeHolder.png';
+import {Link} from 'react-router-dom';
+import IncidentReportView from "./IncidentReportView";
 
 const colorStyles = {
-    control: styles => ({ ...styles, backgroundColor: 'white' }),
-    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
-      return {
-        ...styles,
-        backgroundColor: isDisabled ? 'red' : "white",
-        color: 'black',
-        cursor: isDisabled ? 'not-allowed' : 'default',
-      };
+    control: styles => ({...styles, backgroundColor: 'white'}),
+    option: (styles, {data, isDisabled, isFocused, isSelected}) => {
+        return {
+            ...styles,
+            backgroundColor: isDisabled ? 'red' : "white",
+            color: 'black',
+            cursor: isDisabled ? 'not-allowed' : 'default',
+        };
     },
-  };
+};
 
 
 class ResidentDirectory extends Component {
@@ -28,6 +27,7 @@ class ResidentDirectory extends Component {
         this.state = {
             value: '?',
             startDate: '?',
+            displayIncRep: false,
             displayCard: false,
             displayEditPage: false,
             residents: []
@@ -72,17 +72,19 @@ class ResidentDirectory extends Component {
             value: event.label, //label
             data: event.data,
             startDate: date.toDateString(),
-            displayCard: true
+            displayCard: true,
+            displayIncRep: false
         });
     };
 
     removeRes = (event) => { //Not currently working (just a start)
         let data = {
             fName: this.state.data.FIRST_NAME,
-            lName: this.state.LAST_NAME,
-            birthday: this.state.BIRTHDAY,
-            endDate: new Date()
+            lName: this.state.data.LAST_NAME,
+            birthday: this.state.data.BIRTHDAY,
+            endDate: new Date().toISOString()
         };
+        console.log(data);
         fetch("http://localhost:4000/residents", {
             body: JSON.stringify(data),
             mode: 'cors',
@@ -102,6 +104,10 @@ class ResidentDirectory extends Component {
     };
 
     viewIncRep = (event) => {
+        this.setState({
+            displayIncRep: true,
+            displayCard: false
+        })
         //view incident report (fetch data from server + display has whole page)
     };
 
@@ -197,6 +203,12 @@ class ResidentDirectory extends Component {
                     <Button style={{margin: "10px"}} size="sm" variant="secondary"
                             onClick={this.backToSearch}>Back</Button>
                     <AddResident reupdateData={this.reupdateData}/>
+                </div>
+                }
+
+                {this.state.displayIncRep &&
+                <div>
+                    <IncidentReportView />
                 </div>
                 }
 

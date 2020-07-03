@@ -282,12 +282,20 @@ app.route("/residents")
 		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		let delRes = req.body;
 
-		con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE RID = ?', [delRes.rid])
+		con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE RID = ?', [delRes.endDate, delRes.rid])
 			.then(rows => {
 				res.sendStatus(200);
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )
 			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});	
 
 		// con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
 		// 	.then(rows => {

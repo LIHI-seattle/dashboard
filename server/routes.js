@@ -280,14 +280,15 @@ app.route("/residents")
 	// Delete resident (add end date and change residence status)
 	.delete((req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		let delRes = JSON.parse(req.body);
+		let delRes = req.body;
 
 		con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
 			.then(rows => {
-				if (rows.length == 1) {
+				if (rows.length === 1) {
+					console.log("LINE 288 PASSED");
 					return Promise.resolve(rows[0]);
 				} else {
-					Promise.resolve().then( () => { throw new Error("Bad request: No resident found.");} )
+					return Promise.resolve().then( () => { throw new Error("Bad request: No resident found.");} )
 				}
 			}, err => {
 				return Promise.resolve().then( () => { throw err; } )

@@ -79,6 +79,7 @@ class ResidentDirectory extends Component {
 
     removeRes = (event) => { //Not currently working (just a start)
         let data = {
+            rid: this.state.data.RID,
             fName: this.state.data.FIRST_NAME,
             lName: this.state.data.LAST_NAME,
             birthday: this.state.data.BIRTHDAY,

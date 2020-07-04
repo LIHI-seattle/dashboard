@@ -78,6 +78,7 @@ class ResidentDirectory extends Component {
     };
 
     removeRes = (event) => { //Not currently working (just a start)
+        console.log(this.state.data);
         let data = {
             rid: this.state.data.RID,
             fName: this.state.data.FIRST_NAME,
@@ -101,7 +102,12 @@ class ResidentDirectory extends Component {
                         alert(text.error);
                     });
             }
+            else if (response.status === 200) {
+                alert("lets go");
+                this.reupdateData();
+            }
         })
+        //TODO reupdate data
     };
 
     viewIncRep = (event) => {
@@ -209,7 +215,7 @@ class ResidentDirectory extends Component {
 
                 {this.state.displayIncRep &&
                 <div>
-                    <IncidentReportView />
+                    <IncidentReportView personName={this.state.data.FIRST_NAME} personID={this.state.data.PID}/>
                 </div>
                 }
 

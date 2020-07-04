@@ -195,7 +195,7 @@ class ResidentDirectory extends Component {
                                         <li>Criminal History: {this.getBoolStr(this.state.data.CRIMINAL_HISTORY)}</li>
                                     </ul>
                                 </div>
-                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Report</Button>
+                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Reports</Button>
                                 <Button variant="primary" style={{margin: "10px"}} onClick={this.removeRes}>Remove This
                                     Resident</Button>
                             </Card.Body>
@@ -215,7 +215,7 @@ class ResidentDirectory extends Component {
 
                 {this.state.displayIncRep &&
                 <div>
-                    <IncidentReportView personName={this.state.data.FIRST_NAME} personID={this.state.data.PID}/>
+                    <IncidentReportView personName={this.state.data.FIRST_NAME + " " + this.state.data.LAST_NAME} personID={this.state.data.PID}/>
                 </div>
                 }
 

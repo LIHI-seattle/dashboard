@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import Select from "react-select";
+import {Container, Row, Col} from 'reactstrap';
 
 class IncidentReportView extends Component {
     constructor(props) {
@@ -17,11 +18,18 @@ class IncidentReportView extends Component {
     handleChange = (event) => {
         console.log(event)
         this.setState({
-            value: event.label,
+            //value: event.label,
             incidentObj: event.data,
             displayIncRep: true
         });
     };
+
+    handleBool(bool){
+        if (bool === 0){
+            return "No"
+        }
+        return "Yes"
+    }
 
     reupdateData = () => {
         fetch("http://localhost:4000/incidentReport/" + this.props.personID, /*{
@@ -54,80 +62,97 @@ class IncidentReportView extends Component {
     render() {
         return (
             <div>
-                <div>
-                    <label>Incident Reports for {this.props.personName}</label>
+                <div style={{ //title div
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
+                    <label>Incident Reports for {this.props.personName}: </label>
                     <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                             options={this.state.incident.map((item) => ({
-                                label: "Incident: " + new Date(item.INCIDENT_DATE).toLocaleDateString(),
+                                label: "Incident on " + new Date(item.INCIDENT_DATE).toLocaleDateString(),
                                 data: item
                             }))}
                     />
                 </div>
 
                 {this.state.displayIncRep &&
-                <div>
-                    <div className ="form-row">
-                        <div className="form-group col-md-3">
-                            <p>Date of Incident: {new Date(this.state.incidentObj.INCIDENT_DATE).toDateString()}</p>
-                        </div>
-                        <div className="form-group col-md-3">
-                            <p>Time of Incident: {this.state.incidentObj.TIME}</p>
-                        </div>
-                        <div className="form-group col-md-3">
-                            <p>Village: {this.state.incidentObj.VID}</p>
-                        </div>
-                        <div className="form-group col-md-3">
-                            <p>Location: {this.state.incidentObj.LOCATION}</p>
-                        </div>
-                    </div>
-                    <div className = "form-row">
-                        <div className="form-group col-md-4">
-                            <p>People Involved: ??</p>
-                        </div>
-                        <div className="form-group col-md-4">
-                            <p>Observers of the Incident: ??</p>
-                        </div>
-                    </div>
-                    <div className="form-group col-md-11">
-                        <p>Describe the Incident {this.state.incidentObj.DESCRIPTION}</p>
-                    </div>
-                    <div className="form-row">
-                        <p>Did the incident involve an injury to the resident, staff, or others? {this.state.incidentObj.INJURY} [boolean]</p>
-                    </div>
-                    <div className="form-group col-md-11">
-                        <p>Describe any injuries, physical complaints, or property damage. If no injuries, type "NA". : {this.state.incidentObj.INJURY_DESCRIPTION}</p>
-                    </div>
-                    <div className = "form-row">
-                        <div className="form-group col-md-3">
-                            <p>Was an Emergency Room visit required? : {this.state.incidentObj.ER_VISIT}</p>
-                        </div>
-                        <div className="form-group col-md-9">
-                           <p>If YES an emergency room was visited, which hospital? If no, type 'NA': {this.state.incidentObj.ER_HOSPITAL}</p>
-                        </div>
-                    </div>
-                    <div className = "form-row">
-                        <div className="form-group col-md-3">
-                            <p>Was a police report filed?: {this.state.incidentObj.POLICE_REPORT}</p>
-                        </div>
-                        <div className="form-group col-md-9">
-                         <p>If YES a police report was filed, what was the report number? If no, type 'NA' : {this.state.incidentObj.PR_NUMBER}</p>
-                        </div>
-                    </div>
-                    <div className="form-row">
-                        <p>Which individuals or supervisors were notified? ??</p>
-                    </div>
-                    <div className="form-row">
-                        <div className="form-group col-md-6">
-                           <p>Report Logged By: {this.state.incidentObj.AUTHOR_ID} on {new Date(this.state.incidentObj.AUTHOR_DATE).toDateString()}</p>
-                        </div>
-                    </div>
-                    <div className="form-group col-md-11">
-                        <p>Summarize your follow up action and recommendations: ??</p>
-                    </div>
-                    <div className="form-row">
-                        <p>Report reviewed by: {this.state.incidentObj.REVIEWER_ID}</p>
-                    </div>
-                </div>
+                <Container style={{marginTop: "30px"}}>
+                    <Row>
+                        <Col>
+                            <p><strong>Date of Incident:</strong> {new Date(this.state.incidentObj.INCIDENT_DATE).toDateString()}</p>
+                        </Col>
+                        <Col>
+                            <p><strong>Time of Incident:</strong> {this.state.incidentObj.TIME.substring(0,5)}</p>
+                        </Col>
+                        <Col>
+                            <p><strong>Village:</strong> {this.state.incidentObj.VID}</p>
+                        </Col>
+                        <Col>
+                            <p><strong>Location:</strong> {this.state.incidentObj.LOCATION}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>People Involved:</strong> ??</p>
+                        </Col>
+                        <Col>
+                            <p><strong>Observers of the Incident:</strong> ??</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Description of the Incident:</strong> {this.state.incidentObj.DESCRIPTION}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Injury to the resident, staff, or
+                                others?:</strong> {this.handleBool(this.state.incidentObj.INJURY)}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Description of injuries, physical complaints, or property damage:</strong> {this.state.incidentObj.INJURY_DESCRIPTION}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Emergency Room visit required?:</strong> {this.handleBool(this.state.incidentObj.ER_VISIT)}</p>
+                        </Col>
+                        <Col>
+                            <p><strong>Hospital Name:</strong> {this.state.incidentObj.ER_HOSPITAL}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Police report filed?:</strong> {this.handleBool(this.state.incidentObj.POLICE_REPORT)}</p>
+                        </Col>
+                        <Col>
+                            <p><strong>Report Number:</strong> {this.state.incidentObj.PR_NUMBER}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Individuals or Supervisors Notified:</strong> ??</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Report Logged By:</strong> {this.state.incidentObj.AUTHOR_ID} on {new Date(this.state.incidentObj.AUTHOR_DATE).toDateString()}</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Follow up action and recommendations:</strong> ??</p>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <p><strong>Report reviewed by:</strong> {this.state.incidentObj.REVIEWER_ID}</p>
+                        </Col>
+                    </Row>
+                </Container>
                 }
             </div>
         );

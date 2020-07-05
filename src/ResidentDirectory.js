@@ -39,7 +39,7 @@ class ResidentDirectory extends Component {
     }
 
     reupdateData = () => {
-        console.log("reupdating data");
+        // console.log("reupdating data");
         fetch("http://localhost:4000/residents")
             .then((res) => {
                 if (res.ok) {
@@ -52,7 +52,6 @@ class ResidentDirectory extends Component {
             .then((data) => {
                 let residentArray = JSON.parse(data);
                 this.setState({residents: residentArray})
-                console.log(this.state.residents)
             })
             .catch((error) => {
                 console.log(error)
@@ -83,7 +82,7 @@ class ResidentDirectory extends Component {
             fName: this.state.data.FIRST_NAME,
             lName: this.state.data.LAST_NAME,
             birthday: this.state.data.BIRTHDAY,
-            endDate: new Date().toISOString()
+            endDate: new Date().toISOString().slice(0, 10)
         };
         console.log(data);
         fetch("http://localhost:4000/residents", {
@@ -100,6 +99,14 @@ class ResidentDirectory extends Component {
                     .then((text) => {
                         alert(text.error);
                     });
+            } else if (response.status === 200) {
+                this.setState({
+                    displayCard: false,
+                    value: '?',
+                    data: '',
+                    startDate: '?'
+                });
+                this.reupdateData();
             }
         })
     };
@@ -144,7 +151,7 @@ class ResidentDirectory extends Component {
                         justifyContent: "center",
                         alignItems: "center"
                     }}>
-                        {console.log(this.state.residents)}
+                        {/* {console.log(this.state.residents)} */}
                         <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                                 options={this.state.residents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,

@@ -32,7 +32,7 @@ class Database {
 			user: serverUser, 
 			password: serverPassword, 
 			database: serverDatabase,
-			port: serverPort
+			port: serverPort,
 		});
 		this.connection.connect(function(err) {
 			if (err) throw err;
@@ -281,8 +281,7 @@ app.route("/residents")
 	.delete((req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		let delRes = req.body;
-
-		con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE RID = ?', [delRes.endDate, delRes.rid])
+		con.query('UPDATE RESIDENTS SET END_DATE = ?, IN_RESIDENCE = False WHERE RID = ?', [delRes.endDate, delRes.rid])
 			.then(rows => {
 				res.sendStatus(200);
 			}, err => {

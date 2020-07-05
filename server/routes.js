@@ -513,14 +513,13 @@ app.route("/villages")
 app.route("/incidentReport")
 	// Add new incident report
 	.post((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		let incident = req.body;
 		let newIncidentID = "";		
 		incident.injury = (incident.injury == 'true');
 		incident.emergencyRoom = (incident.emergencyRoom == 'true');
 		incident.policeReport = (incident.policeReport == 'true');
-		res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-		con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAl, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+		con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
 					[incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.reviewerName, incident.currentDate])
 			.then(rows => {
 				if (rows.insertId) {

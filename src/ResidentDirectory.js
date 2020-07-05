@@ -77,6 +77,7 @@ class ResidentDirectory extends Component {
     };
 
     removeRes = (event) => { //Not currently working (just a start)
+        console.log(this.state.data);
         let data = {
             rid: this.state.data.RID,
             fName: this.state.data.FIRST_NAME,
@@ -108,7 +109,12 @@ class ResidentDirectory extends Component {
                 });
                 this.reupdateData();
             }
+            else if (response.status === 200) {
+                alert("lets go");
+                this.reupdateData();
+            }
         })
+        //TODO reupdate data
     };
 
     viewIncRep = (event) => {
@@ -196,7 +202,7 @@ class ResidentDirectory extends Component {
                                         <li>Criminal History: {this.getBoolStr(this.state.data.CRIMINAL_HISTORY)}</li>
                                     </ul>
                                 </div>
-                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Report</Button>
+                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Reports</Button>
                                 <Button variant="primary" style={{margin: "10px"}} onClick={this.removeRes}>Remove This
                                     Resident</Button>
                             </Card.Body>
@@ -216,7 +222,7 @@ class ResidentDirectory extends Component {
 
                 {this.state.displayIncRep &&
                 <div>
-                    <IncidentReportView />
+                    <IncidentReportView personName={this.state.data.FIRST_NAME + " " + this.state.data.LAST_NAME} personID={this.state.data.PID}/>
                 </div>
                 }
 

@@ -5,58 +5,62 @@ var app = express();
 app.use(express.json());
 const cors = require('cors');
 
-var {serverHost, serverUser, serverPassword,
-	 serverDatabase, serverPort, frontendHost} = require('./common')
+var {
+    serverHost, serverUser, serverPassword,
+    serverDatabase, serverPort, frontendHost
+} = require('./common')
 
 
 const readline = require('readline').createInterface({
-	input: process.stdin,
-	output: process.stdout
-  })
-  
+    input: process.stdin,
+    output: process.stdout
+})
+
 readline.question(`What's your name?`, (pwd) => {
-console.log(`Enter MySQL password: ${pwd}!`)
-readline.close()
+    console.log(`Enter MySQL password: ${pwd}!`)
+    readline.close()
 })
 
 async function insert(sql, id, data) {
-	for (let i=0; i<data.length; i++)
-		await con.query(sql, [id, data[i]]);
+    for (let i = 0; i < data.length; i++)
+        await con.query(sql, [id, data[i]]);
 }
 
 
 class Database {
-    constructor( config ) {
+    constructor(config) {
         this.connection = mysql.createConnection({
-			host: serverHost,
-			user: serverUser, 
-			password: serverPassword, 
-			database: serverDatabase,
-			port: serverPort,
-		});
-		this.connection.connect(function(err) {
-			if (err) throw err;
-			console.log("Connected!");
-	   });
+            host: serverHost,
+            user: serverUser,
+            password: serverPassword,
+            database: serverDatabase,
+            port: serverPort
+        });
+        this.connection.connect(function (err) {
+            if (err) throw err;
+            console.log("Connected!");
+        });
     }
-    query( sql, args ) {
-        return new Promise( ( resolve, reject ) => {
-            this.connection.query( sql, args, ( err, rows ) => {
-                if ( err )
-                    return reject( err );
-                resolve( rows );
+
+    query(sql, args) {
+        return new Promise((resolve, reject) => {
+            this.connection.query(sql, args, (err, rows) => {
+                if (err)
+                    return reject(err);
+                resolve(rows);
             });
         });
     }
+
     close() {
-        return new Promise( ( resolve, reject ) => {
-            this.connection.end( err => {
-                if ( err )
-                    return reject( err );
+        return new Promise((resolve, reject) => {
+            this.connection.end(err => {
+                if (err)
+                    return reject(err);
                 resolve();
-            } );
-        } );
-	}
+            });
+        });
+    }
 }
 
 // Used for testing local db:
@@ -68,76 +72,84 @@ class Database {
 var con = new Database();
 
 var corsOptions = {
-	origin: frontendHost,
-	optionsSuccessStatus: 200 
-  }
+    origin: frontendHost,
+    optionsSuccessStatus: 200
+}
 
 app.options('*', cors(corsOptions));
 
 app.route("/people")
-	.get((req, res) => {
+    .get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID != 2')
-			.then(rows => {
-				res.status(200).send(JSON.stringify(rows))
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				// handle the error
-			});
-	})
+        con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID != 2')
+            .then(rows => {
+                res.status(200).send(JSON.stringify(rows))
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                // handle the error
+            });
+    })
 
-	// Create a new person
-	.post((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)' ,[req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID])
-			.then(rows => {
-				res.status(201).send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				// handle the error
-			});	
-	})
+    // Create a new person
+    .post((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID) VALUES (?, ?, ?, ?, ?)', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID])
+            .then(rows => {
+                res.status(201).send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                // handle the error
+            });
+    })
 
-	// Update a person
-	.put((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('UPDATE PEOPLE SET FIRST_NAME = ?, LAST_NAME = ?, BIRTHDAY = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID, req.body.PID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				// handle the error
-		});	
-	})
+    // Update a person
+    .put((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('UPDATE PEOPLE SET FIRST_NAME = ?, LAST_NAME = ?, BIRTHDAY = ?, ROLE_ID = ?, VID = ? WHERE PID = ?', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.VID, req.body.PID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                // handle the error
+            });
+    })
 
-	// Delete person
-	.delete((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('DELETE FROM PEOPLE WHERE PID = ?', [req.body.PID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-		});	
-	})
+    // Delete person
+    .delete((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('DELETE FROM PEOPLE WHERE PID = ?', [req.body.PID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+            });
+    })
 
 
 app.route("/residents")
-	// Get all residents
-	.get((req, res) => {
+    // Get all residents
+    .get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
 		con.query('SELECT * FROM RESIDENTS JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID WHERE RESIDENTS.IN_RESIDENCE = 1')
 			.then(rows => {
@@ -327,254 +339,297 @@ app.route("/residents")
 
 
 app.route("/permissions")
-	// Get all permissions
-	.get((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('SELECT * FROM PERMISSIONS')
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Get all permissions
+    .get((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('SELECT * FROM PERMISSIONS')
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Create a new permission
-	.post((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('INSERT INTO PERMISSIONS (DESCRIPTION) VALUES (?) ', [req.body.Description])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Create a new permission
+    .post((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('INSERT INTO PERMISSIONS (DESCRIPTION) VALUES (?) ', [req.body.Description])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Update a permission
-	.put((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('UPDATE PERMISSIONS SET DESCRIPTION = ? WHERE ROLE_ID = ?', [req.body.Description, req.body.RoleID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Update a permission
+    .put((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('UPDATE PERMISSIONS SET DESCRIPTION = ? WHERE ROLE_ID = ?', [req.body.Description, req.body.RoleID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Delete permission
-	.delete((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('DELETE FROM PERMISSIONS WHERE ROLE_ID = ?', [req.body.RoleID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
-	
+    // Delete permission
+    .delete((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('DELETE FROM PERMISSIONS WHERE ROLE_ID = ?', [req.body.RoleID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
 
 app.route("/rooms")
-	// Get all rooms
-	.get((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('SELECT * FROM ROOMS')
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Get all rooms
+    .get((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('SELECT * FROM ROOMS')
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Create a new room
-	.post((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Create a new room
+    .post((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Update a room
-	.put((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('UPDATE ROOMS SET ROOM_NUM = ?, BLDG_NAME = ?, VID = ?, VACANT = ? WHERE ROOM_ID = ?', [req.body.RoomNum, req.body.BuildingName, req.body.VID, req.body,vacant, req.body.RoomID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Update a room
+    .put((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('UPDATE ROOMS SET ROOM_NUM = ?, BLDG_NAME = ?, VID = ?, VACANT = ? WHERE ROOM_ID = ?', [req.body.RoomNum, req.body.BuildingName, req.body.VID, req.body, vacant, req.body.RoomID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Delete a room
-	.delete((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('DELETE FROM ROOMS WHERE ROOM_ID = ?', [req.body.RoomID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Delete a room
+    .delete((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('DELETE FROM ROOMS WHERE ROOM_ID = ?', [req.body.RoomID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
 app.route("/villages")
-	// Get all villages
-	.get((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('SELECT * FROM VILLAGES')
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Get all villages
+    .get((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('SELECT * FROM VILLAGES')
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Create a new village
-	.post((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [req.body.Name])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Create a new village
+    .post((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [req.body.Name])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Update a village
-	.put((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
+    // Update a village
+    .put((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
-	// Delete a village
-	.delete((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
-			.then(rows => {
-				res.send(JSON.stringify(rows));
-			}, err => {
-				return con.close().then( () => { throw err; } )
-			})
-			.catch( err => {
-				res.sendStatus(400);
-				return;
-				// handle the error
-		});	
-	})
-
-
-
+    // Delete a village
+    .delete((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
+            .then(rows => {
+                res.send(JSON.stringify(rows));
+            }, err => {
+                return con.close().then(() => {
+                    throw err;
+                })
+            })
+            .catch(err => {
+                res.sendStatus(400);
+                return;
+                // handle the error
+            });
+    })
 
 
 app.route("/incidentReport")
-	// Add new incident report
-	.post((req, res) => {
-		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		let incident = req.body;
-		let newIncidentID = "";		
-		incident.injury = (incident.injury == 'true');
-		incident.emergencyRoom = (incident.emergencyRoom == 'true');
-		incident.policeReport = (incident.policeReport == 'true');
-		con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-					[incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.reviewerName, incident.currentDate])
-			.then(rows => {
-				if (rows.insertId) {
-					newIncidentID = rows.insertId;
-					let insertPeople = 'INSERT INTO INCIDENTS_PEOPLE (INID, PID) VALUES (?, ?)';
-					return insert(insertPeople, newIncidentID, incident.peopleInvolved);
-				} else {
-					return Promise.resolve().then( () => { throw new Error("Bad request: Failed to add incident.");} )
-				}
-			}, err => {
-				return Promise.resolve().then( () => { throw err; } )
-			})
-			.then(result => {
-				let insertObserver = 'INSERT INTO INCIDENTS_OBSERVER (INID, PID) VALUES (?, ?)';
-				return insert(insertObserver, newIncidentID, incident.observers);
-			}, err => {
-				return Promise.resolve().then( () => { throw err; } )
-			})
-			.then(result => {
-				let insertNotified = 'INSERT INTO INCIDENTS_NOTIFIED (INID, PID) VALUES (?, ?)';
-				return insert(insertNotified, newIncidentID, incident.peopleNotified);
-			}, err => {
-				return Promise.resolve().then( () => { throw err; } )
-			})
-			.then(result => {
-				res.sendStatus(201);
-			})
-			.catch( err => {
-				console.log("Error message: " + err.message);
-				if (!err.message.includes("Bad request:")) {
-					res.status(400).json({'error': "Bad request"});
-				} else {
-					res.status(400).json({'error': err.message});
-				}
-			});
-	})
+    // Add new incident report
+    .post((req, res) => {
+        res.setHeader('Access-Control-Allow-Origin', frontendHost);
+        let incident = req.body;
+        let newIncidentID = "";
+        incident.injury = (incident.injury == 'true');
+        incident.emergencyRoom = (incident.emergencyRoom == 'true');
+        incident.policeReport = (incident.policeReport == 'true');
+        con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.reviewerName, incident.currentDate])
+            .then(rows => {
+                if (rows.insertId) {
+                    newIncidentID = rows.insertId;
+                    let insertPeople = 'INSERT INTO INCIDENTS_PEOPLE (INID, PID) VALUES (?, ?)';
+                    return insert(insertPeople, newIncidentID, incident.peopleInvolved);
+                } else {
+                    return Promise.resolve().then(() => {
+                        throw new Error("Bad request: Failed to add incident.");
+                    })
+                }
+            }, err => {
+                return Promise.resolve().then(() => {
+                    throw err;
+                })
+            })
+            .then(result => {
+                let insertObserver = 'INSERT INTO INCIDENTS_OBSERVER (INID, PID) VALUES (?, ?)';
+                return insert(insertObserver, newIncidentID, incident.observers);
+            }, err => {
+                return Promise.resolve().then(() => {
+                    throw err;
+                })
+            })
+            .then(result => {
+                let insertNotified = 'INSERT INTO INCIDENTS_NOTIFIED (INID, PID) VALUES (?, ?)';
+                return insert(insertNotified, newIncidentID, incident.peopleNotified);
+            }, err => {
+                return Promise.resolve().then(() => {
+                    throw err;
+                })
+            })
+            .then(result => {
+                res.sendStatus(201);
+            })
+            .catch(err => {
+                console.log("Error message: " + err.message);
+                if (!err.message.includes("Bad request:")) {
+                    res.status(400).json({'error': "Bad request"});
+                } else {
+                    res.status(400).json({'error': err.message});
+                }
+            });
+    })
 
-
-
+//seperate incidentRep get request to accept parameter
+//uses PID to find INCID to get the incident and returns that incident
+app.get('/incidentReport/:pid', function (req, res) {
+    res.setHeader('Access-Control-Allow-Origin', frontendHost);
+    con.query('SELECT * FROM INCIDENTS_PEOPLE JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID WHERE INCIDENTS_PEOPLE.PID = ?', [req.params.pid])
+        .then(rows => {
+            res.status(200).json(rows);
+            return Promise.resolve(rows);
+        }, err => {
+            return con.close().then(() => {
+                throw err;
+            })
+        })
+        .catch(err => {
+            res.status(400).send(err.message);
+        });
+})
 
 module.exports = app;

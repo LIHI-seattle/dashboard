@@ -1,8 +1,15 @@
 "use strict";
 var mysql = require("mysql");
 var express = require("express");
+var bodyParser = require('body-parser');
+const excelToJson = require('convert-excel-to-json');
+var multer = require("multer");
+var upload = multer();
 var app = express();
+
 app.use(express.json());
+app.use(bodyParser.json());
+
 const cors = require('cors');
 
 var {
@@ -569,23 +576,49 @@ app.route("/villages")
             });
     })
 
-    // Delete a village
-    .delete((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
+app.post("/sendFile",  upload.single('fileName'), function(req, res){
+
+	//text fields
+	console.log(req.body);
+
+	//file contents
+	console.log(req.file);
+	console.log(req.file.originalname);
+	let result = excelToJson({
+		source: req.file.buffer,
+		header:{
+			rows: 1
+		},
+		columnToKey: {
+			A: 'firstName',
+			B: 'lastName',
+			C: 'dateOfEntry',
+			D: 'birthday',
+			E: 'age',
+			F: 'gender',
+			G: 'employment',
+			H: 'identification',
+			I: 'lastResidence',
+			J: 'disabilities',
+			K: 'children',
+			L: 'lastProgram',
+			M: 'criminalHistory',
+			N: 'house',
+			O: 'village'
+		},
+	});
+	let data = result.Sheet1;
+	console.log(data);
+	
+	
+	// add new feature that allows them to add a new Village and specify the number of houses
+
+	// process
+	// var response = 'Do something';
+	// res.json(response);
+
+});
+
 
 
 app.route("/incidentReport")

@@ -11,6 +11,12 @@ var myCon = mysql.createConnection({
 });
 
 // Drops database to be created again after change to SQL schema
+// var myCon = mysql.createConnection({
+// 	host: "localhost",
+// 	user: "root",
+// 	password: "password",
+// 	database: 'LIHI'
+// });
 // myCon.query("DROP DATABASE IF EXISTS LIHI;", function (err, result) {
 // 	if (err) throw err;
 // 	console.log("Database deleted");

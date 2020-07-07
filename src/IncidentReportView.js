@@ -86,10 +86,10 @@ class IncidentReportView extends Component {
                             <p><strong>Time of Incident:</strong> {this.state.incidentObj.TIME.substring(0,5)}</p>
                         </Col>
                         <Col>
-                            <p><strong>Village:</strong> {this.state.incidentObj.VID}</p>
+                            <p><strong>Village:</strong> {this.state.incidentObj.NAME}</p>
                         </Col>
                         <Col>
-                            <p><strong>Location:</strong> {this.state.incidentObj.LOCATION}</p>
+                            <p><strong>Description of Location:</strong> {this.state.incidentObj.LOCATION}</p>
                         </Col>
                     </Row>
                     <Row>
@@ -139,7 +139,7 @@ class IncidentReportView extends Component {
                     </Row>
                     <Row>
                         <Col>
-                            <p><strong>Report Logged By:</strong> {this.state.incidentObj.AUTHOR_ID} on {new Date(this.state.incidentObj.AUTHOR_DATE).toDateString()}</p>
+                            <p><strong>Report Logged By:</strong> {this.state.incidentObj.A_FNAME + " " + this.state.incidentObj.A_LNAME} on {new Date(this.state.incidentObj.AUTHOR_DATE).toDateString()}</p>
                         </Col>
                     </Row>
                     <Row>
@@ -149,7 +149,7 @@ class IncidentReportView extends Component {
                     </Row>
                     <Row>
                         <Col>
-                            <p><strong>Report reviewed by:</strong> {this.state.incidentObj.REVIEWER_ID}</p>
+                            <p><strong>Report reviewed by:</strong> {this.state.incidentObj.R_FNAME + " " + this.state.incidentObj.R_LNAME}</p>
                         </Col>
                     </Row>
                 </Container>

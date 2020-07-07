@@ -619,6 +619,8 @@ app.route("/incidentReport")
 app.get('/incidentReport/:pid', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', frontendHost);
     con.query('SELECT * FROM INCIDENTS_PEOPLE JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID WHERE INCIDENTS_PEOPLE.PID = ?', [req.params.pid])
+        //JOIN INCIDENTS_OBSERVER ON INCIDENTS_PEOPLE.INID = INCIDENTS_OBSERVER.INID JOIN INCIDENTS_NOTIFIED ON INCIDENTS_PEOPLE.INID = INCIDENTS_NOTIFIED.INID
+        //JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID WHERE INCIDENTS_PEOPLE.PID = ?
         .then(rows => {
             res.status(200).json(rows);
             return Promise.resolve(rows);

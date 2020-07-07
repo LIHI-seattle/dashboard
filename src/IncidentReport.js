@@ -135,11 +135,20 @@ class IncidentReport extends Component {
         } else {
           let data = this.state;
           let peopleInvolved = data.peopleInvolved.map(person => person.value);
+          let peopleInvolvedNames = data.peopleInvolved.map(person => person.label);
+          let observersNames = data.observers.map(person => person.label);
+          let notifiedNames = data.peopleNotified.map(person => person.label);
           let village = data.village.value;
           let observers = data.observers.map(person => person.value); 
           let notified = data.peopleNotified.map(person => person.value); 
           let signature = data.signature.value;
           let reviewer = data.reviewerName.value; 
+          let names = {peopleInvolvedNames: peopleInvolvedNames,
+                      observersNames: observersNames,
+                      notifiedNames: notifiedNames}
+          console.log("involvedNames: " + peopleInvolvedNames);
+          Object.assign(data, names);
+          console.log("Names: " + data.peopleInvolvedNames);
           data.peopleInvolved = peopleInvolved;
           data.village = village;
           data.observers = observers;

@@ -216,7 +216,7 @@ class IncidentReport extends Component {
                                 options={this.state.villages}/>
                 </div>
                 <div className="form-group col-md-3">
-                  <label>Location<span className="required">*</span></label>
+                  <label>Description of Location<span className="required">*</span></label>
                   <input type="text" className="form-control" name="location" onChange={this.handleChange} /> 
                 </div>
               </div>
@@ -304,7 +304,7 @@ class IncidentReport extends Component {
                 <textarea type="text" className="form-control" name="followUp" onChange={this.handleChange} />
               </div>
               <div className="form-row">
-                <label>Have another person review the document and state their name here<span className="required">*</span></label>
+                <label>Have one other person review the document and state their name here<span className="required">*</span></label>
                 <Select className="dropdown" onChange={(event) => this.handleDropdownMulti(event, "reviewerName")} name="reviewerName"
                                 options={this.state.people}/>
               </div>

@@ -1,8 +1,15 @@
 "use strict";
 var mysql = require("mysql");
 var express = require("express");
+var bodyParser = require('body-parser');
+const excelToJson = require('convert-excel-to-json');
+var multer = require("multer");
+var upload = multer();
 var app = express();
+
 app.use(express.json());
+app.use(bodyParser.json());
+
 const cors = require('cors');
 
 var {

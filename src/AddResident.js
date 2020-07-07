@@ -39,6 +39,7 @@ export default class AddResident extends Component {
                 </div>
                 <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to add.</p>
                 <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)}/>
+                <UploadResidents/>
             </div>
         );
     }
@@ -272,6 +273,28 @@ class AddResidentForm extends Component {
             <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add
                 Resident</Button>
         </form>)
-
     }
+}
+
+
+class UploadResidents extends Component {
+
+
+
+
+
+  render() {
+    return (
+      <div>
+        <h4 style={{marginTop: "15px"}}>Bulk Resident Upload</h4>
+        <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only .xlsx Excel files are accepted.</p>
+        <form name="myForm" action="http://localhost:4000/sendFile" method="post" enctype="multipart/form-data">
+                                  <input id="fileName" name="fileName" type="file"  class="validate" />
+                                  <input className="btn btn-primary" type="submit"/>
+        </form>
+      </div>
+    )
+
+  }
+
 }

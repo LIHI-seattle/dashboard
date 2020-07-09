@@ -2,6 +2,18 @@ import React, {Component} from "react";
 import Select from "react-select";
 import {Container, Row, Col} from 'reactstrap';
 
+const colorStyles = {
+    control: styles => ({...styles, backgroundColor: 'white'}),
+    option: (styles) => {
+        return {
+            ...styles,
+            backgroundColor: "white",
+            color: 'black',
+            cursor: 'default',
+        };
+    },
+};
+
 class IncidentReportView extends Component {
     constructor(props) {
         super(props);
@@ -73,6 +85,7 @@ class IncidentReportView extends Component {
                                 label: "Incident on " + new Date(item.INCIDENT_DATE).toLocaleDateString(),
                                 data: item
                             }))}
+                            styles={colorStyles}
                     />
                 </div>
 
@@ -94,10 +107,10 @@ class IncidentReportView extends Component {
                     </Row>
                     <Row>
                         <Col>
-                            <p><strong>People Involved:</strong> ??</p>
+                            <p><strong>People Involved:</strong> {this.state.incidentObj.INVOLVED_NAMES}</p>
                         </Col>
                         <Col>
-                            <p><strong>Observers of the Incident:</strong> ??</p>
+                            <p><strong>Observers of the Incident:</strong> {this.state.incidentObj.OBSERVER_NAMES}</p>
                         </Col>
                     </Row>
                     <Row>
@@ -134,7 +147,7 @@ class IncidentReportView extends Component {
                     </Row>
                     <Row>
                         <Col>
-                            <p><strong>Individuals or Supervisors Notified:</strong> ??</p>
+                            <p><strong>Individuals or Supervisors Notified:</strong> {this.state.incidentObj.NOTIFIED_NAMES}</p>
                         </Col>
                     </Row>
                     <Row>
@@ -144,7 +157,7 @@ class IncidentReportView extends Component {
                     </Row>
                     <Row>
                         <Col>
-                            <p><strong>Follow up action and recommendations:</strong> ??</p>
+                            <p><strong>Follow up action and recommendations:</strong> {this.state.incidentObj.FOLLOW_UP}</p>
                         </Col>
                     </Row>
                     <Row>

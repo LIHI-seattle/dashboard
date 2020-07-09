@@ -67,26 +67,36 @@ class Database {
 
 var con = new Database();
 
+console.log("database created");
+
 var corsOptions = {
 	origin: frontendHost,
 	optionsSuccessStatus: 200 
   }
+console.log("cors options done");
 
 app.options('*', cors(corsOptions));
+
+console.log("adding routes now");
 
 app.route("/people")
 	.get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		console.log("creating get people route");
 		con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID != 2')
 			.then(rows => {
+				console.log("sending response");
 				res.status(200).send(JSON.stringify(rows))
 			}, err => {
+				console.log("closing conn on error");
 				return con.close().then( () => { throw err; } )
 			})
 			.catch( err => {
+				console.log("sending error");
 				res.sendStatus(400);
 				// handle the error
 			});
+		console.log("query done");
 	})
 
 	// Create a new person

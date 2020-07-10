@@ -187,7 +187,7 @@ class ResidentDirectory extends Component {
                                 <div>
                                     <h6>Residence Information:</h6>
                                     <ul style={{listStyleType: "none"}}>
-                                        <li>Current Residence: {this.state.data.VID}; {this.state.data.RID}</li>
+                                        <li>Current Residence: house {this.state.data.HOUSE_NUM} in {this.state.data.NAME} village</li>
                                         <li>Entry Date: {this.state.startDate} </li>
                                         <li>Last Known Residence: {this.state.data.PREVIOUS_RESIDENCE || "N/A"}</li>
                                         <li>Previous Shelter

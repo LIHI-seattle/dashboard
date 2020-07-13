@@ -68,9 +68,10 @@ class IncidentReportView extends Component {
                 <div style={{ //title div
                     display: "flex",
                     justifyContent: "center",
-                    alignItems: "center"
+                    alignItems: "center",
+                    margin:"20px"
                 }}>
-                    <label>Incidents that {this.props.personName} was involved in: </label>
+                    <label>Incidents that {this.props.personName} was involved in:</label>
                     <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                             options={this.state.incident.map((item) => ({
                                 label: "Incident on " + new Date(item.INCIDENT_DATE).toLocaleDateString(),
@@ -81,7 +82,7 @@ class IncidentReportView extends Component {
                 </div>
 
                 {this.state.displayIncRep &&
-                <Container style={{marginTop: "30px"}}>
+                <Container style={{marginTop: "30px", backgroundColor: '#f0f8ff', padding:"10px"}}>
                     <Row>
                         <Col>
                             <p><strong>Date of Incident:</strong> {new Date(this.state.incidentObj.INCIDENT_DATE).toDateString()}</p>

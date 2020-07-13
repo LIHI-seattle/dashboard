@@ -71,7 +71,7 @@ class IncidentReportView extends Component {
                     alignItems: "center",
                     margin: "20px"
                 }}>
-                    <label>Incidents that {this.props.personName} was involved in: </label>
+                    <label>Incidents that {this.props.personName} was involved in:</label>
                     <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                             options={this.state.incident.map((item) => ({
                                 label: "Incident on " + new Date(item.INCIDENT_DATE).toLocaleDateString(),

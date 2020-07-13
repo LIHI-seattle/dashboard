@@ -1,13 +1,22 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
 <<<<<<< HEAD
+<<<<<<< HEAD
 import './ResidentDirectory.css';
+=======
+import './ResidentDirectory.css'
+import AddResident from './AddResident.js'
+<<<<<<< HEAD
+>>>>>>> add resident file upload, add new village form
 import {Card, Button} from 'react-bootstrap';
 import {Link, withRouter} from 'react-router-dom';
 import IncidentReportView from "./IncidentReportView";
 =======
+<<<<<<< HEAD
 import './ResidentDirectory.css'
 import AddResident from './AddResident.js'
+=======
+>>>>>>> add resident file upload, add new village form
 import AddVillage from './AddVillage.js'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
@@ -250,6 +259,9 @@ class ResidentDirectory extends Component {
                                 <span>Add Village</span>
                             </Button>
                         </Link>
+<<<<<<< HEAD
+>>>>>>> add resident file upload, add new village form
+=======
 >>>>>>> add resident file upload, add new village form
                     </div>
 

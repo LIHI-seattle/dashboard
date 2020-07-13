@@ -354,33 +354,6 @@ app.route("/residents")
                     res.status(400).json({'error': err.message});
                 }
             });
-
-        // con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
-        // 	.then(rows => {
-        // 		if (rows.length == 1) {
-        // 			return Promise.resolve(rows[0]);
-        // 		} else {
-        // 			return Promise.resolve().then( () => { throw new Error("Bad request: No resident found.");} )
-        // 		}
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.then(row => {
-        // 		return con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE PID = ? AND IN_RESIDENCE = TRUE', [delRes.endDate, row.PID])
-        // 	})
-        // 	.then(rows => {
-        // 		res.sendStatus(200);
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.catch( err => {
-        // 		console.log("Error message: " + err.message);
-        // 		if (!err.message.includes("Bad request:")) {
-        // 			res.status(400).json({'error': "Bad request"});
-        // 		} else {
-        // 			res.status(400).json({'error': err.message});
-        // 		}
-        // 	});
     })
 
 
@@ -678,56 +651,6 @@ async function bulkResidentInsert(data) {
 		throw error;
 	}
 }
-
-app.post("/sendFile",  upload.single('fileName'), function(req, res){
-	res.setHeader('Access-Control-Allow-Origin', frontendHost);
-	//file contents
-	try {
-		let result = excelToJson({
-			source: req.file.buffer,
-			header:{
-				rows: 1
-			},
-			columnToKey: {
-				A: 'firstName',
-				B: 'lastName',
-				C: 'dateOfEntry',
-				D: 'birthday',
-				E: 'age',
-				F: 'gender',
-				G: 'employment',
-				H: 'identification',
-				I: 'lastResidence',
-				J: 'disabilities',
-				K: 'children',
-				L: 'lastProgram',
-				M: 'criminalHistory',
-				N: 'house',
-				O: 'village'
-			},
-		});
-		let data = result.Sheet1;
-	
-		bulkResidentInsert(data)
-			.then(rows => {
-				res.sendStatus(201);
-				console.log("Successfully uploaded: " + req.file.originalname);
-			}, err => {
-				return Promise.resolve().then( () => { throw new Error('Bad request: Verify document formatting and presence of villages/houses in the database.'); } )
-			})
-			.catch( err => {
-				console.log("Error message: " + err.message);
-				if (!err.message.includes("Bad request:")) {
-					res.status(400).json({'error': "Bad request"});
-				} else {
-					res.status(400).json({'error': err.message});
-				}
-			});
-	} catch {
-		res.status(400).json({'error': "Bad request"});
-	}
-	
-});
 
 async function bulkResidentInsert(data) {
 	let retrieveVillageSQL = 'SELECT VID FROM VILLAGES WHERE NAME = ?'

@@ -349,33 +349,6 @@ app.route("/residents")
                     res.status(400).json({'error': err.message});
                 }
             });
-
-        // con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
-        // 	.then(rows => {
-        // 		if (rows.length == 1) {
-        // 			return Promise.resolve(rows[0]);
-        // 		} else {
-        // 			return Promise.resolve().then( () => { throw new Error("Bad request: No resident found.");} )
-        // 		}
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.then(row => {
-        // 		return con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE PID = ? AND IN_RESIDENCE = TRUE', [delRes.endDate, row.PID])
-        // 	})
-        // 	.then(rows => {
-        // 		res.sendStatus(200);
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.catch( err => {
-        // 		console.log("Error message: " + err.message);
-        // 		if (!err.message.includes("Bad request:")) {
-        // 			res.status(400).json({'error': "Bad request"});
-        // 		} else {
-        // 			res.status(400).json({'error': err.message});
-        // 		}
-        // 	});
     })
 
 

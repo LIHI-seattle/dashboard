@@ -8,11 +8,16 @@ export default class AddResident extends Component {
         super(props);
         this.state = {
             addedResident: false,
+            uploadedResidents: false,
         };
     }
 
     updateResidentStatus(status) {
         this.setState({addedResident: status});
+    }
+
+    updateUploadedResidentsStatus(status) {
+      this.setState({uploadedResidents: status});
     }
 
     render() {
@@ -31,6 +36,15 @@ export default class AddResident extends Component {
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div> : <div/>}
+                {this.state.uploadedResidents === true ?
+                  <div className="alert alert-success alert-dismissible fade show" role="alert">
+                      Successfully uploaded file!
+                      <button type="button" className="close" aria-label="Close" onClick={() => {
+                          this.setState({uploadedResidents: false})
+                      }}>
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div> : <div/>}
                 <div style={{ //title div
                     display: "flex",
                     justifyContent: "center",
@@ -40,7 +54,7 @@ export default class AddResident extends Component {
                 </div>
                 <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to add.</p>
                 <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)}/>
-                <UploadResidents/>
+                <UploadResidents fileUpdate={this.updateUploadedResidentsStatus.bind(this)}/>
             </div>
         );
     }
@@ -238,7 +252,7 @@ class AddResidentForm extends Component {
                            onChange={this.handleChange}/>
                 </div>
             </div>
-            <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add
+            <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit
                 Resident</Button>
         </form>)
     }
@@ -248,17 +262,39 @@ class AddResidentForm extends Component {
 class UploadResidents extends Component {
 
 
-
-
+  mySubmitHandler = (e) => {
+    this.props.fileUpdate(false);
+    e.preventDefault();
+    let form = document.getElementById("bulkResidentUpload")
+    let formData = new FormData()
+    formData.append('fileName', document.getElementById("fileName").files[0])
+    fetch("http://localhost:4000/sendFile", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json, text/plain, */*',
+        },
+        body : formData
+    }).then((response) => {
+        if (response.status === 400) {
+            response.json()
+                .then((text) => {
+                    alert(text.error);
+                });
+        } else if (response.status === 201) {
+            form.reset();
+            this.props.fileUpdate(true);
+        }
+    })
+  }
 
   render() {
     return (
       <div>
         <h4 style={{marginTop: "15px"}}>Bulk Resident Upload</h4>
         <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only .xlsx Excel files are accepted.</p>
-        <form name="myForm" action="http://localhost:4000/sendFile" method="post" enctype="multipart/form-data">
-                                  <input id="fileName" name="fileName" type="file"  class="validate" />
-                                  <input className="btn btn-primary" type="submit"/>
+        <form id="bulkResidentUpload" name="myForm" onSubmit={this.mySubmitHandler}>
+                                  <input id="fileName" name="fileName" type="file"  className="validate" />
+                                  <input className="btn btn-primary" type="submit" value="Submit File"/>
         </form>
       </div>
     )

@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
 import AddResident from './AddResident.js'
+import AddVillage from './AddVillage.js'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 import {withRouter} from 'react-router-dom';
@@ -149,6 +150,11 @@ class ResidentDirectory extends Component {
                         <Link to="/addresident">
                             <Button className='add_button' size="md">
                                 <span>Add Resident</span>
+                            </Button>
+                        </Link>
+                        <Link to="/addvillage">
+                            <Button className='add_button' size="md">
+                                <span>Add Village</span>
                             </Button>
                         </Link>
                     </div>

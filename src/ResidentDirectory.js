@@ -2,19 +2,9 @@ import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
 import AddResident from './AddResident.js'
-<<<<<<< HEAD
 import {Card, Button} from 'react-bootstrap';
 import {Link, withRouter} from 'react-router-dom';
 import IncidentReportView from "./IncidentReportView";
-=======
-import AddVillage from './AddVillage.js'
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import {withRouter} from 'react-router-dom';
-
-import { Link} from 'react-router-dom';
-import placeHolder from './placeHolder.png';
->>>>>>> add resident file upload, add new village form
 
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),

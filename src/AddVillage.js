@@ -130,7 +130,7 @@ class AddVillageForm extends Component {
             <form id="addVillage" onSubmit={(e) => {
                 this.mySubmitHandler(e)
             }}>
-                <h4 >Village Information</h4>
+                <h4>Village Information</h4>
                 <div id="addvillageform" style={{ //title div
                     display: "flex",
                     alignItems: "center",

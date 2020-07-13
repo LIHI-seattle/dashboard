@@ -33,6 +33,11 @@ async function insert(sql, id, data) {
         await con.query(sql, [id, data[i]]);
 }
 
+async function insertVillage(sql, numHouses, vid) {
+	for (let i=0; i<numHouses; i++)
+		await con.query(sql, [i + 1, vid, true]);
+}
+
 
 class Database {
     constructor(config) {
@@ -467,23 +472,91 @@ app.route("/rooms")
             });
     })
 
-    // Create a new room
-    .post((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant])
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
+app.route("/villages")
+	// Get all villages
+	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('SELECT * FROM VILLAGES')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
+	})
+
+	// Create a new village
+	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		let newVillage = req.body;
+		let numHouses = parseInt(newVillage.numHouses);
+		let vid = '';
+		if (isNaN(numHouses)) {
+			res.status(400).json({'error': "Bad request. Number of houses is not a valid integer."});
+		} else {
+			con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [newVillage.villageName])
+				.then(rows => {
+					if (rows.insertId) {
+						vid = rows.insertId;
+						let insertHouse = 'INSERT INTO HOUSES (HOUSE_NUM, VID, VACANT) VALUES (?, ?, ?)';
+						return insertVillage(insertHouse, numHouses, vid);
+					} else {
+						return Promise.resolve().then( () => { throw new Error("Bad request: Failed to add village.");} )
+					}
+				}, err => {
+					return con.close().then( () => { throw new Error("Bad request: Village already exists."); } )
+				})
+				.then(result => {
+					res.sendStatus(201);
+				}, err => {
+					return Promise.resolve().then( () => { throw err; } )
+				})
+				.catch( err => {
+					console.log("Error message: " + err.message);
+					if (!err.message.includes("Bad request:")) {
+						res.status(400).json({'error': "Bad request"});
+					} else {
+						res.status(400).json({'error': err.message});
+					}
+				});	
+		}
+	})
+
+	// Update a village
+	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
+	})
+
+	// Delete a village
+	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
+	})
 
     // Update a room
     .put((req, res) => {
@@ -576,47 +649,79 @@ app.route("/villages")
             });
     })
 
+async function bulkResidentInsert(data) {
+	let retrieveVillageSQL = 'SELECT VID FROM VILLAGES WHERE NAME = ?'
+	let insertPeopleSQL = 'INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID, GENDER, EMPLOYMENT, IDENTIFICATION, DISABILITIES, CHILDREN, CRIMINAL_HISTORY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+	let retrieveHouseSQL = 'SELECT HOUSE_ID FROM HOUSES WHERE VID = ? AND HOUSE_NUM = ?'
+	let insertResidentSQL = 'INSERT INTO RESIDENTS (PID, HOUSE_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?)'
+	try {
+		for (let i = 1; i < data.length; i++) {
+			data[i].employment = (data[i].employment == 'Yes');
+			data[i].identification = (data[i].identification == 'Yes');
+			data[i].disabilities = (data[i].disabilities == 'Yes');
+			data[i].children = (data[i].children == 'Yes');
+			data[i].criminalHistory = (data[i].criminalHistory == 'Yes');
+			let vid = await con.query(retrieveVillageSQL, data[i].village);
+			let houseID = await con.query(retrieveHouseSQL, [vid[0].VID, data[i].house]);
+			let addedPerson = await con.query(insertPeopleSQL, [data[i].firstName, data[i].lastName, data[i].birthday, 3, vid[0].VID, data[i].gender, data[i].employment, data[i].identification, data[i].disabilities, data[i].children, data[i].criminalHistory]);
+			let pid = addedPerson.insertId;
+			let insertResident = await con.query(insertResidentSQL, [pid, houseID[0].HOUSE_ID, data[i].dateOfEntry, null, true]);
+		}
+		return Promise.resolve();
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+}
+
 app.post("/sendFile",  upload.single('fileName'), function(req, res){
-
-	//text fields
-	console.log(req.body);
-
+	res.setHeader('Access-Control-Allow-Origin', frontendHost);
 	//file contents
-	console.log(req.file);
-	console.log(req.file.originalname);
-	let result = excelToJson({
-		source: req.file.buffer,
-		header:{
-			rows: 1
-		},
-		columnToKey: {
-			A: 'firstName',
-			B: 'lastName',
-			C: 'dateOfEntry',
-			D: 'birthday',
-			E: 'age',
-			F: 'gender',
-			G: 'employment',
-			H: 'identification',
-			I: 'lastResidence',
-			J: 'disabilities',
-			K: 'children',
-			L: 'lastProgram',
-			M: 'criminalHistory',
-			N: 'house',
-			O: 'village'
-		},
-	});
-	let data = result.Sheet1;
-	console.log(data);
+	try {
+		let result = excelToJson({
+			source: req.file.buffer,
+			header:{
+				rows: 1
+			},
+			columnToKey: {
+				A: 'firstName',
+				B: 'lastName',
+				C: 'dateOfEntry',
+				D: 'birthday',
+				E: 'age',
+				F: 'gender',
+				G: 'employment',
+				H: 'identification',
+				I: 'lastResidence',
+				J: 'disabilities',
+				K: 'children',
+				L: 'lastProgram',
+				M: 'criminalHistory',
+				N: 'house',
+				O: 'village'
+			},
+		});
+		let data = result.Sheet1;
 	
+		bulkResidentInsert(data)
+			.then(rows => {
+				res.sendStatus(201);
+				console.log("Successfully uploaded: " + req.file.originalname);
+			}, err => {
+				return Promise.resolve().then( () => { throw new Error('Bad request: Verify document formatting and presence of villages/houses in the database.'); } )
+			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+	} catch {
+		res.status(400).json({'error': "Bad request"});
+	}
 	
-	// add new feature that allows them to add a new Village and specify the number of houses
-
-	// process
-	// var response = 'Do something';
-	// res.json(response);
-
 });
 
 

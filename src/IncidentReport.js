@@ -171,10 +171,9 @@ class IncidentReport extends Component {
                 .then((text) => {
                     alert(text.error);
                 });
-            } else {
+            } else if (response.status === 201) {
               form.reset();
               update(true);
-              
             }
           });
         }

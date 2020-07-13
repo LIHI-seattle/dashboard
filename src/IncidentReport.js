@@ -135,11 +135,20 @@ class IncidentReport extends Component {
         } else {
           let data = this.state;
           let peopleInvolved = data.peopleInvolved.map(person => person.value);
+          let peopleInvolvedNames = data.peopleInvolved.map(person => person.label);
+          let observersNames = data.observers.map(person => person.label);
+          let notifiedNames = data.peopleNotified.map(person => person.label);
           let village = data.village.value;
           let observers = data.observers.map(person => person.value); 
           let notified = data.peopleNotified.map(person => person.value); 
           let signature = data.signature.value;
           let reviewer = data.reviewerName.value; 
+          let names = {peopleInvolvedNames: peopleInvolvedNames,
+                      observersNames: observersNames,
+                      notifiedNames: notifiedNames}
+          console.log("involvedNames: " + peopleInvolvedNames);
+          Object.assign(data, names);
+          console.log("Names: " + data.peopleInvolvedNames);
           data.peopleInvolved = peopleInvolved;
           data.village = village;
           data.observers = observers;
@@ -216,7 +225,7 @@ class IncidentReport extends Component {
                                 options={this.state.villages}/>
                 </div>
                 <div className="form-group col-md-3">
-                  <label>Location<span className="required">*</span></label>
+                  <label>Description of Location<span className="required">*</span></label>
                   <input type="text" className="form-control" name="location" onChange={this.handleChange} /> 
                 </div>
               </div>
@@ -304,7 +313,7 @@ class IncidentReport extends Component {
                 <textarea type="text" className="form-control" name="followUp" onChange={this.handleChange} />
               </div>
               <div className="form-row">
-                <label>Have another person review the document and state their name here<span className="required">*</span></label>
+                <label>Have one other person review the document and state their name here<span className="required">*</span></label>
                 <Select className="dropdown" onChange={(event) => this.handleDropdownMulti(event, "reviewerName")} name="reviewerName"
                                 options={this.state.people}/>
               </div>

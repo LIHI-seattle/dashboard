@@ -2,24 +2,21 @@ import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
 import AddResident from './AddResident.js'
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import {withRouter} from 'react-router-dom';
-
-import { Link} from 'react-router-dom';
-import placeHolder from './placeHolder.png';
+import {Card, Button} from 'react-bootstrap';
+import {Link, withRouter} from 'react-router-dom';
+import IncidentReportView from "./IncidentReportView";
 
 const colorStyles = {
-    control: styles => ({ ...styles, backgroundColor: 'white' }),
-    option: (styles, { data, isDisabled, isFocused, isSelected }) => {
-      return {
-        ...styles,
-        backgroundColor: isDisabled ? 'red' : "white",
-        color: 'black',
-        cursor: isDisabled ? 'not-allowed' : 'default',
-      };
+    control: styles => ({...styles, backgroundColor: 'white'}),
+    option: (styles, {data, isDisabled, isFocused, isSelected}) => {
+        return {
+            ...styles,
+            backgroundColor: isDisabled ? 'red' : "white",
+            color: 'black',
+            cursor: isDisabled ? 'not-allowed' : 'default',
+        };
     },
-  };
+};
 
 
 class ResidentDirectory extends Component {
@@ -28,6 +25,8 @@ class ResidentDirectory extends Component {
         this.state = {
             value: '?',
             startDate: '?',
+            data: {},
+            displayIncRep: false,
             displayCard: false,
             displayEditPage: false,
             residents: []
@@ -39,7 +38,6 @@ class ResidentDirectory extends Component {
     }
 
     reupdateData = () => {
-        console.log("reupdating data");
         fetch("http://localhost:4000/residents")
             .then((res) => {
                 if (res.ok) {
@@ -47,12 +45,10 @@ class ResidentDirectory extends Component {
                 } else {
                     throw new Error(res.message);
                 }
-                // res.text();
             })
             .then((data) => {
                 let residentArray = JSON.parse(data);
                 this.setState({residents: residentArray})
-                console.log(this.state.residents)
             })
             .catch((error) => {
                 console.log(error)
@@ -72,17 +68,21 @@ class ResidentDirectory extends Component {
             value: event.label, //label
             data: event.data,
             startDate: date.toDateString(),
-            displayCard: true
+            displayCard: true,
+            displayIncRep: false
         });
     };
 
     removeRes = (event) => { //Not currently working (just a start)
+        console.log(this.state.data);
         let data = {
+            rid: this.state.data.RID,
             fName: this.state.data.FIRST_NAME,
-            lName: this.state.LAST_NAME,
-            birthday: this.state.BIRTHDAY,
-            endDate: new Date()
+            lName: this.state.data.LAST_NAME,
+            birthday: this.state.data.BIRTHDAY,
+            endDate: new Date().toISOString().slice(0, 10)
         };
+        console.log(data);
         fetch("http://localhost:4000/residents", {
             body: JSON.stringify(data),
             mode: 'cors',
@@ -97,11 +97,23 @@ class ResidentDirectory extends Component {
                     .then((text) => {
                         alert(text.error);
                     });
+            } else if (response.status === 200) {
+                this.setState({
+                    displayCard: false,
+                    value: '?',
+                    data: '',
+                    startDate: '?'
+                });
+                this.reupdateData();
             }
         })
     };
 
     viewIncRep = (event) => {
+        this.setState({
+            displayIncRep: true,
+            displayCard: false
+        })
         //view incident report (fetch data from server + display has whole page)
     };
 
@@ -137,7 +149,6 @@ class ResidentDirectory extends Component {
                         justifyContent: "center",
                         alignItems: "center"
                     }}>
-                        {console.log(this.state.residents)}
                         <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                                 options={this.state.residents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
@@ -167,7 +178,7 @@ class ResidentDirectory extends Component {
                                 <div>
                                     <h6>Residence Information:</h6>
                                     <ul style={{listStyleType: "none"}}>
-                                        <li>Current Residence: {this.state.data.VID}; {this.state.data.RID}</li>
+                                        <li>Current Residence: house {this.state.data.HOUSE_NUM} in {this.state.data.VILLAGE_NAME} village</li>
                                         <li>Entry Date: {this.state.startDate} </li>
                                         <li>Last Known Residence: {this.state.data.PREVIOUS_RESIDENCE || "N/A"}</li>
                                         <li>Previous Shelter
@@ -182,7 +193,7 @@ class ResidentDirectory extends Component {
                                         <li>Criminal History: {this.getBoolStr(this.state.data.CRIMINAL_HISTORY)}</li>
                                     </ul>
                                 </div>
-                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Report</Button>
+                                <Button variant="primary" onClick={this.viewIncRep}>View Incident Reports</Button>
                                 <Button variant="primary" style={{margin: "10px"}} onClick={this.removeRes}>Remove This
                                     Resident</Button>
                             </Card.Body>
@@ -197,6 +208,12 @@ class ResidentDirectory extends Component {
                     <Button style={{margin: "10px"}} size="sm" variant="secondary"
                             onClick={this.backToSearch}>Back</Button>
                     <AddResident reupdateData={this.reupdateData}/>
+                </div>
+                }
+
+                {this.state.displayIncRep &&
+                <div>
+                    <IncidentReportView personName={this.state.data.FIRST_NAME + " " + this.state.data.LAST_NAME} personID={this.state.data.PID}/>
                 </div>
                 }
 

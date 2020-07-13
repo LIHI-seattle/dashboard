@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
+import Select from "react-select";
 
 
 export default class AddResident extends Component {
@@ -66,10 +67,44 @@ class AddResidentForm extends Component {
         };
     }
 
+    componentDidMount() {
+        this.getVillages();
+    }
+
     handleChange = (event) => {
         let name = event.target.name;
         let value = event.target.value;
         this.setState({[name]: value});
+    }
+
+    getVillages = () =>{
+        fetch("http://localhost:4000/villages")
+            .then((res) => {
+                if (res.ok) {
+                    return res.text();
+                } else {
+                    throw new Error(res.message);
+                }
+            })
+            .then((data) => {
+                let villageArray = JSON.parse(data);
+                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
+                this.setState({ villages: villages}) //villages are options and village is the name
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+    };
+
+    handleDropdownMulti(option, name) {
+        console.log(option);
+        console.log(name);
+        this.setState(state => {
+            return {
+                villageValue: option,
+                [name]: option.label
+            };
+        });
     }
 
     mySubmitHandler = (e) => {
@@ -210,9 +245,11 @@ class AddResidentForm extends Component {
                     marginLeft: "10px"
                 }}>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
-                    <input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
+                    {/*<input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
                            placeholder="Village Name" name="village"
-                           onChange={this.handleChange}/>
+                           onChange={this.handleChange}/>*/}
+                    <Select style={{width: "200px", margin: "10px"}} value={this.state.villageValue} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                            options={this.state.villages}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
                     <input style={{width: "150px", margin: "10px"}} type="text" className="form-control"
                            placeholder="House Number" name="house"

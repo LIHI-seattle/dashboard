@@ -2,10 +2,8 @@ import React, {Component} from 'react';
 import Select from 'react-select';
 import './ResidentDirectory.css'
 import AddResident from './AddResident.js'
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import {withRouter} from 'react-router-dom';
-import {Link} from 'react-router-dom';
+import {Card, Button} from 'react-bootstrap';
+import {Link, withRouter} from 'react-router-dom';
 import IncidentReportView from "./IncidentReportView";
 
 const colorStyles = {
@@ -27,6 +25,7 @@ class ResidentDirectory extends Component {
         this.state = {
             value: '?',
             startDate: '?',
+            data: {},
             displayIncRep: false,
             displayCard: false,
             displayEditPage: false,
@@ -39,7 +38,6 @@ class ResidentDirectory extends Component {
     }
 
     reupdateData = () => {
-        // console.log("reupdating data");
         fetch("http://localhost:4000/residents")
             .then((res) => {
                 if (res.ok) {
@@ -47,7 +45,6 @@ class ResidentDirectory extends Component {
                 } else {
                     throw new Error(res.message);
                 }
-                // res.text();
             })
             .then((data) => {
                 let residentArray = JSON.parse(data);
@@ -109,12 +106,7 @@ class ResidentDirectory extends Component {
                 });
                 this.reupdateData();
             }
-            else if (response.status === 200) {
-                alert("lets go");
-                this.reupdateData();
-            }
         })
-        //TODO reupdate data
     };
 
     viewIncRep = (event) => {
@@ -157,7 +149,6 @@ class ResidentDirectory extends Component {
                         justifyContent: "center",
                         alignItems: "center"
                     }}>
-                        {/* {console.log(this.state.residents)} */}
                         <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
                                 options={this.state.residents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
@@ -187,7 +178,7 @@ class ResidentDirectory extends Component {
                                 <div>
                                     <h6>Residence Information:</h6>
                                     <ul style={{listStyleType: "none"}}>
-                                        <li>Current Residence: house {this.state.data.HOUSE_NUM} in {this.state.data.NAME} village</li>
+                                        <li>Current Residence: house {this.state.data.HOUSE_NUM} in {this.state.data.VILLAGE_NAME} village</li>
                                         <li>Entry Date: {this.state.startDate} </li>
                                         <li>Last Known Residence: {this.state.data.PREVIOUS_RESIDENCE || "N/A"}</li>
                                         <li>Previous Shelter

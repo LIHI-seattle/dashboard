@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Select from "react-select";
-import {Container, Row, Col} from 'reactstrap';
+import {Container, Row, Col} from 'react-bootstrap';
 
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),
@@ -30,7 +30,6 @@ class IncidentReportView extends Component {
     handleChange = (event) => {
         console.log(event)
         this.setState({
-            //value: event.label,
             incidentObj: event.data,
             displayIncRep: true
         });
@@ -44,15 +43,7 @@ class IncidentReportView extends Component {
     }
 
     reupdateData = () => {
-        fetch("http://localhost:4000/incidentReport/" + this.props.personID, /*{
-            body: JSON.stringify(data),
-            mode: 'cors',
-            headers: {
-                'Accept': 'application/json, text/plain, *!/!*',
-                'Content-Type': 'application/json'
-            },
-            method: "get"
-        }*/)
+        fetch("http://localhost:4000/incidentReport/" + this.props.personID)
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -99,7 +90,7 @@ class IncidentReportView extends Component {
                             <p><strong>Time of Incident:</strong> {this.state.incidentObj.TIME.substring(0,5)}</p>
                         </Col>
                         <Col>
-                            <p><strong>Village:</strong> {this.state.incidentObj.NAME}</p>
+                            <p><strong>Village:</strong> {this.state.incidentObj.VILLAGE_NAME}</p>
                         </Col>
                         <Col>
                             <p><strong>Description of Location:</strong> {this.state.incidentObj.LOCATION}</p>

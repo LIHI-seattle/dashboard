@@ -151,7 +151,7 @@ app.route("/residents")
     // Get all residents
     .get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('SELECT RESIDENTS.*, HOUSES.HOUSE_NUM, PEOPLE.*, VILLAGES.NAME FROM RESIDENTS JOIN HOUSES ON RESIDENTS.HOUSE_ID = HOUSES.HOUSE_ID JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID JOIN VILLAGES ON VILLAGES.VID = PEOPLE.VID WHERE RESIDENTS.IN_RESIDENCE = 1')
+        con.query('SELECT RESIDENTS.*, HOUSES.HOUSE_NUM, PEOPLE.*, VILLAGES.NAME AS VILLAGE_NAME FROM RESIDENTS JOIN HOUSES ON RESIDENTS.HOUSE_ID = HOUSES.HOUSE_ID JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID JOIN VILLAGES ON VILLAGES.VID = PEOPLE.VID WHERE RESIDENTS.IN_RESIDENCE = 1')
             .then(rows => {
                 res.status(200).json(rows);
                 return Promise.resolve(rows);
@@ -647,7 +647,7 @@ app.route("/incidentReport")
 //uses PID to find INCID to get the incident and returns that incident
 app.get('/incidentReport/:pid', function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', frontendHost);
-    con.query('SELECT INCIDENTS_PEOPLE.*, INCIDENTS.*, VILLAGES.NAME, ' +
+    con.query('SELECT INCIDENTS_PEOPLE.*, INCIDENTS.*, VILLAGES.NAME AS VILLAGE_NAME, ' +
                     'RP.FIRST_NAME AS R_FNAME, RP.LAST_NAME AS R_LNAME, AP.FIRST_NAME AS A_FNAME, AP.LAST_NAME AS A_LNAME ' +
                     'FROM INCIDENTS_PEOPLE JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID JOIN VILLAGES ON VILLAGES.VID = INCIDENTS.VID ' +
                     'JOIN PEOPLE AS RP ON INCIDENTS.REVIEWER_ID = RP.PID JOIN PEOPLE AS AP ON INCIDENTS.AUTHOR_ID = AP.PID WHERE INCIDENTS_PEOPLE.PID = ?',

@@ -149,7 +149,8 @@ class ResidentDirectory extends Component {
                         justifyContent: "center",
                         alignItems: "center"
                     }}>
-                        <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
+                        <label>Village: </label>
+                        <Select id="village-options" size="lg" className="dropdown" onChange={this.handleChangeVillage}
                                 options={this.state.residents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
                                     data: item
@@ -157,11 +158,14 @@ class ResidentDirectory extends Component {
                                 styles={colorStyles}
                         />
 
-                        <Link to="/addresident">
-                            <Button className='add_button' size="md">
-                                <span>Add Resident</span>
-                            </Button>
-                        </Link>
+                        <label style={{marginLeft: "10px"}}>Residents: </label>
+                        <Select id="resident-options" size="lg" className="dropdown" onChange={this.handleChange}
+                                options={this.state.residents.map((item) => ({
+                                    label: item.FIRST_NAME + " " + item.LAST_NAME,
+                                    data: item
+                                }))}
+                                styles={colorStyles}
+                        />
                     </div>
 
                     {this.state.displayCard &&

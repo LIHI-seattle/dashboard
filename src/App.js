@@ -35,6 +35,7 @@ class App extends Component {
                     <Route path='/addresident' component={AddResident}/>
                     <Route path='/residentdirectory' component={ResidentDirectory}/>
                     <Route path='/incidentreport' component={IncidentReport}/>
+                    <Route path='/addvillage' component={AddVillage}/>
                 </Switch>
             </Router>
 
@@ -53,7 +54,8 @@ class HomePage extends Component {
                     justifyContent: "center",
                     alignItems: "center",
                     padding: "10px",
-                    marginTop: "240px"
+                    marginTop: "240px",
+                    marginBottom: "40px"
                 }}>
                     <h1>Welcome to the LIHI Information Database</h1>
                 </div>

@@ -38,6 +38,11 @@ async function insertVillage(sql, numHouses, vid) {
 		await con.query(sql, [i + 1, vid, true]);
 }
 
+async function insertVillage(sql, numHouses, vid) {
+	for (let i=0; i<numHouses; i++)
+		await con.query(sql, [i + 1, vid, true]);
+}
+
 
 class Database {
     constructor(config) {
@@ -648,6 +653,81 @@ app.route("/villages")
                 // handle the error
             });
     })
+
+async function bulkResidentInsert(data) {
+	let retrieveVillageSQL = 'SELECT VID FROM VILLAGES WHERE NAME = ?'
+	let insertPeopleSQL = 'INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID, GENDER, EMPLOYMENT, IDENTIFICATION, DISABILITIES, CHILDREN, CRIMINAL_HISTORY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+	let retrieveHouseSQL = 'SELECT HOUSE_ID FROM HOUSES WHERE VID = ? AND HOUSE_NUM = ?'
+	let insertResidentSQL = 'INSERT INTO RESIDENTS (PID, HOUSE_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?)'
+	try {
+		for (let i = 1; i < data.length; i++) {
+			data[i].employment = (data[i].employment == 'Yes');
+			data[i].identification = (data[i].identification == 'Yes');
+			data[i].disabilities = (data[i].disabilities == 'Yes');
+			data[i].children = (data[i].children == 'Yes');
+			data[i].criminalHistory = (data[i].criminalHistory == 'Yes');
+			let vid = await con.query(retrieveVillageSQL, data[i].village);
+			let houseID = await con.query(retrieveHouseSQL, [vid[0].VID, data[i].house]);
+			let addedPerson = await con.query(insertPeopleSQL, [data[i].firstName, data[i].lastName, data[i].birthday, 3, vid[0].VID, data[i].gender, data[i].employment, data[i].identification, data[i].disabilities, data[i].children, data[i].criminalHistory]);
+			let pid = addedPerson.insertId;
+			let insertResident = await con.query(insertResidentSQL, [pid, houseID[0].HOUSE_ID, data[i].dateOfEntry, null, true]);
+		}
+		return Promise.resolve();
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+}
+
+app.post("/sendFile",  upload.single('fileName'), function(req, res){
+	res.setHeader('Access-Control-Allow-Origin', frontendHost);
+	//file contents
+	try {
+		let result = excelToJson({
+			source: req.file.buffer,
+			header:{
+				rows: 1
+			},
+			columnToKey: {
+				A: 'firstName',
+				B: 'lastName',
+				C: 'dateOfEntry',
+				D: 'birthday',
+				E: 'age',
+				F: 'gender',
+				G: 'employment',
+				H: 'identification',
+				I: 'lastResidence',
+				J: 'disabilities',
+				K: 'children',
+				L: 'lastProgram',
+				M: 'criminalHistory',
+				N: 'house',
+				O: 'village'
+			},
+		});
+		let data = result.Sheet1;
+	
+		bulkResidentInsert(data)
+			.then(rows => {
+				res.sendStatus(201);
+				console.log("Successfully uploaded: " + req.file.originalname);
+			}, err => {
+				return Promise.resolve().then( () => { throw new Error('Bad request: Verify document formatting and presence of villages/houses in the database.'); } )
+			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+	} catch {
+		res.status(400).json({'error': "Bad request"});
+	}
+	
+});
 
 async function bulkResidentInsert(data) {
 	let retrieveVillageSQL = 'SELECT VID FROM VILLAGES WHERE NAME = ?'

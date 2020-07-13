@@ -183,11 +183,6 @@ class ResidentDirectory extends Component {
                                 <span>Add Resident</span>
                             </Button>
                         </Link>
-                        <Link to="/addvillage">
-                            <Button className='add_button' size="md">
-                                <span>Add Village</span>
-                            </Button>
-                        </Link>
                     </div>
 
                     {this.state.displayCard &&

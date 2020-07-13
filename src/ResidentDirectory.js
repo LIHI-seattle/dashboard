@@ -1,30 +1,9 @@
 import React, {Component} from 'react';
 import Select from 'react-select';
-<<<<<<< HEAD
-<<<<<<< HEAD
 import './ResidentDirectory.css';
-=======
-import './ResidentDirectory.css'
-import AddResident from './AddResident.js'
-<<<<<<< HEAD
->>>>>>> add resident file upload, add new village form
 import {Card, Button} from 'react-bootstrap';
 import {Link, withRouter} from 'react-router-dom';
 import IncidentReportView from "./IncidentReportView";
-=======
-<<<<<<< HEAD
-import './ResidentDirectory.css'
-import AddResident from './AddResident.js'
-=======
->>>>>>> add resident file upload, add new village form
-import AddVillage from './AddVillage.js'
-import Card from 'react-bootstrap/Card';
-import Button from 'react-bootstrap/Button';
-import {withRouter} from 'react-router-dom';
-
-import { Link} from 'react-router-dom';
-import placeHolder from './placeHolder.png';
->>>>>>> add resident file upload, add new village form
 
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),
@@ -237,7 +216,6 @@ class ResidentDirectory extends Component {
                                 styles={colorStyles}
                         />
 
-<<<<<<< HEAD
                         <label style={{marginLeft: "20px"}}><strong>Residents:</strong></label>
                         <Select id="resident-options" size="lg" className="dropdown"
                                 onChange={this.handleChangeResident} 
@@ -248,21 +226,6 @@ class ResidentDirectory extends Component {
                                 }))}
                                 styles={colorStylesResident}
                         />
-=======
-                        <Link to="/addresident">
-                            <Button className='add_button' size="md">
-                                <span>Add Resident</span>
-                            </Button>
-                        </Link>
-                        <Link to="/addvillage">
-                            <Button className='add_button' size="md">
-                                <span>Add Village</span>
-                            </Button>
-                        </Link>
-<<<<<<< HEAD
->>>>>>> add resident file upload, add new village form
-=======
->>>>>>> add resident file upload, add new village form
                     </div>
 
                     {this.state.displayCard &&

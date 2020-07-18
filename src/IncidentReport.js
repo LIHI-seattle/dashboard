@@ -26,6 +26,7 @@ class IncidentReport extends Component {
             reportNumber: "",
             peopleNotified: [],
             signature: "",
+            manualSignature: "",
             currentDate: "",
             followUp: "",
             reviewerName: "",
@@ -52,6 +53,7 @@ class IncidentReport extends Component {
                 reportNumber: "",
                 peopleNotified: [],
                 signature: "",
+                manualSignature: "",
                 currentDate: "",
                 followUp: "",
                 reviewerName: "",
@@ -130,6 +132,7 @@ class IncidentReport extends Component {
         let values = Object.values(this.state);
         let nullExists = false;
         values.forEach(value => {
+            console.log(value);
             if (value === "" || value === [] || value === null) {
                 nullExists = true;
             }
@@ -273,7 +276,7 @@ class IncidentReport extends Component {
                         </div>
                     </div>
                     <div className="form-row">
-                        <div className="form-group col-md-11">
+                        <div className="form-group col-md-3">
                             <label>Did the incident involve an injury to the resident, staff, or others?<span
                                 className="required">*</span></label>
                             <div className="form-check form-check-inline">
@@ -289,9 +292,7 @@ class IncidentReport extends Component {
                                 <label className="form-check-label" id="injuryNo">No</label>
                             </div>
                         </div>
-                    </div>
-                    <div className="form-row">
-                        <div className="form-group col-md-11">
+                        <div className="form-group col-md-9">
                             <label>Describe any injuries, physical complaints, or property damage. If no injuries, type
                                 "NA".</label>
                             <textarea type="text" className="form-control" placeholder="Describe Injuries Here"
@@ -338,7 +339,6 @@ class IncidentReport extends Component {
                                    name="reportNumber" onChange={this.handleChange}/>
                         </div>
                     </div>
-                    <h4>Employee Information</h4>
                     <div className="form-row">
                         <label>Which individuals or supervisors were notified?<span
                             className="required">*</span></label>
@@ -347,17 +347,25 @@ class IncidentReport extends Component {
                         }} name="peopleNotified"
                                 options={this.state.people}/>
                     </div>
+                    <h4>Employee Information</h4>
                     <div className="form-row">
-                        <div className="form-group col-md-6">
+                        <div className="form-group col-md-8">
                             <label>Type your full name, electronically giving your signature that all of this
                                 information is accurate to the best of your knowledge<span className="required">*</span></label>
+                            <input type="text" className="form-control" name="manualSignature" onChange={this.handleChange}/>
+                        </div>
+                    </div>
+                    <div className="form-row">
+                        <div className="form-group col-md-5">
+                            <label>Select your name from the dropdown below for confirmation<span
+                                className="required">*</span></label>
                             <Select value={this.state.signature} placeholder="Electronic signature here"
                                     className="dropdown" onChange={(event) => {
                                 this.handleDropdownMulti(event, "signature")
                             }} name="signature"
                                     options={this.state.people}/>
                         </div>
-                        <div className="form-group col-md-6">
+                        <div className="form-group col-md-5">
                             <label>Today's Date<span className="required">*</span></label>
                             <input type="date" className="form-control" placeholder="MM/DD/YYYY" name="currentDate"
                                    onChange={this.handleChange}/>
@@ -379,7 +387,8 @@ class IncidentReport extends Component {
                                 name="reviewerName"
                                 options={this.state.people}/>
                     </div>
-                    <Button style={{marginBottom: "20px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit
+                    <Button style={{marginBottom: "20px"}} size="md" type="submit" className="btn btn-primary"
+                            value="Submit">Submit
                         Incident Report</Button>
                 </form>
             </div>

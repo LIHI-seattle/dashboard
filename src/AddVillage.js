@@ -2,13 +2,38 @@ import React, {Component} from 'react'
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
 import { serverHost } from './commons';
+import Select from 'react-select';
 
 export default class AddVillage extends Component {
     constructor(props) {
         super(props);
         this.state = {
             addedVillage: false,
+            villages: []
         };
+    }
+
+    getVillages = () =>{
+        fetch("http://localhost:4000/villages")
+            .then((res) => {
+                if (res.ok) {
+                    return res.text();
+                } else {
+                    throw new Error(res.message);
+                }
+            })
+            .then((data) => {
+                let villageArray = JSON.parse(data);
+                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
+                this.setState({ villages: villages})
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+      };
+
+    componentDidMount() {
+        this.getVillages();
     }
 
     updateVillageStatus(status) {
@@ -38,8 +63,11 @@ export default class AddVillage extends Component {
                 }}>
                     <h1>Add Village</h1>
                 </div>
-                <p style={{fontSize: "large"}}>Please fill out the following information for the village you wish to add.</p>
-                <AddVillageForm villageUpdate={this.updateVillageStatus.bind(this)}/>
+                <label>List of Villages</label>
+                  <Select style={{marginBottom: "30px"}} value={this.state.village} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                                options={this.state.villages}/>
+                <p style={{marginTop: "30px"}}>Please fill out the following information for the village you wish to add.</p>
+                <AddVillageForm villageUpdate={this.updateVillageStatus.bind(this)} getVillages={this.getVillages.bind(this)}/>
             </div>
         )
     }
@@ -91,6 +119,7 @@ class AddVillageForm extends Component {
                 } else if (response.status === 201) {
                     form.reset();
                     this.props.villageUpdate(true);
+                    this.props.getVillages();
                 }
             })
         }
@@ -101,7 +130,7 @@ class AddVillageForm extends Component {
             <form id="addVillage" onSubmit={(e) => {
                 this.mySubmitHandler(e)
             }}>
-                <h4>Village Information</h4>
+                <h4 >Village Information</h4>
                 <div id="addvillageform" style={{ //title div
                     display: "flex",
                     alignItems: "center",

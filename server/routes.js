@@ -42,11 +42,15 @@ async function insertVillage(sql, numHouses, vid) {
 class Database {
     constructor(config) {
         this.connection = mysql.createConnection({
-            host: serverHost,
-            user: serverUser,
-            password: serverPassword,
-            database: serverDatabase,
-			port: serverPort
+            // host: serverHost,
+            // user: serverUser,
+            // password: serverPassword,
+            // database: serverDatabase,
+			// port: serverPort
+			host: "localhost",
+user: "root",
+password: "password",
+database: 'LIHI'
         });
         this.connection.connect(function (err) {
             if (err) throw err;
@@ -209,11 +213,6 @@ app.route("/residents")
             .then(houseRows => {
                 houseResults = houseRows;
                 if (houseResults.length > 0) {
-                    if (houseResults[0].VACANT === 0) {
-                        return Promise.resolve().then(() => {
-                            throw new Error('Bad request: House not vacant');
-                        })
-                    }
                     return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday]);
                 } else {
                     return Promise.resolve().then(() => {

@@ -54,7 +54,7 @@ export default class AddResident extends Component {
                     <h1>Add Resident</h1>
                 </div>
                 <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to add.</p>
-                <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)}/>
+                <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)} reupdateData={this.props.reupdateData}/>
                 <UploadResidents fileUpdate={this.updateUploadedResidentsStatus.bind(this)}/>
             </div>
         );
@@ -170,7 +170,7 @@ class AddResidentForm extends Component {
                         .then((text) => {
                             alert(text.error);
                         });
-                } else {
+                } else if (response.status === 201) {
                     form.reset();
                     this.props.residentUpdate(true);
                 }
@@ -260,14 +260,11 @@ class AddResidentForm extends Component {
                     marginLeft: "10px"
                 }}>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
-                    {/*<input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
-                           placeholder="Village Name" name="village"
-                           onChange={this.handleChange}/>*/}
                     <Select style={{width: "200px", margin: "10px"}} value={this.state.villageValue} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
                             options={this.state.villages}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
                     <input style={{width: "150px", margin: "10px"}} type="text" className="form-control"
-                           placeholder="House Number" name="house"
+                           placeholder="e.g. 1, 2, 3..." name="house"
                            onChange={this.handleChange}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
                     <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"

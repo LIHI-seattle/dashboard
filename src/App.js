@@ -4,6 +4,7 @@ import ResidentDirectory from './ResidentDirectory'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AddResident from './AddResident';
 import AddVillage from './AddVillage';
+import AddEmployee from './AddEmployee';
 import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 
@@ -37,6 +38,7 @@ class App extends Component {
                     <Route path='/residentdirectory' component={ResidentDirectory}/>
                     <Route path='/incidentreport' component={IncidentReport}/>
                     <Route path='/addvillage' component={AddVillage}/>
+                    <Route path='/addemployee' component={AddEmployee}/>
                 </Switch>
             </Router>
 
@@ -87,6 +89,13 @@ class HomePage extends Component {
                             <Link to="/addvillage">
                                 <Button size="lg">
                                     <span>Add Village</span>
+                                </Button>
+                            </Link>
+                        </Col>
+                        <Col>
+                            <Link style={{margin: "30px"}} to="/addemployee">
+                                <Button  size="lg">
+                                    <span>Add an Employee</span>
                                 </Button>
                             </Link>
                         </Col>

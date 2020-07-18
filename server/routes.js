@@ -42,11 +42,15 @@ async function insertVillage(sql, numHouses, vid) {
 class Database {
     constructor(config) {
         this.connection = mysql.createConnection({
-            host: serverHost,
-            user: serverUser,
-            password: serverPassword,
-            database: serverDatabase,
-			port: serverPort
+            // host: serverHost,
+            // user: serverUser,
+            // password: serverPassword,
+            // database: serverDatabase,
+			// port: serverPort
+			host: "localhost",
+user: "root",
+password: "password",
+database: 'LIHI'
         });
         this.connection.connect(function (err) {
             if (err) throw err;

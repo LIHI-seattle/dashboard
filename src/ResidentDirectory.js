@@ -157,12 +157,6 @@ class ResidentDirectory extends Component {
                                 }))}
                                 styles={colorStyles}
                         />
-
-                        <Link to="/addresident">
-                            <Button className='add_button' size="md">
-                                <span>Add Resident</span>
-                            </Button>
-                        </Link>
                     </div>
 
                     {this.state.displayCard &&

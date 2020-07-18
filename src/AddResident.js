@@ -25,7 +25,7 @@ export default class AddResident extends Component {
     render() {
         return (
             <div style={{marginLeft: "20px", marginRight: "20px"}}>
-                <Link to="/residentdirectory"><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm"
+                <Link to="/"><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm"
                                                       variant="secondary" onClick={() => {
                     this.setState({addedResident: false})
                 }}>Back</Button></Link>

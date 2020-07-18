@@ -3,6 +3,7 @@ import './IncidentReport.css'
 import Select from 'react-select';
 import Button from 'react-bootstrap/Button';
 import { Link} from 'react-router-dom';
+import { serverHost } from './commons';
 
 
 class IncidentReport extends Component {
@@ -68,7 +69,7 @@ class IncidentReport extends Component {
     }
 
     getPeople = () =>{
-        fetch("http://localhost:4000/people")
+        fetch(serverHost + "/people")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -87,7 +88,7 @@ class IncidentReport extends Component {
     };
 
     getVillages = () =>{
-      fetch("http://localhost:4000/villages")
+      fetch(serverHost + "/villages")
           .then((res) => {
               if (res.ok) {
                   return res.text();
@@ -157,7 +158,7 @@ class IncidentReport extends Component {
           data.reviewerName = reviewer;
 
           //  send json object
-          fetch("http://localhost:4000/incidentReport", {
+          fetch(serverHost + "/incidentReport", {
               body: JSON.stringify(data),
               mode: 'cors',
               headers: {

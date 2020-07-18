@@ -93,7 +93,7 @@ class ResidentDirectory extends Component {
         let filteredResidentsUpdate = [];
 
         //go through array of objects, for each, if each obj.VID = VID, add to array
-        this.state.residents.map(function (item) {
+        this.state.residents.forEach((item) => {
             if (item.VID === VID) {
                 filteredResidentsUpdate.push(item);
             }

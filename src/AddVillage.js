@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
-
+import { serverHost } from './commons';
 
 export default class AddVillage extends Component {
     constructor(props) {
@@ -74,7 +74,7 @@ class AddVillageForm extends Component {
                 villageName: this.state.village,
                 numHouses: this.state.numHouses
             }
-            fetch("http://localhost:4000/villages", {
+            fetch(serverHost + "/villages", {
                 body: JSON.stringify(data),
                 mode: 'cors',
                 headers: {

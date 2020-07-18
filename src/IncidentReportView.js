@@ -1,6 +1,7 @@
 import React, {Component} from "react";
 import Select from "react-select";
 import {Container, Row, Col} from 'react-bootstrap';
+import { serverHost } from "./commons";
 
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),
@@ -43,7 +44,7 @@ class IncidentReportView extends Component {
     }
 
     reupdateData = () => {
-        fetch("http://localhost:4000/incidentReport/" + this.props.personID)
+        fetch(serverHost + "/incidentReport/" + this.props.personID)
             .then((res) => {
                 if (res.ok) {
                     return res.text();

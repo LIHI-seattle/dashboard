@@ -10,9 +10,21 @@ const colorStyles = {
     option: (styles, {data, isDisabled, isFocused, isSelected}) => {
         return {
             ...styles,
-            backgroundColor: isDisabled ? 'red' : "white",
+            // backgroundColor: isDisabled ? 'red' : "white",
             color: 'black',
-            cursor: isDisabled ? 'not-allowed' : 'default',
+            // cursor: isDisabled ? 'not-allowed' : 'default',
+        };
+    },
+};
+
+const colorStylesResident = {
+    control: styles => ({...styles, backgroundColor: 'white'}),
+    option: (styles, {data, isDisabled, isFocused, isSelected}) => {
+        return {
+            ...styles,
+            // TODO: Ask if LIHI wants the background of the option to be red instead of the text
+            // backgroundColor: data.inResidence ? 'white' : 'red',
+            color: (data.inResidence != null && !data.inResidence) ? 'red' : 'black',
         };
     },
 };
@@ -21,7 +33,6 @@ class ResidentDirectory extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            cardHeader: "Select...",
             startDate: '?',
             displayIncRep: false,
             displayCard: false,
@@ -66,7 +77,9 @@ class ResidentDirectory extends Component {
             })
             .then((data) => {
                 let villageArray = JSON.parse(data);
-                this.setState({villages: villageArray})
+                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
+                villages.unshift({label: 'All', value: null});
+                this.setState({villages: villages})
             })
             .catch((error) => {
                 console.log(error)
@@ -75,34 +88,33 @@ class ResidentDirectory extends Component {
 
     handleChangeResident = (event) => {
         console.log(event)
-        const date = new Date(Date.parse(event.resident.START_DATE))
         console.log(event.label);
         this.setState({
-            cardHeader: event.label.toString(), //label
             resident: event.resident,
-            startDate: date.toDateString(),
+            startDate: this.getDateString(event.resident.START_DATE),
             displayCard: true,
             displayIncRep: false
         });
     };
 
     handleChangeVillage = (event) => {
-        console.log(event.village.VID);
+        console.log(event.value);
         console.log(this.state.residents);
-        let VID = event.village.VID;
+        let VID = event.value;
         let filteredResidentsUpdate = [];
 
         //go through array of objects, for each, if each obj.VID = VID, add to array
-        this.state.residents.map(function (item) {
-            if (item.VID === VID) {
+        this.state.residents.forEach((item) => {
+            if (!VID || item.VID === VID) {
                 filteredResidentsUpdate.push(item);
             }
         });
 
         this.setState({
-            village: event.village,
+            village: event,
             displayCard: false,
-            cardHeader: "Select...",
+            displayIncRep: false,
+            resident: null,
             filteredResidents: filteredResidentsUpdate
         });
     };
@@ -134,7 +146,6 @@ class ResidentDirectory extends Component {
             } else if (response.status === 200) {
                 this.setState({
                     displayCard: false,
-                    cardHeader: '?',
                     resident: '',
                     startDate: '?'
                 });
@@ -158,6 +169,10 @@ class ResidentDirectory extends Component {
     getBoolStr = (bool) => {
         return Boolean(bool).toString()
     };
+
+    getDateString = (date) => new Date(Date.parse(date)).toDateString();
+
+    isActive = () => (this.state.resident.ACTIVE === 1);
 
     render() {
         return (
@@ -192,45 +207,47 @@ class ResidentDirectory extends Component {
                         alignItems: "center"
                     }}>
                         <label><strong>Village: </strong></label>
-                        <Select id="village-options" size="lg" className="dropdown" onChange={this.handleChangeVillage}
-                                options={this.state.villages.map((item) => ({
-                                    label: item.NAME,
-                                    village: item
-                                }))}
+                        <Select id="village-options" size="lg" className="dropdown" 
+                                onChange={this.handleChangeVillage}
+                                options={this.state.villages} 
                                 styles={colorStyles}
                         />
 
                         <label style={{marginLeft: "20px"}}><strong>Residents:</strong></label>
                         <Select id="resident-options" size="lg" className="dropdown"
-                                onChange={this.handleChangeResident} value={{value: "", label: this.state.cardHeader}}
+                                onChange={this.handleChangeResident} 
                                 options={this.state.filteredResidents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
-                                    resident: item
+                                    resident: item,
+                                    inResidence: (item.ACTIVE === 1)
                                 }))}
-                                styles={colorStyles}
+                                styles={colorStylesResident}
                         />
                     </div>
 
                     {this.state.displayCard &&
-                    <div style={{display: "flex", justifyContent: "center"}}>
+                    <div style={{
+                        display: "flex", justifyContent: "center",
+                        ...(!this.isActive() ? {color: 'red'} : {})
+                    }}>
                         <Card style={{width: '30rem', marginTop: "30px"}}>
                             <Card.Body>
                                 <Card.Title>
-                                    <Card.Img variant="top" src="person.png"
-                                              style={{height: 30, width: 30}}/> {this.state.cardHeader}
+                                    <Card.Img variant="top" src="person.png" style={{height: 30, width: 30}}/> 
+                                    {this.state.resident.FIRST_NAME + " " + this.state.resident.LAST_NAME}
                                 </Card.Title>
                                 <Card.Subtitle
                                     className="mb-2 text-muted">{this.state.resident.GENDER}, {this.getAge()}</Card.Subtitle>
                                 <div>
                                     <h6>Residence Information:</h6>
                                     <ul style={{listStyleType: "none"}}>
-                                        <li>Current Residence:
-                                            house {this.state.resident.HOUSE_NUM} in {this.state.resident.VILLAGE_NAME} village
+                                        <li>{(this.isActive()) ? 'Current' : 'Old'} Residence:
+                                            House <b>{this.state.resident.HOUSE_NUM}</b> in <b>{this.state.resident.VILLAGE_NAME}</b> village
                                         </li>
                                         <li>Entry Date: {this.state.startDate} </li>
+                                        {(!this.isActive()) && <li>End Date: {this.getDateString(this.state.resident.END_DATE)} </li>}
                                         <li>Last Known Residence: {this.state.resident.PREVIOUS_RESIDENCE || "N/A"}</li>
-                                        <li>Previous Shelter
-                                            Program: {this.state.resident.PREVIOUS_SHELTER_PROGRAM || "N/A"}</li>
+                                        <li>Previous Shelter Program: {this.state.resident.PREVIOUS_SHELTER_PROGRAM || "N/A"}</li>
                                     </ul>
                                     <h6>Personal Information:</h6>
                                     <ul style={{listStyleType: "none"}}>

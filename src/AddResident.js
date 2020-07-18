@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
 import Select from "react-select";
+import { serverHost } from './commons';
 
 
 export default class AddResident extends Component {
@@ -91,7 +92,7 @@ class AddResidentForm extends Component {
     }
 
     getVillages = () =>{
-        fetch("http://localhost:4000/villages")
+        fetch(serverHost + "/villages")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -154,7 +155,7 @@ class AddResidentForm extends Component {
                 pastShelter: this.state.pastShelter,
                 criminalHistory: this.state.criminalHistory
             }
-            fetch("http://localhost:4000/residents", {
+            fetch(serverHost + "/residents", {
                 body: JSON.stringify(data),
                 mode: 'cors',
                 headers: {
@@ -300,7 +301,7 @@ class UploadResidents extends Component {
     let form = document.getElementById("bulkResidentUpload")
     let formData = new FormData()
     formData.append('fileName', document.getElementById("fileName").files[0])
-    fetch("http://localhost:4000/sendFile", {
+    fetch(serverHost + "/sendFile", {
         method: "POST",
         headers: {
             'Accept': 'application/json, text/plain, */*',

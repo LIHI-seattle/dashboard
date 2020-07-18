@@ -184,7 +184,6 @@ app.route("/residents")
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
         let newRes = req.body;
         let villageResults, houseResults, personResults, personID, addedResident;
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
         newRes.employment = (newRes.employment == 'true');
         newRes.identification = (newRes.identification == 'true');
         newRes.disabilities = (newRes.disabilities == 'true');

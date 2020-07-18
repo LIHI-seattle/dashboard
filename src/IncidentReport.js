@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import './IncidentReport.css'
 import Select from 'react-select';
 import Button from 'react-bootstrap/Button';
-import {Link} from 'react-router-dom';
+import { Link} from 'react-router-dom';
+import { serverHost } from './commons';
 
 
 class IncidentReport extends Component {
@@ -69,8 +70,8 @@ class IncidentReport extends Component {
         console.log(this.state.villages);
     }
 
-    getPeople = () => {
-        fetch("http://localhost:4000/people")
+    getPeople = () =>{
+        fetch(serverHost + "/people")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -91,23 +92,23 @@ class IncidentReport extends Component {
             });
     };
 
-    getVillages = () => {
-        fetch("http://localhost:4000/villages")
-            .then((res) => {
-                if (res.ok) {
-                    return res.text();
-                } else {
-                    throw new Error(res.message);
-                }
-            })
-            .then((data) => {
-                let villageArray = JSON.parse(data);
-                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
-                this.setState({villages: villages})
-            })
-            .catch((error) => {
-                console.log(error)
-            });
+    getVillages = () =>{
+      fetch(serverHost + "/villages")
+          .then((res) => {
+              if (res.ok) {
+                  return res.text();
+              } else {
+                  throw new Error(res.message);
+              }
+          })
+          .then((data) => {
+              let villageArray = JSON.parse(data);
+              let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
+              this.setState({ villages: villages})
+          })
+          .catch((error) => {
+              console.log(error)
+          });
     };
 
     handleChange = (event) => {

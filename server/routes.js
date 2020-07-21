@@ -177,13 +177,14 @@ app.route("/residents")
         newRes.identification = (newRes.identification == 'true');
         newRes.disabilities = (newRes.disabilities == 'true');
         newRes.children = (newRes.children == 'true');
-        newRes.criminalHistory = (newRes.criminalHistory == 'true');
-        con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
-            // Selects the house if the village is found.
+		newRes.criminalHistory = (newRes.criminalHistory == 'true');
+		// Verify presence of village in db
+        con.query('SELECT VID FROM VILLAGES WHERE VID = ?', newRes.village)
+            // Verify presence of house in db
             .then(rows => {
                 villageResults = rows;
                 if (villageResults.length > 0) {
-                    return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [newRes.house, villageResults[0].VID]);
+                    return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [parseInt(newRes.house), villageResults[0].VID]);
                 } else {
                     return Promise.resolve().then(() => {
                         throw new Error("Bad request: Village not found.");
@@ -193,16 +194,11 @@ app.route("/residents")
                 return Promise.resolve().then(() => {
                     throw err;
                 })
-            })
+			})
             // Selects the person if the house is found.
             .then(houseRows => {
                 houseResults = houseRows;
                 if (houseResults.length > 0) {
-                    if (houseResults[0].VACANT === 0) {
-                        return Promise.resolve().then(() => {
-                            throw new Error('Bad request: House not vacant');
-                        })
-                    }
                     return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday]);
                 } else {
                     return Promise.resolve().then(() => {
@@ -337,33 +333,6 @@ app.route("/residents")
                     res.status(400).json({'error': err.message});
                 }
             });
-
-        // con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
-        // 	.then(rows => {
-        // 		if (rows.length == 1) {
-        // 			return Promise.resolve(rows[0]);
-        // 		} else {
-        // 			return Promise.resolve().then( () => { throw new Error("Bad request: No resident found.");} )
-        // 		}
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.then(row => {
-        // 		return con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE PID = ? AND IN_RESIDENCE = TRUE', [delRes.endDate, row.PID])
-        // 	})
-        // 	.then(rows => {
-        // 		res.sendStatus(200);
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.catch( err => {
-        // 		console.log("Error message: " + err.message);
-        // 		if (!err.message.includes("Bad request:")) {
-        // 			res.status(400).json({'error': "Bad request"});
-        // 		} else {
-        // 			res.status(400).json({'error': err.message});
-        // 		}
-        // 	});
     })
 
 
@@ -517,19 +486,25 @@ app.route("/rooms")
 app.route("/villages")
     // Get all villages
     .get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('SELECT * FROM VILLAGES')
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		let villages = "";
+        con.query('SELECT * FROM VILLAGES JOIN HOUSES ON VILLAGES.VID = HOUSES.VID')
             .then(rows => {
+				villages = rows;
+				// return Promise.resolve(rows); 
                 res.send(JSON.stringify(rows));
             }, err => {
                 return con.close().then(() => {
                     throw err;
                 })
-            })
+			})
             .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
+                console.log("Error message: " + err.message);
+                if (!err.message.includes("Bad request:")) {
+                    res.status(400).json({'error': "Bad request"});
+                } else {
+                    res.status(400).json({'error': err.message});
+                }
             });
     })
 

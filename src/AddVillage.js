@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
+import Select from 'react-select'
 import { serverHost } from './commons';
 import Select from 'react-select';
 
@@ -145,7 +146,7 @@ class AddVillageForm extends Component {
                         placeholder="e.g. 10, 20... " name="numHouses"
                         onChange={this.handleChange}/>
                 </div>
-                <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit
+                <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add
                 Village</Button>
             </form>
         )

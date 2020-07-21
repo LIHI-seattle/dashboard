@@ -287,7 +287,7 @@ class AddResidentForm extends Component {
                            onChange={this.handleChange}/>
                 </div>
             </div>
-            <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit
+            <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add
                 Resident</Button>
         </form>)
     }

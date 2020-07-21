@@ -71,7 +71,7 @@ class HomePage extends Component {
                             <span>Resident Directory</span>
                         </Button>
                     </Link>
-                    <Link style={{margin: "30px"}} to="/addVillage">
+                    <Link style={{margin: "30px"}} to="/addvillage">
                         <Button  size="lg">
                             <span>Add a Village</span>
                         </Button>

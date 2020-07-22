@@ -73,6 +73,27 @@ class ResidentDirectory extends Component {
         });
     };
 
+    handleChangeVillage = (event) => {
+        console.log(event.village.VID);
+        console.log(this.state.residents);
+        let VID = event.village.VID;
+        let filteredResidentsUpdate = [];
+
+        //go through array of objects, for each, if each obj.VID = VID, add to array
+        this.state.residents.forEach((item) => {
+            if (item.VID === VID) {
+                filteredResidentsUpdate.push(item);
+            }
+        });
+
+        this.setState({
+            village: event.village,
+            displayCard: false,
+            cardHeader: "Select...",
+            filteredResidents: filteredResidentsUpdate
+        });
+    };
+
     removeRes = (event) => { //Not currently working (just a start)
         console.log(this.state.data);
         let data = {

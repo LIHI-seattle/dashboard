@@ -5,7 +5,7 @@ var app = express();
 app.use(express.json());
 const cors = require('cors');
 
-var {
+const {
     serverHost, serverUser, serverPassword,
     serverDatabase, serverPort, frontendHost
 } = require('./common')
@@ -37,10 +37,6 @@ const dbConfig = {
 class Database {
     constructor(config) {
         this.connection = mysql.createPool(dbConfig);
-        // this.connection.connect(function (err) {
-        //     if (err) throw err;
-        //     console.log("Connected!");
-        // });
     }
 
     query(sql, args) {
@@ -338,33 +334,6 @@ app.route("/residents")
                     res.status(400).json({'error': err.message});
                 }
             });
-
-        // con.query('SELECT * FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [delRes.fName, delRes.lName, delRes.birthday])
-        // 	.then(rows => {
-        // 		if (rows.length == 1) {
-        // 			return Promise.resolve(rows[0]);
-        // 		} else {
-        // 			return Promise.resolve().then( () => { throw new Error("Bad request: No resident found.");} )
-        // 		}
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.then(row => {
-        // 		return con.query('UPDATE RESIDENTS SET END_DATE = ? AND IN_RESIDENCE = False WHERE PID = ? AND IN_RESIDENCE = TRUE', [delRes.endDate, row.PID])
-        // 	})
-        // 	.then(rows => {
-        // 		res.sendStatus(200);
-        // 	}, err => {
-        // 		return Promise.resolve().then( () => { throw err; } )
-        // 	})
-        // 	.catch( err => {
-        // 		console.log("Error message: " + err.message);
-        // 		if (!err.message.includes("Bad request:")) {
-        // 			res.status(400).json({'error': "Bad request"});
-        // 		} else {
-        // 			res.status(400).json({'error': err.message});
-        // 		}
-        // 	});
     })
 
 
@@ -653,8 +622,6 @@ app.get('/incidentReport/:pid', function (req, res) {
                     'FROM INCIDENTS_PEOPLE JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID JOIN VILLAGES ON VILLAGES.VID = INCIDENTS.VID ' +
                     'JOIN PEOPLE AS RP ON INCIDENTS.REVIEWER_ID = RP.PID JOIN PEOPLE AS AP ON INCIDENTS.AUTHOR_ID = AP.PID WHERE INCIDENTS_PEOPLE.PID = ?',
                     [req.params.pid])
-        //         //JOIN INCIDENTS_OBSERVER ON INCIDENTS_PEOPLE.INID = INCIDENTS_OBSERVER.INID JOIN INCIDENTS_NOTIFIED ON INCIDENTS_PEOPLE.INID = INCIDENTS_NOTIFIED.INID
-        //JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID WHERE INCIDENTS_PEOPLE.PID = ?
         .then(rows => {
             res.status(200).json(rows);
             return Promise.resolve(rows);

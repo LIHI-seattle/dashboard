@@ -487,11 +487,8 @@ app.route("/villages")
     // Get all villages
     .get((req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		let villages = "";
         con.query('SELECT * FROM VILLAGES JOIN HOUSES ON VILLAGES.VID = HOUSES.VID')
             .then(rows => {
-				villages = rows;
-				// return Promise.resolve(rows); 
                 res.send(JSON.stringify(rows));
             }, err => {
                 return con.close().then(() => {

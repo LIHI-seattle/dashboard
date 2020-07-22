@@ -65,7 +65,7 @@ export default class AddVillage extends Component {
                     <h1>Add Village</h1>
                 </div>
                 <label>List of Villages</label>
-                  <Select style={{marginBottom: "30px"}} value={this.state.village} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                  <Select style={{marginBottom: "30px"}} value={this.state.village} id="getVillage" className="dropdown"  name="village"
                                 options={this.state.villages}/>
                 <p style={{marginTop: "30px"}}>Please fill out the following information for the village you wish to add.</p>
                 <AddVillageForm villageUpdate={this.updateVillageStatus.bind(this)} getVillages={this.getVillages.bind(this)}/>

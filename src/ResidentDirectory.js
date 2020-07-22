@@ -8,11 +8,10 @@ import IncidentReportView from "./IncidentReportView";
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),
     option: (styles, {data, isDisabled, isFocused, isSelected}) => {
+        console.log('style', styles)
         return {
             ...styles,
-            // backgroundColor: isDisabled ? 'red' : "white",
             color: 'black',
-            // cursor: isDisabled ? 'not-allowed' : 'default',
         };
     },
 };
@@ -20,11 +19,15 @@ const colorStyles = {
 const colorStylesResident = {
     control: styles => ({...styles, backgroundColor: 'white'}),
     option: (styles, {data, isDisabled, isFocused, isSelected}) => {
+        console.log('style resident', styles)
         return {
             ...styles,
             // TODO: Ask if LIHI wants the background of the option to be red instead of the text
-            // backgroundColor: data.inResidence ? 'white' : 'red',
+            backgroundColor: isFocused ? '#B2D4FF' : 'white',
             color: (data.inResidence != null && !data.inResidence) ? 'red' : 'black',
+            ":active": {
+                backgroundColor: "#B2D4FF"
+            }
         };
     },
 };

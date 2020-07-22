@@ -19,10 +19,8 @@ export default class AddResident extends Component {
     render() {
         return (
             <div style={{marginLeft: "20px", marginRight: "20px"}}>
-                <Link to="/residentdirectory"><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm"
-                                                      variant="secondary" onClick={() => {
-                    this.setState({addedResident: false})
-                }}>Back</Button></Link>
+                <Link to='/'><Button style={{marginTop: "20px", marginBottom: "20px"}} size="sm"
+                                     variant="secondary">Back</Button></Link>
                 {this.state.addedResident === true ?
                     <div className="alert alert-success alert-dismissible fade show" role="alert">
                         Successfully added resident!
@@ -245,9 +243,6 @@ class AddResidentForm extends Component {
                     marginLeft: "10px"
                 }}>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
-                    {/*<input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
-                           placeholder="Village Name" name="village"
-                           onChange={this.handleChange}/>*/}
                     <Select style={{width: "200px", margin: "10px"}} value={this.state.villageValue} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
                             options={this.state.villages}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>

@@ -26,20 +26,21 @@ async function insert(sql, id, data) {
         await con.query(sql, [id, data[i]]);
 }
 
+const dbConfig = {
+        host: serverHost,
+        user: serverUser,
+        password: serverPassword,
+        database: serverDatabase,
+        port: serverPort
+    };
 
 class Database {
     constructor(config) {
-        this.connection = mysql.createConnection({
-            host: serverHost,
-            user: serverUser,
-            password: serverPassword,
-            database: serverDatabase,
-			port: serverPort
-        });
-        this.connection.connect(function (err) {
-            if (err) throw err;
-            console.log("Connected!");
-        });
+        this.connection = mysql.createPool(dbConfig);
+        // this.connection.connect(function (err) {
+        //     if (err) throw err;
+        //     console.log("Connected!");
+        // });
     }
 
     query(sql, args) {

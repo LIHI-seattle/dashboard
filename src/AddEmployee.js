@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
+import { serverHost } from './commons';
 
 export default class AddEmployee extends Component {
     constructor(props) {
@@ -50,6 +51,7 @@ class AddEmployeeForm extends Component {
         this.state = {
             firstName: "",
             lastName: "",
+            startDate: "",
         };
     }
 
@@ -65,17 +67,16 @@ class AddEmployeeForm extends Component {
 
         var form = document.getElementById("addEmployee");
         if (this.state.firstName === "" ||
-            this.state.lastName === "") {
+            this.state.lastName === "" ||
+            this.state.startDate === "") {
             alert("All fields are required.");
         } else {
             let data = {
                 fName: this.state.firstName,
                 lName: this.state.lastName,
-                birthday: "",
-                roleID: 1,
-                VID: null
+                startDate: this.state.startDate,
             }
-            fetch("http://localhost:4000/residents", {
+            fetch(serverHost + "/employees", {
                 body: JSON.stringify(data),
                 mode: 'cors',
                 headers: {
@@ -116,8 +117,12 @@ class AddEmployeeForm extends Component {
                     <input style={{width: "200px", margin: "10px"}} type="text" className="form-control"
                            placeholder="Last Name" name="lastName"
                            onChange={this.handleChange}/>
+                    <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
+                    <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"
+                           name="startDate"
+                           onChange={this.handleChange}/>
                 </div>
-                <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Submit
+                <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add
                 Employee</Button>
             </form>
         )

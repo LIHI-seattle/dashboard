@@ -12,6 +12,7 @@ class IncidentReport extends Component {
         this.state = {
             people: [],
             villages: [],
+            employees: [],
             incidentDate: "",
             time: "",
             village: "",
@@ -66,8 +67,9 @@ class IncidentReport extends Component {
     componentDidMount() {
         this.getPeople();
         this.getVillages();
-        console.log(this.state.residents);
-        console.log(this.state.villages);
+        this.getEmployees();
+        // console.log(this.state.residents);
+        // console.log(this.state.villages);
     }
 
     getPeople = () =>{
@@ -110,6 +112,28 @@ class IncidentReport extends Component {
               console.log(error)
           });
     };
+
+    getEmployees = () =>{
+        fetch(serverHost + "/employees")
+            .then((res) => {
+                if (res.ok) {
+                    return res.text();
+                } else {
+                    throw new Error(res.message);
+                }
+            })
+            .then((data) => {
+                let employeeArray = JSON.parse(data);
+                let employees = employeeArray.map((item) => ({
+                    label: item.FIRST_NAME + " " + item.LAST_NAME,
+                    value: item.PID
+                }))
+                this.setState({ employees: employees})
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+      };
 
     handleChange = (event) => {
         let nam = event.target.name;
@@ -361,7 +385,7 @@ class IncidentReport extends Component {
                                     className="dropdown" onChange={(event) => {
                                 this.handleDropdownMulti(event, "signature")
                             }} name="signature"
-                                    options={this.state.people}/>
+                                    options={this.state.employees}/>
                         </div>
                         <div className="form-group col-md-5">
                             <label>Today's Date<span className="required">*</span></label>

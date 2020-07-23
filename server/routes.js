@@ -159,7 +159,7 @@ app.route("/employees")
     // gets all employees
     .get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID == 1')
+        con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID = 1')
             .then(rows => {
                 res.status(200).send(JSON.stringify(rows))
             }, err => {
@@ -176,7 +176,7 @@ app.route("/employees")
     // Create a new employee
     .post((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, START_DATE, END_DATE, ROLE_ID) VALUES (?, ?, ?, ?)', [req.body.fName, req.body.lName, req.body.startDate, null, req.body.RoleID])
+        con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, START_DATE, END_DATE, ROLE_ID) VALUES (?, ?, ?, ?, ?)', [req.body.fName, req.body.lName, req.body.startDate, null, 1])
             .then(rows => {
                 res.status(201).send(JSON.stringify(rows));
             }, err => {
@@ -292,7 +292,7 @@ app.route("/residents")
                 personResults = pRows;
                 if (personResults.length < 1) {
                     return con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, START_DATE, END_DATE, VID, GENDER, EMPLOYMENT, IDENTIFICATION, PREVIOUS_RESIDENCE, DISABILITIES, CHILDREN, PREVIOUS_SHELTER_PROGRAM, CRIMINAL_HISTORY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        [newRes.fName, newRes.lName, newRes.birthday, 1, newRes.startDate, null, villageResults[0].VID, newRes.gender, newRes.employment, newRes.identification, newRes.pastResidence, newRes.disabilities, newRes.children, newRes.pastShelter, newRes.criminalHistory])
+                        [newRes.fName, newRes.lName, newRes.birthday, 3, newRes.startDate, null, villageResults[0].VID, newRes.gender, newRes.employment, newRes.identification, newRes.pastResidence, newRes.disabilities, newRes.children, newRes.pastShelter, newRes.criminalHistory])
                 } else {
                     return con.query('SELECT IN_RESIDENCE FROM RESIDENTS WHERE PID = ?', personResults[0].PID);
                 }
@@ -394,8 +394,18 @@ app.route("/residents")
     .delete((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
         let delRes = req.body;
-        con.query('UPDATE RESIDENTS SET END_DATE = ?, IN_RESIDENCE = False WHERE RID = ?', [delRes.endDate, delRes.rid])
+        // Updates the in residence in the residents table
+        con.query('UPDATE RESIDENTS SET IN_RESIDENCE = False WHERE RID = ?', [delRes.rid])
             .then(rows => {
+                res.status(200);
+            }, err => {
+                return Promise.resolve().then(() => {
+                    throw err;
+                })
+            })
+            // Updates the end date in the people table
+            .then(updatePeople => {
+                con.query('UPDATE PEOPLE SET END_DATE = ? WHERE PID = ?', [delRes.endDate, delRes.pid]);
                 res.sendStatus(200);
             }, err => {
                 return Promise.resolve().then(() => {

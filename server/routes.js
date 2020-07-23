@@ -159,7 +159,7 @@ app.route("/employees")
     // gets all employees
     .get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID = 1')
+        con.query('SELECT PID, FIRST_NAME, LAST_NAME FROM PEOPLE WHERE ROLE_ID != 3')
             .then(rows => {
                 res.status(200).send(JSON.stringify(rows))
             }, err => {
@@ -207,7 +207,7 @@ app.route("/employees")
             });
     })
 
-    // Delete person
+    // Delete employee
     .delete((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
         con.query('DELETE FROM PEOPLE WHERE PID = ?', [req.body.PID])

@@ -107,7 +107,7 @@ app.route("/people")
     // Create a new person
     .post((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, START_DATE, VID) VALUES (?, ?, ?, ?, ?, ?)', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.startDate, req.body.VID])
+        con.query('INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, START_DATE, END_DATE, VID) VALUES (?, ?, ?, ?, ?, ?, ?)', [req.body.fName, req.body.lName, req.body.birthday, req.body.RoleID, req.body.startDate, null, req.body.VID])
             .then(rows => {
                 res.status(201).send(JSON.stringify(rows));
             }, err => {
@@ -229,7 +229,7 @@ app.route("/residents")
     // Get all residents
     .get((req, res) => {
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('SELECT RESIDENTS.*, HOUSES.HOUSE_NUM, PEOPLE.*, VILLAGES.NAME AS VILLAGE_NAME, RESIDENTS.IN_RESIDENCE AS ACTIVE, RESIDENTS.END_DATE AS END_DATE FROM RESIDENTS JOIN HOUSES ON RESIDENTS.HOUSE_ID = HOUSES.HOUSE_ID JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID JOIN VILLAGES ON VILLAGES.VID = PEOPLE.VID')
+        con.query('SELECT RESIDENTS.*, HOUSES.HOUSE_NUM, PEOPLE.*, VILLAGES.NAME AS VILLAGE_NAME, RESIDENTS.IN_RESIDENCE AS ACTIVE, PEOPLE.END_DATE AS END_DATE FROM RESIDENTS JOIN HOUSES ON RESIDENTS.HOUSE_ID = HOUSES.HOUSE_ID JOIN PEOPLE ON RESIDENTS.PID = PEOPLE.PID JOIN VILLAGES ON VILLAGES.VID = PEOPLE.VID')
             .then(rows => {
                 res.status(200).json(rows);
                 return Promise.resolve(rows);
@@ -330,7 +330,7 @@ app.route("/residents")
                 } else {
                     personID = personResults[0].PID;
                 }
-                return con.query('INSERT INTO RESIDENTS (PID, HOUSE_ID, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?) ', [personID, houseResults[0].HOUSE_ID, true]);
+                return con.query('INSERT INTO RESIDENTS (PID, HOUSE_ID, IN_RESIDENCE) VALUES (?, ?, ?) ', [personID, houseResults[0].HOUSE_ID, true]);
             }, err => {
                 return Promise.resolve().then(() => {
                     throw err;

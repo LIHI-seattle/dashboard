@@ -3,6 +3,7 @@ import IncidentReport from './IncidentReport'
 import ResidentDirectory from './ResidentDirectory'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AddResident from './AddResident';
+import AddVillage from './AddVillage';
 import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 
@@ -35,6 +36,7 @@ class App extends Component {
                     <Route path='/addresident' component={AddResident}/>
                     <Route path='/residentdirectory' component={ResidentDirectory}/>
                     <Route path='/incidentreport' component={IncidentReport}/>
+                    <Route path='/addvillage' component={AddVillage}/>
                 </Switch>
             </Router>
 
@@ -53,7 +55,8 @@ class HomePage extends Component {
                     justifyContent: "center",
                     alignItems: "center",
                     padding: "10px",
-                    marginTop: "240px"
+                    marginTop: "240px",
+                    marginBottom: "40px"
                 }}>
                     <h1>Welcome to the LIHI Information Database</h1>
                 </div>
@@ -77,6 +80,13 @@ class HomePage extends Component {
                             <Link to="/addresident">
                                 <Button size="lg">
                                     <span>Add Resident</span>
+                                </Button>
+                            </Link>
+                        </Col>
+                        <Col>
+                            <Link to="/addvillage">
+                                <Button size="lg">
+                                    <span>Add Village</span>
                                 </Button>
                             </Link>
                         </Col>

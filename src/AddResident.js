@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
 import Select from "react-select";
+import { serverHost } from './commons';
 
 
 export default class AddResident extends Component {
@@ -9,11 +10,16 @@ export default class AddResident extends Component {
         super(props);
         this.state = {
             addedResident: false,
+            uploadedResidents: false,
         };
     }
 
     updateResidentStatus(status) {
         this.setState({addedResident: status});
+    }
+
+    updateUploadedResidentsStatus(status) {
+      this.setState({uploadedResidents: status});
     }
 
     render() {
@@ -30,6 +36,15 @@ export default class AddResident extends Component {
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div> : <div/>}
+                {this.state.uploadedResidents === true ?
+                  <div className="alert alert-success alert-dismissible fade show" role="alert">
+                      Successfully uploaded file!
+                      <button type="button" className="close" aria-label="Close" onClick={() => {
+                          this.setState({uploadedResidents: false})
+                      }}>
+                          <span aria-hidden="true">&times;</span>
+                      </button>
+                  </div> : <div/>}
                 <div style={{ //title div
                     display: "flex",
                     justifyContent: "center",
@@ -38,7 +53,8 @@ export default class AddResident extends Component {
                     <h1>Add Resident</h1>
                 </div>
                 <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to add.</p>
-                <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)}/>
+                <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)} reupdateData={this.props.reupdateData}/>
+                <UploadResidents fileUpdate={this.updateUploadedResidentsStatus.bind(this)}/>
             </div>
         );
     }
@@ -62,6 +78,8 @@ class AddResidentForm extends Component {
             children: "",
             pastShelter: "",
             criminalHistory: "",
+            villageOptions: [],
+            villageHouses: {},
         };
     }
 
@@ -76,7 +94,7 @@ class AddResidentForm extends Component {
     }
 
     getVillages = () =>{
-        fetch("http://localhost:4000/villages")
+        fetch(serverHost + "/villages")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -85,9 +103,45 @@ class AddResidentForm extends Component {
                 }
             })
             .then((data) => {
-                let villageArray = JSON.parse(data);
-                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
-                this.setState({ villages: villages}) //villages are options and village is the name
+              let villageArray = JSON.parse(data);
+              let prevVillage = -1;
+              let villages = [];
+              let villageHouses = {};
+              let houses = [];
+
+              if (villageArray.length > 0) {
+                let village = {};
+                village.label = villageArray[0].NAME;
+                village.value = villageArray[0].VID;
+                villages.push(village);
+                prevVillage = villageArray[0].VID;
+              }
+
+              villageArray.forEach(house => {
+                if (house.VID !== prevVillage) {
+                  villageHouses[prevVillage] = houses
+                  let houseOption = {}
+                  houseOption.label = house.HOUSE_NUM;
+                  houseOption.value = house.HOUSE_NUM;
+                  houses = [houseOption]
+                  let village = {};
+                  village.label = house.NAME;
+                  village.value = house.VID;
+                  villages.push(village);
+                  prevVillage = house.VID;
+                } else {
+                  let houseOption = {}
+                  houseOption.label = house.HOUSE_NUM;
+                  houseOption.value = house.HOUSE_NUM;
+                  houses.push(houseOption);
+                }
+              });
+              if (villageArray.length > 0) {
+                villageHouses[prevVillage] = houses;
+              }
+
+              console.log(villageHouses);
+              this.setState({ villageHouses: villageHouses, villageOptions: villages}) //villages are options and village is the name
             })
             .catch((error) => {
                 console.log(error)
@@ -95,14 +149,11 @@ class AddResidentForm extends Component {
     };
 
     handleDropdownMulti(option, name) {
-        console.log(option);
-        console.log(name);
-        this.setState(state => {
-            return {
-                villageValue: option,
-                [name]: option.label
-            };
-        });
+      this.setState(state => {
+        return {
+          [name]: option
+        };
+      });
     }
 
     mySubmitHandler = (e) => {
@@ -127,8 +178,8 @@ class AddResidentForm extends Component {
                 fName: this.state.firstName,
                 lName: this.state.lastName,
                 birthday: this.state.birthday,
-                village: this.state.village,
-                house: this.state.house,
+                village: this.state.village.value,
+                house: this.state.house.value,
                 startDate: this.state.startDate,
                 gender: this.state.gender,
                 employment: this.state.employment,
@@ -139,7 +190,7 @@ class AddResidentForm extends Component {
                 pastShelter: this.state.pastShelter,
                 criminalHistory: this.state.criminalHistory
             }
-            fetch("http://localhost:4000/residents", {
+            fetch(serverHost + "/residents", {
                 body: JSON.stringify(data),
                 mode: 'cors',
                 headers: {
@@ -153,7 +204,7 @@ class AddResidentForm extends Component {
                         .then((text) => {
                             alert(text.error);
                         });
-                } else {
+                } else if (response.status === 201) {
                     form.reset();
                     this.props.residentUpdate(true);
                 }
@@ -243,12 +294,13 @@ class AddResidentForm extends Component {
                     marginLeft: "10px"
                 }}>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
-                    <Select style={{width: "200px", margin: "10px"}} value={this.state.villageValue} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
-                            options={this.state.villages}/>
+                    <Select style={{width: "200px", margin: "10px"}} value={this.state.village} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                            options={this.state.villageOptions}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
-                    <input style={{width: "150px", margin: "10px"}} type="text" className="form-control"
-                           placeholder="House Number" name="house"
-                           onChange={this.handleChange}/>
+                    {this.state.village !== "" ?
+                      <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
+                      options={this.state.villageHouses[this.state.village.value]}/> : <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
+                              options={[]}/>}
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
                     <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"
                            name="startDate"
@@ -272,6 +324,50 @@ class AddResidentForm extends Component {
             <Button style={{margin: "15px"}} size="md" type="submit" className="btn btn-primary" value="Submit">Add
                 Resident</Button>
         </form>)
-
     }
+}
+
+
+class UploadResidents extends Component {
+
+
+  mySubmitHandler = (e) => {
+    this.props.fileUpdate(false);
+    e.preventDefault();
+    let form = document.getElementById("bulkResidentUpload")
+    let formData = new FormData()
+    formData.append('fileName', document.getElementById("fileName").files[0])
+    fetch(serverHost + "/sendFile", {
+        method: "POST",
+        headers: {
+            'Accept': 'application/json, text/plain, */*',
+        },
+        body : formData
+    }).then((response) => {
+        if (response.status === 400) {
+            response.json()
+                .then((text) => {
+                    alert(text.error);
+                });
+        } else if (response.status === 201) {
+            form.reset();
+            this.props.fileUpdate(true);
+        }
+    })
+  }
+
+  render() {
+    return (
+      <div>
+        <h4 style={{marginTop: "15px"}}>Bulk Resident Upload</h4>
+        <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only .xlsx Excel files are accepted.</p>
+        <form id="bulkResidentUpload" name="myForm" onSubmit={this.mySubmitHandler}>
+                                  <input id="fileName" name="fileName" type="file"  className="validate" />
+                                  <input className="btn btn-primary" type="submit" value="Submit File"/>
+        </form>
+      </div>
+    )
+
+  }
+
 }

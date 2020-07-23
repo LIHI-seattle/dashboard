@@ -1,8 +1,15 @@
 "use strict";
 var mysql = require("mysql");
 var express = require("express");
+var bodyParser = require('body-parser');
+const excelToJson = require('convert-excel-to-json');
+var multer = require("multer");
+var upload = multer();
 var app = express();
+
 app.use(express.json());
+app.use(bodyParser.json());
+
 const cors = require('cors');
 
 const {
@@ -24,6 +31,11 @@ readline.question(`What's your name?`, (pwd) => {
 async function insert(sql, id, data) {
     for (let i = 0; i < data.length; i++)
         await con.query(sql, [id, data[i]]);
+}
+
+async function insertVillage(sql, numHouses, vid) {
+	for (let i=0; i<numHouses; i++)
+		await con.query(sql, [i + 1, vid, true]);
 }
 
 const dbConfig = {
@@ -169,18 +181,18 @@ app.route("/residents")
         res.setHeader('Access-Control-Allow-Origin', frontendHost);
         let newRes = req.body;
         let villageResults, houseResults, personResults, personID, addedResident;
-        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
         newRes.employment = (newRes.employment == 'true');
         newRes.identification = (newRes.identification == 'true');
         newRes.disabilities = (newRes.disabilities == 'true');
         newRes.children = (newRes.children == 'true');
-        newRes.criminalHistory = (newRes.criminalHistory == 'true');
-        con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
-            // Selects the house if the village is found.
+		newRes.criminalHistory = (newRes.criminalHistory == 'true');
+		// Verify presence of village in db
+        con.query('SELECT VID FROM VILLAGES WHERE VID = ?', newRes.village)
+            // Verify presence of house in db
             .then(rows => {
                 villageResults = rows;
                 if (villageResults.length > 0) {
-                    return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [newRes.house, villageResults[0].VID]);
+                    return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [parseInt(newRes.house), villageResults[0].VID]);
                 } else {
                     return Promise.resolve().then(() => {
                         throw new Error("Bad request: Village not found.");
@@ -190,16 +202,11 @@ app.route("/residents")
                 return Promise.resolve().then(() => {
                     throw err;
                 })
-            })
+			})
             // Selects the person if the house is found.
             .then(houseRows => {
                 houseResults = houseRows;
                 if (houseResults.length > 0) {
-                    if (houseResults[0].VACANT === 0) {
-                        return Promise.resolve().then(() => {
-                            throw new Error('Bad request: House not vacant');
-                        })
-                    }
                     return con.query('SELECT PID FROM PEOPLE WHERE FIRST_NAME = ? AND LAST_NAME = ? AND BIRTHDAY = ?', [newRes.fName, newRes.lName, newRes.birthday]);
                 } else {
                     return Promise.resolve().then(() => {
@@ -430,188 +437,215 @@ app.route("/rooms")
             });
     })
 
-    // Create a new room
-    .post((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('INSERT INTO ROOMS (ROOM_NUM, BLDG_NAME, VID, VACANT) VALUES (?, ?, ?, ?)', [req.body.RoomNum, req.body.BldgName, req.body.VID, req.body.Vacant])
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
-
-    // Update a room
-    .put((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('UPDATE ROOMS SET ROOM_NUM = ?, BLDG_NAME = ?, VID = ?, VACANT = ? WHERE ROOM_ID = ?', [req.body.RoomNum, req.body.BuildingName, req.body.VID, req.body, vacant, req.body.RoomID])
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
-
-    // Delete a room
-    .delete((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('DELETE FROM ROOMS WHERE ROOM_ID = ?', [req.body.RoomID])
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
-
 app.route("/villages")
-    // Get all villages
-    .get((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('SELECT * FROM VILLAGES')
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
+	// Get all villages
+	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('SELECT * FROM VILLAGES')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
+	})
 
-    // Create a new village
-    .post((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [req.body.Name])
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
+	// Create a new village
+	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		let newVillage = req.body;
+		let numHouses = parseInt(newVillage.numHouses);
+		let vid = '';
+		if (isNaN(numHouses)) {
+			res.status(400).json({'error': "Bad request. Number of houses is not a valid integer."});
+		} else {
+			con.query('INSERT INTO VILLAGES (NAME) VALUES (?) ', [newVillage.villageName])
+				.then(rows => {
+					if (rows.insertId) {
+						vid = rows.insertId;
+						let insertHouse = 'INSERT INTO HOUSES (HOUSE_NUM, VID, VACANT) VALUES (?, ?, ?)';
+						return insertVillage(insertHouse, numHouses, vid);
+					} else {
+						return Promise.resolve().then( () => { throw new Error("Bad request: Failed to add village.");} )
+					}
+				}, err => {
+					return con.close().then( () => { throw new Error("Bad request: Village already exists."); } )
+				})
+				.then(result => {
+					res.sendStatus(201);
+				}, err => {
+					return Promise.resolve().then( () => { throw err; } )
+				})
+				.catch( err => {
+					console.log("Error message: " + err.message);
+					if (!err.message.includes("Bad request:")) {
+						res.status(400).json({'error': "Bad request"});
+					} else {
+						res.status(400).json({'error': err.message});
+					}
+				});	
+		}
+	})
 
-    // Update a village
-    .put((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
+	// Update a village
+	.put((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('UPDATE VILLAGES SET NAME = ? WHERE VID = ?', [req.body.Name, req.body.VillageID])
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
+	})
 
-    // Delete a village
-    .delete((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
-            })
-            .catch(err => {
-                res.sendStatus(400);
-                return;
-                // handle the error
-            });
-    })
+	// Delete a village
+	.delete((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('DELETE FROM VILLAGES WHERE VID = ?', [req.body.VillageID],)
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
+			})
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
+	})
 
 
 app.route("/incidentReport")
-    // Add new incident report
-    .post((req, res) => {
-        res.setHeader('Access-Control-Allow-Origin', frontendHost);
-        let incident = req.body;
-        let newIncidentID = "";
-        incident.injury = (incident.injury == 'true');
-        incident.emergencyRoom = (incident.emergencyRoom == 'true');
+	// Add new incident report
+	.post((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		let incident = req.body;
+		let newIncidentID = "";		
+		incident.injury = (incident.injury == 'true');
+		incident.emergencyRoom = (incident.emergencyRoom == 'true');
 		incident.policeReport = (incident.policeReport == 'true');
-        con.query('INSERT INTO INCIDENTS (INVOLVED_NAMES, NOTIFIED_NAMES, OBSERVER_NAMES, FOLLOW_UP, INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID, AUTHOR_SIG, REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [incident.peopleInvolvedNames.join(", "), incident.notifiedNames.join(", "), incident.observersNames.join(", "), incident.followUp, incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.manualSignature, incident.reviewerName, incident.currentDate])
-            .then(rows => {
-                if (rows.insertId) {
-                    newIncidentID = rows.insertId;
-                    let insertPeople = 'INSERT INTO INCIDENTS_PEOPLE (INID, PID) VALUES (?, ?)';
-                    return insert(insertPeople, newIncidentID, incident.peopleInvolved);
-                } else {
-                    return Promise.resolve().then(() => {
-                        throw new Error("Bad request: Failed to add incident.");
-                    })
-                }
-            }, err => {
-                return Promise.resolve().then(() => {
-                    throw err;
-                })
-            })
-            .then(result => {
-                let insertObserver = 'INSERT INTO INCIDENTS_OBSERVER (INID, PID) VALUES (?, ?)';
-                return insert(insertObserver, newIncidentID, incident.observers);
-            }, err => {
-                return Promise.resolve().then(() => {
-                    throw err;
-                })
-            })
-            .then(result => {
-                let insertNotified = 'INSERT INTO INCIDENTS_NOTIFIED (INID, PID) VALUES (?, ?)';
-                return insert(insertNotified, newIncidentID, incident.peopleNotified);
-            }, err => {
-                return Promise.resolve().then(() => {
-                    throw err;
-                })
-            })
-            .then(result => {
-                res.sendStatus(201);
-            })
-            .catch(err => {
-                console.log("Error message: " + err.message);
-                if (!err.message.includes("Bad request:")) {
-                    res.status(400).json({'error': "Bad request"});
-                } else {
-                    res.status(400).json({'error': err.message});
-                }
-            });
-    })
+		con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+					[incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.reviewerName, incident.currentDate])
+			.then(rows => {
+				if (rows.insertId) {
+					newIncidentID = rows.insertId;
+					let insertPeople = 'INSERT INTO INCIDENTS_PEOPLE (INID, PID) VALUES (?, ?)';
+					return insert(insertPeople, newIncidentID, incident.peopleInvolved);
+				} else {
+					return Promise.resolve().then( () => { throw new Error("Bad request: Failed to add incident.");} )
+				}
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(result => {
+				let insertObserver = 'INSERT INTO INCIDENTS_OBSERVER (INID, PID) VALUES (?, ?)';
+				return insert(insertObserver, newIncidentID, incident.observers);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(result => {
+				let insertNotified = 'INSERT INTO INCIDENTS_NOTIFIED (INID, PID) VALUES (?, ?)';
+				return insert(insertNotified, newIncidentID, incident.peopleNotified);
+			}, err => {
+				return Promise.resolve().then( () => { throw err; } )
+			})
+			.then(result => {
+				res.sendStatus(201);
+			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+	})
+
+async function bulkResidentInsert(data) {
+	let retrieveVillageSQL = 'SELECT VID FROM VILLAGES WHERE NAME = ?'
+	let insertPeopleSQL = 'INSERT INTO PEOPLE (FIRST_NAME, LAST_NAME, BIRTHDAY, ROLE_ID, VID, GENDER, EMPLOYMENT, IDENTIFICATION, DISABILITIES, CHILDREN, CRIMINAL_HISTORY) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+	let retrieveHouseSQL = 'SELECT HOUSE_ID FROM HOUSES WHERE VID = ? AND HOUSE_NUM = ?'
+	let insertResidentSQL = 'INSERT INTO RESIDENTS (PID, HOUSE_ID, START_DATE, END_DATE, IN_RESIDENCE) VALUES (?, ?, ?, ?, ?)'
+	try {
+		for (let i = 1; i < data.length; i++) {
+			data[i].employment = (data[i].employment == 'Yes');
+			data[i].identification = (data[i].identification == 'Yes');
+			data[i].disabilities = (data[i].disabilities == 'Yes');
+			data[i].children = (data[i].children == 'Yes');
+			data[i].criminalHistory = (data[i].criminalHistory == 'Yes');
+			let vid = await con.query(retrieveVillageSQL, data[i].village);
+			let houseID = await con.query(retrieveHouseSQL, [vid[0].VID, data[i].house]);
+			let addedPerson = await con.query(insertPeopleSQL, [data[i].firstName, data[i].lastName, data[i].birthday, 3, vid[0].VID, data[i].gender, data[i].employment, data[i].identification, data[i].disabilities, data[i].children, data[i].criminalHistory]);
+			let pid = addedPerson.insertId;
+			let insertResident = await con.query(insertResidentSQL, [pid, houseID[0].HOUSE_ID, data[i].dateOfEntry, null, true]);
+		}
+		return Promise.resolve();
+	} catch (error) {
+		console.log(error);
+		throw error;
+	}
+}
+
+app.post("/sendFile",  upload.single('fileName'), function(req, res){
+	res.setHeader('Access-Control-Allow-Origin', frontendHost);
+	//file contents
+	try {
+		let result = excelToJson({
+			source: req.file.buffer,
+			header:{
+				rows: 1
+			},
+			columnToKey: {
+				A: 'firstName',
+				B: 'lastName',
+				C: 'dateOfEntry',
+				D: 'birthday',
+				E: 'age',
+				F: 'gender',
+				G: 'employment',
+				H: 'identification',
+				I: 'lastResidence',
+				J: 'disabilities',
+				K: 'children',
+				L: 'lastProgram',
+				M: 'criminalHistory',
+				N: 'house',
+				O: 'village'
+			},
+		});
+		let data = result.Sheet1;
+	
+		bulkResidentInsert(data)
+			.then(rows => {
+				res.sendStatus(201);
+				console.log("Successfully uploaded: " + req.file.originalname);
+			}, err => {
+				return Promise.resolve().then( () => { throw new Error('Bad request: Verify document formatting and presence of villages/houses in the database.'); } )
+			})
+			.catch( err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+	} catch {
+		res.status(400).json({'error': "Bad request"});
+	}
+	
+});
+
 
 //seperate incidentRep get request to accept parameter
 //uses PID to find INCID to get the incident and returns that incident

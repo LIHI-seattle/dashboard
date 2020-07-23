@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import './IncidentReport.css'
 import Select from 'react-select';
 import Button from 'react-bootstrap/Button';
-import {Link} from 'react-router-dom';
+import { Link} from 'react-router-dom';
+import { serverHost } from './commons';
 
 
 class IncidentReport extends Component {
@@ -69,8 +70,8 @@ class IncidentReport extends Component {
         console.log(this.state.villages);
     }
 
-    getPeople = () => {
-        fetch("http://localhost:4000/people")
+    getPeople = () =>{
+        fetch(serverHost + "/people")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -91,23 +92,23 @@ class IncidentReport extends Component {
             });
     };
 
-    getVillages = () => {
-        fetch("http://localhost:4000/villages")
-            .then((res) => {
-                if (res.ok) {
-                    return res.text();
-                } else {
-                    throw new Error(res.message);
-                }
-            })
-            .then((data) => {
-                let villageArray = JSON.parse(data);
-                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
-                this.setState({villages: villages})
-            })
-            .catch((error) => {
-                console.log(error)
-            });
+    getVillages = () =>{
+      fetch(serverHost + "/villages")
+          .then((res) => {
+              if (res.ok) {
+                  return res.text();
+              } else {
+                  throw new Error(res.message);
+              }
+          })
+          .then((data) => {
+              let villageArray = JSON.parse(data);
+              let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
+              this.setState({ villages: villages})
+          })
+          .catch((error) => {
+              console.log(error)
+          });
     };
 
     handleChange = (event) => {
@@ -140,52 +141,49 @@ class IncidentReport extends Component {
         if (nullExists) {
             alert("All fields are required");
         } else {
-            let data = this.state;
-            let peopleInvolved = data.peopleInvolved.map(person => person.value);
-            let peopleInvolvedNames = data.peopleInvolved.map(person => person.label);
-            let observersNames = data.observers.map(person => person.label);
-            let notifiedNames = data.peopleNotified.map(person => person.label);
-            let village = data.village.value;
-            let observers = data.observers.map(person => person.value);
-            let notified = data.peopleNotified.map(person => person.value);
-            let signature = data.signature.value;
-            let reviewer = data.reviewerName.value;
-            let names = {
-                peopleInvolvedNames: peopleInvolvedNames,
-                observersNames: observersNames,
-                notifiedNames: notifiedNames
+          let data = this.state;
+          let peopleInvolved = data.peopleInvolved.map(person => person.value);
+          let peopleInvolvedNames = data.peopleInvolved.map(person => person.label);
+          let observersNames = data.observers.map(person => person.label);
+          let notifiedNames = data.peopleNotified.map(person => person.label);
+          let village = data.village.value;
+          let observers = data.observers.map(person => person.value); 
+          let notified = data.peopleNotified.map(person => person.value); 
+          let signature = data.signature.value;
+          let reviewer = data.reviewerName.value; 
+          let names = {peopleInvolvedNames: peopleInvolvedNames,
+                      observersNames: observersNames,
+                      notifiedNames: notifiedNames}
+          console.log("involvedNames: " + peopleInvolvedNames);
+          Object.assign(data, names);
+          console.log("Names: " + data.peopleInvolvedNames);
+          data.peopleInvolved = peopleInvolved;
+          data.village = village;
+          data.observers = observers;
+          data.peopleNotified = notified;
+          data.signature = signature;
+          data.reviewerName = reviewer;
+
+          //  send json object
+          fetch(serverHost + "/incidentReport", {
+              body: JSON.stringify(data),
+              mode: 'cors',
+              headers: {
+                  'Accept': 'application/json, text/plain, */*',
+                  'Content-Type': 'application/json'
+              },
+              method: "post"
+          }).then((response) => {
+            if (response.status === 400) {
+                response.json()
+                .then((text) => {
+                    alert(text.error);
+                });
+            } else if (response.status === 201) {
+              form.reset();
+              update(true);
             }
-            console.log("involvedNames: " + peopleInvolvedNames);
-            Object.assign(data, names);
-            console.log("Names: " + data.peopleInvolvedNames);
-            data.peopleInvolved = peopleInvolved;
-            data.village = village;
-            data.observers = observers;
-            data.peopleNotified = notified;
-            data.signature = signature;
-            data.reviewerName = reviewer;
-
-            //  send json object
-            fetch("http://localhost:4000/incidentReport", {
-                body: JSON.stringify(data),
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                method: "post"
-            }).then((response) => {
-                if (response.status === 400) {
-                    response.json()
-                        .then((text) => {
-                            alert(text.error);
-                        });
-                } else {
-                    form.reset();
-                    update(true);
-
-                }
-            });
+          });
         }
 
     }

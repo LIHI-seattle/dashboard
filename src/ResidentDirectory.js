@@ -70,7 +70,7 @@ class ResidentDirectory extends Component {
             });
 
         //fetch village data
-        fetch("http://localhost:4000/villages")
+        fetch(serverHost + "/villages")
             .then((res) => {
                 if (res.ok) {
                     return res.text();

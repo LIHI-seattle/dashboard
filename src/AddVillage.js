@@ -94,7 +94,6 @@ class AddVillageForm extends Component {
                 } else if (response.status === 201) {
                     form.reset();
                     this.props.villageUpdate(true);
-                    this.props.getVillages();
                 }
             })
         }

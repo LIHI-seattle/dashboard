@@ -441,22 +441,17 @@ app.route("/villages")
 	// Get all villages
 	.get((req, res) => {
 		res.setHeader('Access-Control-Allow-Origin', frontendHost);
-		con.query('SELECT * FROM VILLAGES JOIN HOUSES ON VILLAGES.VID = HOUSES.VID')
-            .then(rows => {
-                res.send(JSON.stringify(rows));
-            }, err => {
-                return con.close().then(() => {
-                    throw err;
-                })
+		con.query('SELECT * FROM VILLAGES')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then( () => { throw err; } )
 			})
-            .catch(err => {
-                console.log("Error message: " + err.message);
-                if (!err.message.includes("Bad request:")) {
-                    res.status(400).json({'error': "Bad request"});
-                } else {
-                    res.status(400).json({'error': err.message});
-                }
-            });
+			.catch( err => {
+				res.sendStatus(400);
+				return;
+				// handle the error
+		});	
 	})
 
 	// Create a new village
@@ -527,6 +522,27 @@ app.route("/villages")
 				// handle the error
 		});	
 	})
+
+app.route("/villageHouses")
+	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('SELECT * FROM VILLAGES JOIN HOUSES ON VILLAGES.VID = HOUSES.VID')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then(() => {
+					throw err;
+				})
+			})
+			.catch(err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+})
 
 
 app.route("/incidentReport")

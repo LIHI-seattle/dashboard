@@ -72,7 +72,7 @@ class AddEmployeeForm extends Component {
                 fName: this.state.firstName,
                 lName: this.state.lastName,
                 birthday: "",
-                roleID: 2,
+                roleID: 1,
                 VID: null
             }
             fetch("http://localhost:4000/residents", {

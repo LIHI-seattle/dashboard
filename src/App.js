@@ -3,6 +3,7 @@ import IncidentReport from './IncidentReport'
 import ResidentDirectory from './ResidentDirectory'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import AddResident from './AddResident';
+import AddVillage from './AddVillage';
 import {BrowserRouter as Router, Route, Switch, Link} from 'react-router-dom';
 import {Container, Row, Col, Button} from 'react-bootstrap';
 
@@ -79,6 +80,13 @@ class HomePage extends Component {
                             <Link to="/addresident">
                                 <Button size="lg">
                                     <span>Add Resident</span>
+                                </Button>
+                            </Link>
+                        </Col>
+                        <Col>
+                            <Link to="/addvillage">
+                                <Button size="lg">
+                                    <span>Add Village</span>
                                 </Button>
                             </Link>
                         </Col>

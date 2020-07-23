@@ -3,7 +3,6 @@ import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
 import Select from 'react-select'
 import { serverHost } from './commons';
-import Select from 'react-select';
 
 export default class AddVillage extends Component {
     constructor(props) {

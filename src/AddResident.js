@@ -78,6 +78,8 @@ class AddResidentForm extends Component {
             children: "",
             pastShelter: "",
             criminalHistory: "",
+            villageOptions: [],
+            villageHouses: {},
         };
     }
 
@@ -101,9 +103,45 @@ class AddResidentForm extends Component {
                 }
             })
             .then((data) => {
-                let villageArray = JSON.parse(data);
-                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
-                this.setState({ villages: villages}) //villages are options and village is the name
+              let villageArray = JSON.parse(data);
+              let prevVillage = -1;
+              let villages = [];
+              let villageHouses = {};
+              let houses = [];
+
+              if (villageArray.length > 0) {
+                let village = {};
+                village.label = villageArray[0].NAME;
+                village.value = villageArray[0].VID;
+                villages.push(village);
+                prevVillage = villageArray[0].VID;
+              }
+
+              villageArray.forEach(house => {
+                if (house.VID !== prevVillage) {
+                  villageHouses[prevVillage] = houses
+                  let houseOption = {}
+                  houseOption.label = house.HOUSE_NUM;
+                  houseOption.value = house.HOUSE_NUM;
+                  houses = [houseOption]
+                  let village = {};
+                  village.label = house.NAME;
+                  village.value = house.VID;
+                  villages.push(village);
+                  prevVillage = house.VID;
+                } else {
+                  let houseOption = {}
+                  houseOption.label = house.HOUSE_NUM;
+                  houseOption.value = house.HOUSE_NUM;
+                  houses.push(houseOption);
+                }
+              });
+              if (villageArray.length > 0) {
+                villageHouses[prevVillage] = houses;
+              }
+
+              console.log(villageHouses);
+              this.setState({ villageHouses: villageHouses, villageOptions: villages}) //villages are options and village is the name
             })
             .catch((error) => {
                 console.log(error)
@@ -111,14 +149,11 @@ class AddResidentForm extends Component {
     };
 
     handleDropdownMulti(option, name) {
-        console.log(option);
-        console.log(name);
-        this.setState(state => {
-            return {
-                villageValue: option,
-                [name]: option.label
-            };
-        });
+      this.setState(state => {
+        return {
+          [name]: option
+        };
+      });
     }
 
     mySubmitHandler = (e) => {
@@ -143,8 +178,8 @@ class AddResidentForm extends Component {
                 fName: this.state.firstName,
                 lName: this.state.lastName,
                 birthday: this.state.birthday,
-                village: this.state.village,
-                house: this.state.house,
+                village: this.state.village.value,
+                house: this.state.house.value,
                 startDate: this.state.startDate,
                 gender: this.state.gender,
                 employment: this.state.employment,
@@ -259,12 +294,13 @@ class AddResidentForm extends Component {
                     marginLeft: "10px"
                 }}>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
-                    <Select style={{width: "200px", margin: "10px"}} value={this.state.villageValue} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
-                            options={this.state.villages}/>
+                    <Select style={{width: "200px", margin: "10px"}} value={this.state.village} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                            options={this.state.villageOptions}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
-                    <input style={{width: "150px", margin: "10px"}} type="text" className="form-control"
-                           placeholder="e.g. 1, 2, 3..." name="house"
-                           onChange={this.handleChange}/>
+                    {this.state.village !== "" ?
+                      <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
+                      options={this.state.villageHouses[this.state.village.value]}/> : <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
+                              options={[]}/>}
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
                     <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"
                            name="startDate"

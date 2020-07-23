@@ -188,13 +188,14 @@ app.route("/residents")
         newRes.identification = (newRes.identification == 'true');
         newRes.disabilities = (newRes.disabilities == 'true');
         newRes.children = (newRes.children == 'true');
-        newRes.criminalHistory = (newRes.criminalHistory == 'true');
-        con.query('SELECT VID FROM VILLAGES WHERE NAME = ?', newRes.village)
-            // Selects the house if the village is found.
+		newRes.criminalHistory = (newRes.criminalHistory == 'true');
+		// Verify presence of village in db
+        con.query('SELECT VID FROM VILLAGES WHERE VID = ?', newRes.village)
+            // Verify presence of house in db
             .then(rows => {
                 villageResults = rows;
                 if (villageResults.length > 0) {
-                    return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [newRes.house, villageResults[0].VID]);
+                    return con.query('SELECT HOUSE_ID FROM HOUSES WHERE HOUSE_NUM = ? AND VID = ?', [parseInt(newRes.house), villageResults[0].VID]);
                 } else {
                     return Promise.resolve().then(() => {
                         throw new Error("Bad request: Village not found.");
@@ -204,7 +205,7 @@ app.route("/residents")
                 return Promise.resolve().then(() => {
                     throw err;
                 })
-            })
+			})
             // Selects the person if the house is found.
             .then(houseRows => {
                 houseResults = houseRows;

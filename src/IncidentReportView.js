@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Select from "react-select";
-import {Container, Row, Col} from 'react-bootstrap';
+import {Container, Row, Col, Button} from 'react-bootstrap';
 
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),
@@ -33,6 +33,11 @@ class IncidentReportView extends Component {
             incidentObj: event.data,
             displayIncRep: true
         });
+    };
+
+    handleBack = () => {
+        console.log("calling IRV back");
+        this.props.backToProfile();
     };
 
     handleBool(bool) {
@@ -79,6 +84,9 @@ class IncidentReportView extends Component {
                             }))}
                             styles={colorStyles}
                     />
+                    <Button style={{margin: "20px"}} size="sm"
+                            onClick={this.handleBack}
+                            variant="secondary">Back To Resident Profile</Button>
                 </div>
 
                 {this.state.displayIncRep &&

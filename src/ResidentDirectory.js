@@ -177,6 +177,14 @@ class ResidentDirectory extends Component {
         return Boolean(bool).toString()
     };
 
+    backToProfile = () => {
+        console.log("calling RD back");
+        this.setState({
+            displayIncRep: false,
+            displayCard: true
+        })
+    };
+
     getDateString = (date) => new Date(Date.parse(date)).toDateString();
 
     isActive = () => (this.state.resident.ACTIVE === 1);
@@ -278,6 +286,7 @@ class ResidentDirectory extends Component {
                 {this.state.displayIncRep &&
                 <div>
                     <IncidentReportView
+                        backToProfile={this.backToProfile}
                         personName={this.state.resident.FIRST_NAME + " " + this.state.resident.LAST_NAME}
                         personID={this.state.resident.PID}/>
                 </div>

@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
-import Select from 'react-select'
 import { serverHost } from './commons';
 
 export default class AddVillage extends Component {
@@ -13,28 +12,6 @@ export default class AddVillage extends Component {
         };
     }
 
-    getVillages = () =>{
-        fetch("http://localhost:4000/villages")
-            .then((res) => {
-                if (res.ok) {
-                    return res.text();
-                } else {
-                    throw new Error(res.message);
-                }
-            })
-            .then((data) => {
-                let villageArray = JSON.parse(data);
-                let villages = villageArray.map((item) => ({label: item.NAME, value: item.VID}));
-                this.setState({ villages: villages})
-            })
-            .catch((error) => {
-                console.log(error)
-            });
-      };
-
-    componentDidMount() {
-        this.getVillages();
-    }
 
     updateVillageStatus(status) {
         this.setState({addedVillage: status});
@@ -63,11 +40,9 @@ export default class AddVillage extends Component {
                 }}>
                     <h1>Add Village</h1>
                 </div>
-                <label>List of Villages</label>
-                  <Select style={{marginBottom: "30px"}} value={this.state.village} id="getVillage" className="dropdown"  name="village"
-                                options={this.state.villages}/>
+                
                 <p style={{marginTop: "30px"}}>Please fill out the following information for the village you wish to add.</p>
-                <AddVillageForm villageUpdate={this.updateVillageStatus.bind(this)} getVillages={this.getVillages.bind(this)}/>
+                <AddVillageForm villageUpdate={this.updateVillageStatus.bind(this)} />
             </div>
         )
     }

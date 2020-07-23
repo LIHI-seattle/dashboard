@@ -94,7 +94,7 @@ class AddResidentForm extends Component {
     }
 
     getVillages = () =>{
-        fetch(serverHost + "/villages")
+        fetch(serverHost + "/villageHouses")
             .then((res) => {
                 if (res.ok) {
                     return res.text();

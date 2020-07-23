@@ -523,6 +523,27 @@ app.route("/villages")
 		});	
 	})
 
+app.route("/villageHouses")
+	.get((req, res) => {
+		res.setHeader('Access-Control-Allow-Origin', frontendHost);
+		con.query('SELECT * FROM VILLAGES JOIN HOUSES ON VILLAGES.VID = HOUSES.VID')
+			.then(rows => {
+				res.send(JSON.stringify(rows));
+			}, err => {
+				return con.close().then(() => {
+					throw err;
+				})
+			})
+			.catch(err => {
+				console.log("Error message: " + err.message);
+				if (!err.message.includes("Bad request:")) {
+					res.status(400).json({'error': "Bad request"});
+				} else {
+					res.status(400).json({'error': err.message});
+				}
+			});
+})
+
 
 app.route("/incidentReport")
 	// Add new incident report

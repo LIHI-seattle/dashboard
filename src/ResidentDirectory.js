@@ -211,7 +211,7 @@ class ResidentDirectory extends Component {
                         alignItems: "center"
                     }}>
                         <p style={{fontSize: "large"}}>Please select a village to see the residents living in that village.
-                            When no village is selected, you can search through all LIHI residents.</p>
+                            When 'All' or no village is selected, you can search through all LIHI residents.</p>
                     </div>
 
 

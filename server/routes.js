@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 const cors = require('cors');
 
-var {
+const {
     serverHost, serverUser, serverPassword,
     serverDatabase, serverPort, frontendHost
 } = require('./common')
@@ -38,20 +38,17 @@ async function insertVillage(sql, numHouses, vid) {
 		await con.query(sql, [i + 1, vid, true]);
 }
 
+const dbConfig = {
+        host: serverHost,
+        user: serverUser,
+        password: serverPassword,
+        database: serverDatabase,
+        port: serverPort
+    };
 
 class Database {
     constructor(config) {
-        this.connection = mysql.createConnection({
-            host: serverHost,
-            user: serverUser,
-            password: serverPassword,
-            database: serverDatabase,
-			port: serverPort
-        });
-        this.connection.connect(function (err) {
-            if (err) throw err;
-            console.log("Connected!");
-        });
+        this.connection = mysql.createPool(dbConfig);
     }
 
     query(sql, args) {
@@ -659,8 +656,6 @@ app.get('/incidentReport/:pid', function (req, res) {
                     'FROM INCIDENTS_PEOPLE JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID JOIN VILLAGES ON VILLAGES.VID = INCIDENTS.VID ' +
                     'JOIN PEOPLE AS RP ON INCIDENTS.REVIEWER_ID = RP.PID JOIN PEOPLE AS AP ON INCIDENTS.AUTHOR_ID = AP.PID WHERE INCIDENTS_PEOPLE.PID = ?',
                     [req.params.pid])
-        //         //JOIN INCIDENTS_OBSERVER ON INCIDENTS_PEOPLE.INID = INCIDENTS_OBSERVER.INID JOIN INCIDENTS_NOTIFIED ON INCIDENTS_PEOPLE.INID = INCIDENTS_NOTIFIED.INID
-        //JOIN INCIDENTS ON INCIDENTS_PEOPLE.INID = INCIDENTS.INID WHERE INCIDENTS_PEOPLE.PID = ?
         .then(rows => {
             res.status(200).json(rows);
             return Promise.resolve(rows);

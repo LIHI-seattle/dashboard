@@ -4,6 +4,7 @@ import './ResidentDirectory.css';
 import {Card, Button} from 'react-bootstrap';
 import {Link, withRouter} from 'react-router-dom';
 import IncidentReportView from "./IncidentReportView";
+import { serverHost } from './commons';
 
 const colorStyles = {
     control: styles => ({...styles, backgroundColor: 'white'}),
@@ -52,8 +53,7 @@ class ResidentDirectory extends Component {
     }
 
     reupdateData = () => {
-        //fetch resident data
-        fetch("http://localhost:4000/residents")
+        fetch(serverHost + "/residents")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -132,7 +132,7 @@ class ResidentDirectory extends Component {
             endDate: new Date().toISOString().slice(0, 10)
         };
         console.log(data);
-        fetch("http://localhost:4000/residents", {
+        fetch(serverHost + "/residents", {
             body: JSON.stringify(data),
             mode: 'cors',
             headers: {

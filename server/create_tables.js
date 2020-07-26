@@ -1,14 +1,20 @@
 var mysql = require('mysql');
 var fs = require('fs');
 var readline = require('readline');
+const {
+    serverHost, serverUser, serverPassword,
+    serverDatabase, serverPort
+} = require('./common')
 
-var myCon = mysql.createConnection({
-	host: "lihi-test-db.mysql.database.azure.com", 
-	user: "lihi_test_admin@lihi-test-db", 
-	password: 'Impact++', 
-	database: 'LIHI',
-	port: 3306
-});
+const dbConfig = {
+        host: serverHost,
+        user: serverUser,
+        password: serverPassword,
+        database: serverDatabase,
+        port: serverPort
+    };
+
+var myCon = mysql.createConnection(dbConfig);
 
 // Drops database to be created again after change to SQL schema
 // var myCon = mysql.createConnection({

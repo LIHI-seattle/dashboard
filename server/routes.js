@@ -664,7 +664,6 @@ app.post("/sendFile",  upload.single('fileName'), function(req, res){
 	} catch {
 		res.status(400).json({'error': "Bad request"});
 	}
-	
 });
 
 

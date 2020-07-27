@@ -39,11 +39,11 @@ async function insertVillage(sql, numHouses, vid) {
 }
 
 const dbConfig = {
-        host: serverHost,
-        user: serverUser,
-        password: serverPassword,
-		database: serverDatabase,
-		port: serverPort
+	host: serverHost,
+	user: serverUser,
+	password: serverPassword,
+	database: serverDatabase,
+	port: serverPort
 };
 
 class Database {

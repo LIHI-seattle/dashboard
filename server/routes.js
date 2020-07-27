@@ -42,9 +42,9 @@ const dbConfig = {
         host: serverHost,
         user: serverUser,
         password: serverPassword,
-        database: serverDatabase,
+		database: serverDatabase,
 		port: serverPort
-    };
+};
 
 class Database {
     constructor(config) {

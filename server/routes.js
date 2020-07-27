@@ -43,7 +43,7 @@ const dbConfig = {
         user: serverUser,
         password: serverPassword,
         database: serverDatabase,
-        port: serverPort
+		port: serverPort
     };
 
 class Database {
@@ -554,8 +554,8 @@ app.route("/incidentReport")
 		incident.injury = (incident.injury == 'true');
 		incident.emergencyRoom = (incident.emergencyRoom == 'true');
 		incident.policeReport = (incident.policeReport == 'true');
-		con.query('INSERT INTO INCIDENTS (INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-					[incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.reviewerName, incident.currentDate])
+		con.query('INSERT INTO INCIDENTS (INVOLVED_NAMES, NOTIFIED_NAMES, OBSERVER_NAMES, FOLLOW_UP, INCIDENT_DATE, TIME, VID, LOCATION, DESCRIPTION, INJURY, INJURY_DESCRIPTION, ER_VISIT, ER_HOSPITAL, POLICE_REPORT, PR_NUMBER, AUTHOR_ID , AUTHOR_SIG, REVIEWER_ID , AUTHOR_DATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+					[incident.peopleInvolvedNames.join(", "), incident.notifiedNames.join(", "), incident.observersNames.join(", "), incident.followUp, incident.incidentDate, incident.time, incident.village, incident.location, incident.description, incident.injury, incident.injuryDescription, incident.emergencyRoom, incident.hospital, incident.policeReport, incident.reportNumber, incident.signature, incident.manualSignature, incident.reviewerName, incident.currentDate])
 			.then(rows => {
 				if (rows.insertId) {
 					newIncidentID = rows.insertId;

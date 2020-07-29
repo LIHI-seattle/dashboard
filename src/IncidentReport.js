@@ -10,8 +10,9 @@ class IncidentReport extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            people: [],
+            residents: [],
             villages: [],
+            employees: [],
             incidentDate: "",
             time: "",
             village: "",
@@ -64,14 +65,15 @@ class IncidentReport extends Component {
     }
 
     componentDidMount() {
-        this.getPeople();
+        this.getResidents();
         this.getVillages();
-        console.log(this.state.residents);
-        console.log(this.state.villages);
+        this.getEmployees();
+        // console.log(this.state.residents);
+        // console.log(this.state.villages);
     }
 
-    getPeople = () =>{
-        fetch(serverHost + "/people")
+    getResidents = () =>{
+        fetch(serverHost + "/residents")
             .then((res) => {
                 if (res.ok) {
                     return res.text();
@@ -81,11 +83,11 @@ class IncidentReport extends Component {
             })
             .then((data) => {
                 let residentArray = JSON.parse(data);
-                let people = residentArray.map((item) => ({
+                let residents = residentArray.map((item) => ({
                     label: item.FIRST_NAME + " " + item.LAST_NAME,
                     value: item.PID
                 }))
-                this.setState({people: people})
+                this.setState({residents: residents})
             })
             .catch((error) => {
                 console.log(error)
@@ -110,6 +112,28 @@ class IncidentReport extends Component {
               console.log(error)
           });
     };
+
+    getEmployees = () =>{
+        fetch(serverHost + "/employees")
+            .then((res) => {
+                if (res.ok) {
+                    return res.text();
+                } else {
+                    throw new Error(res.message);
+                }
+            })
+            .then((data) => {
+                let employeeArray = JSON.parse(data);
+                let employees = employeeArray.map((item) => ({
+                    label: item.FIRST_NAME + " " + item.LAST_NAME,
+                    value: item.PID
+                }))
+                this.setState({ employees: employees})
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+      };
 
     handleChange = (event) => {
         let nam = event.target.name;
@@ -254,7 +278,7 @@ class IncidentReport extends Component {
                                     onChange={(option) => {
                                         this.handleDropdownMulti(option, "peopleInvolved")
                                     }} name="peopleInvolved"
-                                    options={this.state.people} isMulti/>
+                                    options={this.state.residents} isMulti/>
                         </div>
                         <div className="form-group col-md-3">
                             <label>Observers of the Incident<span className="required">*</span></label>
@@ -262,7 +286,7 @@ class IncidentReport extends Component {
                                     onChange={(option) => {
                                         this.handleDropdownMulti(option, "observers")
                                     }} name="observers"
-                                    options={this.state.people} isMulti/>
+                                    options={this.state.residents} isMulti/>
                         </div>
                     </div>
                     <div className="form-row">
@@ -343,7 +367,7 @@ class IncidentReport extends Component {
                         <Select isMulti value={this.state.peopleNotified} className="dropdown" onChange={(event) => {
                             this.handleDropdownMulti(event, "peopleNotified")
                         }} name="peopleNotified"
-                                options={this.state.people}/>
+                                options={this.state.employees}/>
                     </div>
                     <h4>Employee Information</h4>
                     <div className="form-row">
@@ -383,7 +407,7 @@ class IncidentReport extends Component {
                         <Select className="dropdown"
                                 onChange={(event) => this.handleDropdownMulti(event, "reviewerName")}
                                 name="reviewerName"
-                                options={this.state.people}/>
+                                options={this.state.employees}/>
                     </div>
                     <Button style={{marginBottom: "20px"}} size="md" type="submit" className="btn btn-primary"
                             value="Submit">Submit

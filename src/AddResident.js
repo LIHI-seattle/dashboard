@@ -93,6 +93,13 @@ class AddResidentForm extends Component {
         this.setState({[name]: value});
     }
 
+    handleVillageBool(item){
+        if (item === 1) {
+            return "vacant";
+        }
+        return "occupied";
+    }
+
     getVillages = () =>{
         fetch(serverHost + "/villageHouses")
             .then((res) => {
@@ -121,7 +128,7 @@ class AddResidentForm extends Component {
                 if (house.VID !== prevVillage) {
                   villageHouses[prevVillage] = houses
                   let houseOption = {}
-                  houseOption.label = house.HOUSE_NUM;
+                  houseOption.label = house.HOUSE_NUM + " (" + this.handleVillageBool(house.VACANT) + ")";
                   houseOption.value = house.HOUSE_NUM;
                   houses = [houseOption]
                   let village = {};
@@ -131,7 +138,7 @@ class AddResidentForm extends Component {
                   prevVillage = house.VID;
                 } else {
                   let houseOption = {}
-                  houseOption.label = house.HOUSE_NUM;
+                  houseOption.label = house.HOUSE_NUM + " (" + this.handleVillageBool(house.VACANT) + ")";
                   houseOption.value = house.HOUSE_NUM;
                   houses.push(houseOption);
                 }

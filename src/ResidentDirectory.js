@@ -38,6 +38,7 @@ class ResidentDirectory extends Component {
         super(props);
         this.state = {
             startDate: '?',
+            resDropdownLabel: "Select...",
             displayIncRep: false,
             displayCard: false,
             residents: [],
@@ -95,6 +96,7 @@ class ResidentDirectory extends Component {
         this.setState({
             resident: event.resident,
             startDate: this.getDateString(event.resident.START_DATE),
+            resDropdownLabel: event.label.toString(),
             displayCard: true,
             displayIncRep: false
         });
@@ -116,6 +118,7 @@ class ResidentDirectory extends Component {
         this.setState({
             village: event,
             displayCard: false,
+            resDropdownLabel: "Select...",
             displayIncRep: false,
             resident: null,
             filteredResidents: filteredResidentsUpdate
@@ -149,6 +152,7 @@ class ResidentDirectory extends Component {
             } else if (response.status === 200) {
                 this.setState({
                     displayCard: false,
+                    resDropdownLabel: '?',
                     resident: '',
                     startDate: '?'
                 });
@@ -171,6 +175,13 @@ class ResidentDirectory extends Component {
 
     getBoolStr = (bool) => {
         return Boolean(bool).toString()
+    };
+
+    backToProfile = () => {
+        this.setState({
+            displayIncRep: false,
+            displayCard: true
+        })
     };
 
     getDateString = (date) => new Date(Date.parse(date)).toDateString();
@@ -199,7 +210,7 @@ class ResidentDirectory extends Component {
                         alignItems: "center"
                     }}>
                         <p style={{fontSize: "large"}}>Please select a village to see the residents living in that village.
-                            When no village is selected, you can search through all LIHI residents.</p>
+                            When 'All' or no village is selected, you can search through all LIHI residents.</p>
                     </div>
 
 
@@ -218,7 +229,7 @@ class ResidentDirectory extends Component {
 
                         <label style={{marginLeft: "20px"}}><strong>Residents:</strong></label>
                         <Select id="resident-options" size="lg" className="dropdown"
-                                onChange={this.handleChangeResident} 
+                                onChange={this.handleChangeResident} value={{value: "", label: this.state.resDropdownLabel}}
                                 options={this.state.filteredResidents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
                                     resident: item,
@@ -236,7 +247,7 @@ class ResidentDirectory extends Component {
                         <Card style={{width: '30rem', marginTop: "30px"}}>
                             <Card.Body>
                                 <Card.Title>
-                                    <Card.Img variant="top" src="person.png" style={{height: 30, width: 30}}/> 
+                                    <Card.Img variant="top" src="person.png" style={{height: 30, width: 30}}/>
                                     {this.state.resident.FIRST_NAME + " " + this.state.resident.LAST_NAME}
                                 </Card.Title>
                                 <Card.Subtitle
@@ -274,6 +285,7 @@ class ResidentDirectory extends Component {
                 {this.state.displayIncRep &&
                 <div>
                     <IncidentReportView
+                        backToProfile={this.backToProfile}
                         personName={this.state.resident.FIRST_NAME + " " + this.state.resident.LAST_NAME}
                         personID={this.state.resident.PID}/>
                 </div>

@@ -37,7 +37,6 @@ class IncidentReportView extends Component {
     };
 
     handleBack = () => {
-        console.log("calling IRV back");
         this.props.backToProfile();
     };
 

@@ -178,7 +178,6 @@ class ResidentDirectory extends Component {
     };
 
     backToProfile = () => {
-        console.log("calling RD back");
         this.setState({
             displayIncRep: false,
             displayCard: true

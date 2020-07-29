@@ -27,7 +27,7 @@ class IncidentReport extends Component {
             policeReport: "",
             reportNumber: "",
             peopleNotified: [],
-            signature: "",
+            authorId: "",
             manualSignature: "",
             currentDate: "",
             followUp: "",
@@ -54,7 +54,7 @@ class IncidentReport extends Component {
                 policeReport: "",
                 reportNumber: "",
                 peopleNotified: [],
-                signature: "",
+                authorId: "",
                 manualSignature: "",
                 currentDate: "",
                 followUp: "",
@@ -173,7 +173,7 @@ class IncidentReport extends Component {
           let village = data.village.value;
           let observers = data.observers.map(person => person.value); 
           let notified = data.peopleNotified.map(person => person.value); 
-          let signature = data.signature.value;
+          let authorId = data.authorId.value;
           let reviewer = data.reviewerName.value; 
           let names = {peopleInvolvedNames: peopleInvolvedNames,
                       observersNames: observersNames,
@@ -185,7 +185,7 @@ class IncidentReport extends Component {
           data.village = village;
           data.observers = observers;
           data.peopleNotified = notified;
-          data.signature = signature;
+          data.authorId = authorId;
           data.reviewerName = reviewer;
 
           //  send json object
@@ -381,11 +381,11 @@ class IncidentReport extends Component {
                         <div className="form-group col-md-5">
                             <label>Select your name from the dropdown below for confirmation<span
                                 className="required">*</span></label>
-                            <Select value={this.state.signature} placeholder="Electronic signature here"
+                            <Select value={this.state.authorId} placeholder="Electronic signature here"
                                     className="dropdown" onChange={(event) => {
-                                this.handleDropdownMulti(event, "signature")
-                            }} name="signature"
-                                    options={this.state.employees}/>
+                                this.handleDropdownMulti(event, "authorId")
+                            }} name="authorId"
+                                    options={this.state.people}/>
                         </div>
                         <div className="form-group col-md-5">
                             <label>Today's Date<span className="required">*</span></label>

@@ -128,7 +128,7 @@ class AddResidentForm extends Component {
                 if (house.VID !== prevVillage) {
                   villageHouses[prevVillage] = houses
                   let houseOption = {}
-                  houseOption.label = house.HOUSE_NUM + " (" + this.handleVillageBool(house.VACANT) + " )";
+                  houseOption.label = house.HOUSE_NUM + " (" + this.handleVillageBool(house.VACANT) + ")";
                   houseOption.value = house.HOUSE_NUM;
                   houses = [houseOption]
                   let village = {};

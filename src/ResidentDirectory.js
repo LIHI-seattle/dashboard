@@ -27,7 +27,7 @@ const colorStylesResident = {
             backgroundColor: isFocused ? '#B2D4FF' : 'white',
             color: (data.inResidence != null && !data.inResidence) ? 'red' : 'black',
             ":active": {
-                backgroundColor: "white"//"#B2D4FF"
+                backgroundColor: "#B2D4FF"
             }
         };
     },
@@ -38,7 +38,7 @@ class ResidentDirectory extends Component {
         super(props);
         this.state = {
             startDate: '?',
-            cardHeader: "Select...",
+            resDropdownLabel: "Select...",
             displayIncRep: false,
             displayCard: false,
             residents: [],
@@ -96,7 +96,7 @@ class ResidentDirectory extends Component {
         this.setState({
             resident: event.resident,
             startDate: this.getDateString(event.resident.START_DATE),
-            cardHeader: event.label.toString(),
+            resDropdownLabel: event.label.toString(),
             displayCard: true,
             displayIncRep: false
         });
@@ -118,7 +118,7 @@ class ResidentDirectory extends Component {
         this.setState({
             village: event,
             displayCard: false,
-            cardHeader: "Select...",
+            resDropdownLabel: "Select...",
             displayIncRep: false,
             resident: null,
             filteredResidents: filteredResidentsUpdate
@@ -152,7 +152,7 @@ class ResidentDirectory extends Component {
             } else if (response.status === 200) {
                 this.setState({
                     displayCard: false,
-                    cardHeader: '?',
+                    resDropdownLabel: '?',
                     resident: '',
                     startDate: '?'
                 });
@@ -230,7 +230,7 @@ class ResidentDirectory extends Component {
 
                         <label style={{marginLeft: "20px"}}><strong>Residents:</strong></label>
                         <Select id="resident-options" size="lg" className="dropdown"
-                                onChange={this.handleChangeResident} value={{value: "", label: this.state.cardHeader}}
+                                onChange={this.handleChangeResident} value={{value: "", label: this.state.resDropdownLabel}}
                                 options={this.state.filteredResidents.map((item) => ({
                                     label: item.FIRST_NAME + " " + item.LAST_NAME,
                                     resident: item,
@@ -249,7 +249,7 @@ class ResidentDirectory extends Component {
                             <Card.Body>
                                 <Card.Title>
                                     <Card.Img variant="top" src="person.png" style={{height: 30, width: 30}}/>
-                                    {this.state.cardHeader}
+                                    {this.state.resident.FIRST_NAME + " " + this.state.resident.LAST_NAME}
                                 </Card.Title>
                                 <Card.Subtitle
                                     className="mb-2 text-muted">{this.state.resident.GENDER}, {this.getAge()}</Card.Subtitle>

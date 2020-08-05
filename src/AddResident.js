@@ -19,7 +19,7 @@ export default class AddResident extends Component {
     }
 
     updateUploadedResidentsStatus(status) {
-      this.setState({uploadedResidents: status});
+        this.setState({uploadedResidents: status});
     }
 
     render() {
@@ -37,14 +37,14 @@ export default class AddResident extends Component {
                         </button>
                     </div> : <div/>}
                 {this.state.uploadedResidents === true ?
-                  <div className="alert alert-success alert-dismissible fade show" role="alert">
-                      Successfully uploaded file!
-                      <button type="button" className="close" aria-label="Close" onClick={() => {
-                          this.setState({uploadedResidents: false})
-                      }}>
-                          <span aria-hidden="true">&times;</span>
-                      </button>
-                  </div> : <div/>}
+                    <div className="alert alert-success alert-dismissible fade show" role="alert">
+                        Successfully uploaded file!
+                        <button type="button" className="close" aria-label="Close" onClick={() => {
+                            this.setState({uploadedResidents: false})
+                        }}>
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div> : <div/>}
                 <div style={{ //title div
                     display: "flex",
                     justifyContent: "center",
@@ -93,6 +93,13 @@ class AddResidentForm extends Component {
         this.setState({[name]: value});
     }
 
+    handleVillageBool(item){
+        if (item === 1) {
+            return "vacant";
+        }
+        return "occupied";
+    }
+
     getVillages = () =>{
         fetch(serverHost + "/villageHouses")
             .then((res) => {
@@ -103,45 +110,45 @@ class AddResidentForm extends Component {
                 }
             })
             .then((data) => {
-              let villageArray = JSON.parse(data);
-              let prevVillage = -1;
-              let villages = [];
-              let villageHouses = {};
-              let houses = [];
+                let villageArray = JSON.parse(data);
+                let prevVillage = -1;
+                let villages = [];
+                let villageHouses = {};
+                let houses = [];
 
-              if (villageArray.length > 0) {
-                let village = {};
-                village.label = villageArray[0].NAME;
-                village.value = villageArray[0].VID;
-                villages.push(village);
-                prevVillage = villageArray[0].VID;
-              }
-
-              villageArray.forEach(house => {
-                if (house.VID !== prevVillage) {
-                  villageHouses[prevVillage] = houses
-                  let houseOption = {}
-                  houseOption.label = house.HOUSE_NUM;
-                  houseOption.value = house.HOUSE_NUM;
-                  houses = [houseOption]
-                  let village = {};
-                  village.label = house.NAME;
-                  village.value = house.VID;
-                  villages.push(village);
-                  prevVillage = house.VID;
-                } else {
-                  let houseOption = {}
-                  houseOption.label = house.HOUSE_NUM;
-                  houseOption.value = house.HOUSE_NUM;
-                  houses.push(houseOption);
+                if (villageArray.length > 0) {
+                    let village = {};
+                    village.label = villageArray[0].NAME;
+                    village.value = villageArray[0].VID;
+                    villages.push(village);
+                    prevVillage = villageArray[0].VID;
                 }
-              });
-              if (villageArray.length > 0) {
-                villageHouses[prevVillage] = houses;
-              }
 
-              console.log(villageHouses);
-              this.setState({ villageHouses: villageHouses, villageOptions: villages}) //villages are options and village is the name
+                villageArray.forEach(house => {
+                    if (house.VID !== prevVillage) {
+                        villageHouses[prevVillage] = houses
+                        let houseOption = {}
+                        houseOption.label = house.HOUSE_NUM + " (" + this.handleVillageBool(house.VACANT) + ")";
+                        houseOption.value = house.HOUSE_NUM;
+                        houses = [houseOption]
+                        let village = {};
+                        village.label = house.NAME;
+                        village.value = house.VID;
+                        villages.push(village);
+                        prevVillage = house.VID;
+                    } else {
+                        let houseOption = {}
+                        houseOption.label = house.HOUSE_NUM + " (" + this.handleVillageBool(house.VACANT) + ")";
+                        houseOption.value = house.HOUSE_NUM;
+                        houses.push(houseOption);
+                    }
+                });
+                if (villageArray.length > 0) {
+                    villageHouses[prevVillage] = houses;
+                }
+
+                console.log(villageHouses);
+                this.setState({ villageHouses: villageHouses, villageOptions: villages}) //villages are options and village is the name
             })
             .catch((error) => {
                 console.log(error)
@@ -149,11 +156,11 @@ class AddResidentForm extends Component {
     };
 
     handleDropdownMulti(option, name) {
-      this.setState(state => {
-        return {
-          [name]: option
-        };
-      });
+        this.setState(state => {
+            return {
+                [name]: option
+            };
+        });
     }
 
     mySubmitHandler = (e) => {
@@ -298,9 +305,9 @@ class AddResidentForm extends Component {
                             options={this.state.villageOptions}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
                     {this.state.village !== "" ?
-                      <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
-                      options={this.state.villageHouses[this.state.village.value]}/> : <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
-                              options={[]}/>}
+                        <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
+                                options={this.state.villageHouses[this.state.village.value]}/> : <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
+                                                                                                         options={[]}/>}
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
                     <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"
                            name="startDate"
@@ -331,43 +338,43 @@ class AddResidentForm extends Component {
 class UploadResidents extends Component {
 
 
-  mySubmitHandler = (e) => {
-    this.props.fileUpdate(false);
-    e.preventDefault();
-    let form = document.getElementById("bulkResidentUpload")
-    let formData = new FormData()
-    formData.append('fileName', document.getElementById("fileName").files[0])
-    fetch(serverHost + "/sendFile", {
-        method: "POST",
-        headers: {
-            'Accept': 'application/json, text/plain, */*',
-        },
-        body : formData
-    }).then((response) => {
-        if (response.status === 400) {
-            response.json()
-                .then((text) => {
-                    alert(text.error);
-                });
-        } else if (response.status === 201) {
-            form.reset();
-            this.props.fileUpdate(true);
-        }
-    })
-  }
+    mySubmitHandler = (e) => {
+        this.props.fileUpdate(false);
+        e.preventDefault();
+        let form = document.getElementById("bulkResidentUpload")
+        let formData = new FormData()
+        formData.append('fileName', document.getElementById("fileName").files[0])
+        fetch(serverHost + "/sendFile", {
+            method: "POST",
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+            },
+            body : formData
+        }).then((response) => {
+            if (response.status === 400) {
+                response.json()
+                    .then((text) => {
+                        alert(text.error);
+                    });
+            } else if (response.status === 201) {
+                form.reset();
+                this.props.fileUpdate(true);
+            }
+        })
+    }
 
-  render() {
-    return (
-      <div>
-        <h4 style={{marginTop: "15px"}}>Bulk Resident Upload</h4>
-        <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only .xlsx Excel files are accepted.</p>
-        <form id="bulkResidentUpload" name="myForm" onSubmit={this.mySubmitHandler}>
-                                  <input id="fileName" name="fileName" type="file"  className="validate" />
-                                  <input className="btn btn-primary" type="submit" value="Submit File"/>
-        </form>
-      </div>
-    )
+    render() {
+        return (
+            <div>
+                <h4 style={{marginTop: "15px"}}>Bulk Resident Upload</h4>
+                <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only .xlsx Excel files are accepted.</p>
+                <form id="bulkResidentUpload" name="myForm" onSubmit={this.mySubmitHandler}>
+                    <input id="fileName" name="fileName" type="file"  className="validate" />
+                    <input className="btn btn-primary" type="submit" value="Submit File"/>
+                </form>
+            </div>
+        )
 
-  }
+    }
 
 }

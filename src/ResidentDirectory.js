@@ -201,7 +201,7 @@ class ResidentDirectory extends Component {
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
-                        marginBottom: "10px"
+                        marginBottom: "5px"
                     }}>
                         <h1>Resident Directory</h1>
                     </div>

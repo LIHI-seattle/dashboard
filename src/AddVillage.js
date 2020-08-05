@@ -40,8 +40,8 @@ export default class AddVillage extends Component {
                 }}>
                     <h1>Add Village</h1>
                 </div>
-                
-                <p style={{marginTop: "30px"}}>Please fill out the following information for the village you wish to add.</p>
+
+                <p style={{fontSize: "large"}}>Please fill out the following information for the village you wish to add.</p>
                 <AddVillageForm villageUpdate={this.updateVillageStatus.bind(this)} />
             </div>
         )

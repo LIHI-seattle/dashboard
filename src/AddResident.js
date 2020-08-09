@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import Button from "react-bootstrap/Button";
 import {Link} from 'react-router-dom';
 import Select from "react-select";
-import { serverHost } from './commons';
+import {serverHost} from './commons';
 
 
 export default class AddResident extends Component {
@@ -52,8 +52,10 @@ export default class AddResident extends Component {
                 }}>
                     <h1>Add Resident</h1>
                 </div>
-                <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to add.</p>
-                <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)} reupdateData={this.props.reupdateData}/>
+                <p style={{fontSize: "large"}}>Please fill out the following information for the resident you wish to
+                    add.</p>
+                <AddResidentForm residentUpdate={this.updateResidentStatus.bind(this)}
+                                 reupdateData={this.props.reupdateData}/>
                 <UploadResidents fileUpdate={this.updateUploadedResidentsStatus.bind(this)}/>
             </div>
         );
@@ -93,14 +95,14 @@ class AddResidentForm extends Component {
         this.setState({[name]: value});
     }
 
-    handleVillageBool(item){
+    handleVillageBool(item) {
         if (item === 1) {
             return "vacant";
         }
         return "occupied";
     }
 
-    getVillages = () =>{
+    getVillages = () => {
         fetch(serverHost + "/villageHouses")
             .then((res) => {
                 if (res.ok) {
@@ -148,7 +150,7 @@ class AddResidentForm extends Component {
                 }
 
                 console.log(villageHouses);
-                this.setState({ villageHouses: villageHouses, villageOptions: villages}) //villages are options and village is the name
+                this.setState({villageHouses: villageHouses, villageOptions: villages}) //villages are options and village is the name
             })
             .catch((error) => {
                 console.log(error)
@@ -301,13 +303,23 @@ class AddResidentForm extends Component {
                     marginLeft: "10px"
                 }}>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Village Name:</label>
-                    <Select style={{width: "200px", margin: "10px"}} value={this.state.village} id="getVillage" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "village")}} name="village"
+                    <Select style={{width: "200px", margin: "10px"}} value={this.state.village} id="getVillage"
+                            className="dropdown" onChange={(option) => {
+                        this.handleDropdownMulti(option, "village")
+                    }} name="village"
                             options={this.state.villageOptions}/>
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>House Number:</label>
                     {this.state.village !== "" ?
-                        <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
-                                options={this.state.villageHouses[this.state.village.value]}/> : <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse" className="dropdown" onChange={(option) => {this.handleDropdownMulti(option, "house")}} name="house"
-                                                                                                         options={[]}/>}
+                        <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse"
+                                className="dropdown" onChange={(option) => {
+                            this.handleDropdownMulti(option, "house")
+                        }} name="house"
+                                options={this.state.villageHouses[this.state.village.value]}/> :
+                        <Select style={{width: "200px", margin: "10px"}} value={this.state.house} id="getHouse"
+                                className="dropdown" onChange={(option) => {
+                            this.handleDropdownMulti(option, "house")
+                        }} name="house"
+                                options={[]}/>}
                     <label style={{paddingRight: "0px", paddingLeft: "10px"}}>Entry Date:</label>
                     <input style={{width: "175px", margin: "10px"}} type="date" className="form-control"
                            name="startDate"
@@ -349,7 +361,7 @@ class UploadResidents extends Component {
             headers: {
                 'Accept': 'application/json, text/plain, */*',
             },
-            body : formData
+            body: formData
         }).then((response) => {
             if (response.status === 400) {
                 response.json()
@@ -367,9 +379,10 @@ class UploadResidents extends Component {
         return (
             <div>
                 <h4 style={{marginTop: "15px"}}>Bulk Resident Upload</h4>
-                <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only .xlsx Excel files are accepted.</p>
+                <p style={{fontSize: "large"}}>Please use this form to upload more than one resident at a time. Only
+                    .xlsx Excel files are accepted.</p>
                 <form id="bulkResidentUpload" name="myForm" onSubmit={this.mySubmitHandler}>
-                    <input id="fileName" name="fileName" type="file"  className="validate" />
+                    <input id="fileName" name="fileName" type="file" className="validate"/>
                     <input className="btn btn-primary" type="submit" value="Submit File"/>
                 </form>
             </div>

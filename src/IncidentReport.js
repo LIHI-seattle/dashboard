@@ -385,7 +385,7 @@ class IncidentReport extends Component {
                                     className="dropdown" onChange={(event) => {
                                 this.handleDropdownMulti(event, "authorId")
                             }} name="authorId"
-                                    options={this.state.people}/>
+                                    options={this.state.employees}/>
                         </div>
                         <div className="form-group col-md-5">
                             <label>Today's Date<span className="required">*</span></label>
